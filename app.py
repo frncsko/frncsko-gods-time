@@ -17,7 +17,7 @@ try:
         bg_css = f"""
         .stApp {{
             background-image: linear-gradient(rgba(14, 14, 16, 0.85), rgba(14, 14, 16, 0.85)), 
-                              url("data:image/png;base64,{imagen_base64}");
+                    url("data:image/png;base64,{imagen_base64}");
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -30,92 +30,31 @@ except FileNotFoundError:
     }
     """
 
-# 3. Estilo CSS personalizado
-st.markdown(
-    f"""
-    <style>
-    {bg_css}
-    .stApp {{ color: #E0E0E0; }}
-    h1, h2, h3 {{
-        color: #D4AF37 !important;
-        font-family: 'Helvetica Neue', sans-serif;
-        font-weight: 700;
-        letter-spacing: 1px;
-    }}
-    h4, h5, h6, p, label, span {{ color: #E0E0E0 !important; }}
-    div[data-testid="stMetric"] {{
-        background-color: #1A1A1E;
-        border: 1px solid #D4AF37;
-        border-radius: 8px;
-        padding: 15px;
-        box-shadow: 0 4px 10px rgba(212, 175, 55, 0.15);
-    }}
-    div[data-testid="stMetricLabel"] p {{ color: #C0C0C0 !important; }}
-    div[data-testid="stMetricValue"] div {{ color: #F3E5AB !important; }}
-    .stButton > button {{
-        background-color: #D4AF37 !important;
-        color: #000000 !important;
-        font-weight: bold !important;
-        border: none !important;
-        border-radius: 6px !important;
-        transition: all 0.3s ease;
-    }}
-    .stButton > button:hover {{
-        background-color: #F3E5AB !important;
-        box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
-    }}
-    div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {{
-        background-color: #1A1A1E !important;
-        border: 1px solid #444444 !important;
-        color: #FFFFFF !important;
-        border-radius: 6px;
-    }}
-    div[data-baseweb="input"] > div:focus-within, div[data-baseweb="select"] > div:focus-within {{
-        border-color: #D4AF37 !important;
-    }}
-    input {{ color: #FFFFFF !important; }}
-    div[data-testid="stExpander"] {{
-        background-color: #161619 !important;
-        border: 1px solid #333333 !important;
-        border-radius: 8px;
-    }}
-    div[data-testid="stExpander"]:hover {{ border-color: #D4AF37 !important; }}
-    div[data-testid="stExpander"] summary span {{
-        color: #D4AF37 !important;
-        font-weight: bold;
-    }}
-    div[data-testid="stDataFrame"] {{
-        border: 1px solid #333333;
-        border-radius: 6px;
-    }}
-    hr {{
-        border-color: #D4AF37 !important;
-        opacity: 0.3;
-    }}
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+# Inyectar el estilo de fondo
+st.markdown(f"<style>{bg_css}</style>", unsafe_allow_html=True)
 
-# Configuración de WhatsApp del Administrador/Barbería (Reemplazar con tu número con código de país)
+# Configuración de WhatsApp del Administrador/Barbería
 NUMERO_WHATSAPP_ADMIN = "584125205165"
 
 USUARIOS_VALIDOS = {
-    "admin": "godstime123",
+    "admin": "admin",
     "francisco": "barbero1",
     "jonder": "barbero2",
 }
 
 lista_barberos = ["Barbero Francisco", "Barbero Jonder"]
-servicios_lista = [
-    "CORTE",
-    "BARBA",
-    "CORTE / BARBA",
-    "Corte + Cejas",
-    "Corte + Barba + Cejas (VIP)",
-]
 
-# Inicialización de Estados
+# Diccionario de servicios con sus precios predeterminados en dólares ($)
+SERVICIOS_PRECIOS = {
+    "CORTE": 8.0,
+    "BARBA": 3.0,
+    "CORTE / BARBA": 10.0,
+    "Corte + Barba + Cejas (VIP)": 12.0,
+    "MASCARILLA FACIAL": 1.0,
+}
+servicios_lista = list(SERVICIOS_PRECIOS.keys())
+
+# Inicialización de Estados (Historial de servicios en cero)
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 if "usuario_actual" not in st.session_state:
@@ -143,6 +82,7 @@ if "citas" not in st.session_state:
             "Teléfono",
             "Barbero",
             "Servicio",
+            "Precio Estimado ($)",
             "Estado",
         ]
     )
@@ -168,7 +108,6 @@ if not st.session_state.autenticado:
 
     col_centered = st.columns([1, 2, 1])
     with col_centered[1]:
-        # Formulario de Cita Pública
         if st.session_state.ver_agendar_publico:
             st.subheader("📅 Agendar Cita de Barbería")
             st.write(
@@ -181,7 +120,10 @@ if not st.session_state.autenticado:
                     "Tu Número de WhatsApp (ej. +584121234567)"
                 )
                 barbero_pub = st.selectbox("Selecciona Barbero", lista_barberos)
+                
                 serv_pub = st.selectbox("Servicio Deseado", servicios_lista)
+                precio_sugerido_pub = SERVICIOS_PRECIOS.get(serv_pub, 0.0)
+                st.caption(f"💵 Precio automático: ${precio_sugerido_pub:,.2f}")
 
                 col_f_p, col_h_p = st.columns(2)
                 with col_f_p:
@@ -202,6 +144,7 @@ if not st.session_state.autenticado:
                             "Teléfono": [tel_pub],
                             "Barbero": [barbero_pub],
                             "Servicio": [serv_pub],
+                            "Precio Estimado ($)": [precio_sugerido_pub],
                             "Estado": ["Pendiente (Online)"],
                         }
                     )
@@ -209,13 +152,13 @@ if not st.session_state.autenticado:
                         [st.session_state.citas, nueva_cita], ignore_index=True
                     )
 
-                    # Generar enlace directo a WhatsApp para notificar a la barbería
+                    svg_wsp = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 6px;"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.601 2.326zm-5.607 12.1a6.56 6.56 0 0 1-3.355-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.644-.182-.065-.315-.099-.445.099-.13.197-.506.644-.62.778-.114.133-.228.148-.425.05-.197-.1-.83-.306-1.583-.976-.585-.522-.982-1.166-1.096-1.363-.114-.197-.012-.304.087-.403.089-.088.197-.228.295-.342.1-.114.133-.197.198-.327.065-.13.032-.248-.016-.347-.049-.099-.445-1.072-.61-1.47-.16-.389-.323-.335-.445-.342l-.38-.008c-.13 0-.342.049-.522.248-.18.198-.695.678-.695 1.654 0 .976.712 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.837.327 1.124.418.475.152.908.13 1.25.079.382-.057 1.17-.478 1.335-.94.165-.463.165-.86.115-.94-.05-.079-.182-.13-.38-.228z"/></svg>'
                     mensaje_wsp = urllib.parse.quote(
                         f"💈 *NUEVA CITA AGENDADA EN LÍNEA*\n\n"
                         f"👤 *Cliente:* {cli_pub}\n"
                         f"📱 *Teléfono:* {tel_pub}\n"
                         f"✂️ *Barbero:* {barbero_pub}\n"
-                        f"💈 *Servicio:* {serv_pub}\n"
+                        f"💈 *Servicio:* {serv_pub} (${precio_sugerido_pub:,.2f})\n"
                         f"📅 *Fecha y Hora:* {fecha_hora_str}"
                     )
                     wsp_link = (
@@ -224,7 +167,7 @@ if not st.session_state.autenticado:
 
                     st.success("¡Cita registrada con éxito en el sistema!")
                     st.markdown(
-                        f'<a href="{wsp_link}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:12px 20px; border-radius:6px; font-weight:bold; width:100%; cursor:pointer; font-size:1.1em;">💬 Haz Clic Aquí para Notificar por WhatsApp</button></a>',
+                        f'<a href="{wsp_link}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:12px 20px; border-radius:6px; font-weight:bold; width:100%; cursor:pointer; font-size:1.1em; display:flex; align-items:center; justify-content:center;">{svg_wsp} Notificar por WhatsApp</button></a>',
                         unsafe_allow_html=True,
                     )
 
@@ -233,7 +176,6 @@ if not st.session_state.autenticado:
                 st.session_state.ver_agendar_publico = False
                 st.rerun()
 
-        # Inicio de Sesión
         else:
             st.subheader("🔑 Iniciar Sesión")
             with st.form("form_login"):
@@ -259,6 +201,19 @@ if not st.session_state.autenticado:
 
             st.markdown("---")
             st.write("¿Eres cliente y quieres reservar un turno?")
+
+            svg_wsp = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 6px;"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.601 2.326zm-5.607 12.1a6.56 6.56 0 0 1-3.355-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.644-.182-.065-.315-.099-.445.099-.13.197-.506.644-.62.778-.114.133-.228.148-.425.05-.197-.1-.83-.306-1.583-.976-.585-.522-.982-1.166-1.096-1.363-.114-.197-.012-.304.087-.403.089-.088.197-.228.295-.342.1-.114.133-.197.198-.327.065-.13.032-.248-.016-.347-.049-.099-.445-1.072-.61-1.47-.16-.389-.323-.335-.445-.342l-.38-.008c-.13 0-.342.049-.522.248-.18.198-.695.678-.695 1.654 0 .976.712 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.837.327 1.124.418.475.152.908.13 1.25.079.382-.057 1.17-.478 1.335-.94.165-.463.165-.86.115-.94-.05-.079-.182-.13-.38-.228z"/></svg>'
+            wsp_menu_link = (
+                f"https://wa.me/{NUMERO_WHATSAPP_ADMIN}?text="
+                + urllib.parse.quote(
+                    "Hola, quisiera consultar disponibilidad o agendar una cita en Barbería Gods Time."
+                )
+            )
+            st.markdown(
+                f'<a href="{wsp_menu_link}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:10px 15px; border-radius:6px; font-weight:bold; width:100%; cursor:pointer; font-size:1em; display:flex; align-items:center; justify-content:center; margin-bottom: 10px;">{svg_wsp} Escríbenos al WhatsApp</button></a>',
+                unsafe_allow_html=True,
+            )
+
             if st.button("📅 Agendar Cita Aquí (Público)"):
                 st.session_state.ver_agendar_publico = True
                 st.rerun()
@@ -278,8 +233,10 @@ with st.sidebar:
     st.subheader("📌 Menú Principal")
 
     opciones_menu = [
-        "📊 Caja y Resumen",
+        "💵 Caja y Resumen",
         "✂️ Registrar Servicio",
+        "✂️ Historial Francisco",
+        "✂️ Historial Jonder",
         "📅 Agendar Citas",
         "⏰ Recordatorio de Cortes",
         "👥 Barberos y Comisión",
@@ -288,6 +245,26 @@ with st.sidebar:
     ]
 
     opcion_menu = st.radio("", opciones_menu)
+
+    # Restringir la opción de Reiniciar Datos solo para Administrador y Francisco (Oculto para Jonder)
+    if st.session_state.usuario_actual in ["Admin", "Francisco"]:
+        st.markdown("---")
+        st.subheader("⚙️ Configuración")
+        if st.button("🔄 Reiniciar Todos los Datos"):
+            st.session_state.servicios_realizados = pd.DataFrame(
+                columns=["Fecha", "Cliente", "Teléfono", "Barbero", "Servicio", "Precio ($)"]
+            )
+            st.session_state.citas = pd.DataFrame(
+                columns=["Fecha y Hora", "Cliente", "Teléfono", "Barbero", "Servicio", "Precio Estimado ($)", "Estado"]
+            )
+            st.session_state.gastos_barberia = pd.DataFrame(
+                columns=["Fecha", "Barbero / Asignación", "Descripción", "Monto ($)"]
+            )
+            st.session_state.fiados = pd.DataFrame(
+                columns=["Cliente", "Teléfono", "Deuda Pendiente ($)", "Estado"]
+            )
+            st.success("¡Historial y datos reiniciados con éxito!")
+            st.rerun()
 
 # --- SISTEMA PRINCIPAL (ADMINISTRACIÓN) ---
 st.title("💈 BARBERÍA GODS TIME")
@@ -298,8 +275,9 @@ st.markdown(
 st.markdown("---")
 
 opcion_index = opciones_menu.index(opcion_menu)
+svg_wsp = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 6px;"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.601 2.326zm-5.607 12.1a6.56 6.56 0 0 1-3.355-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.644-.182-.065-.315-.099-.445.099-.13.197-.506.644-.62.778-.114.133-.228.148-.425.05-.197-.1-.83-.306-1.583-.976-.585-.522-.982-1.166-1.096-1.363-.114-.197-.012-.304.087-.403.089-.088.197-.228.295-.342.1-.114.133-.197.198-.327.065-.13.032-.248-.016-.347-.049-.099-.445-1.072-.61-1.47-.16-.389-.323-.335-.445-.342l-.38-.008c-.13 0-.342.049-.522.248-.18.198-.695.678-.695 1.654 0 .976.712 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.837.327 1.124.418.475.152.908.13 1.25.079.382-.057 1.17-.478 1.335-.94.165-.463.165-.86.115-.94-.05-.079-.182-.13-.38-.228z"/></svg>'
 
-# 1. CAJA Y RESUMEN GENERAL
+# 0. CAJA Y RESUMEN GENERAL
 if opcion_index == 0:
     st.header("Caja del Día y Resumen Financiero")
 
@@ -324,21 +302,26 @@ if opcion_index == 0:
     if not df_servicios.empty:
         st.dataframe(df_servicios, use_container_width=True)
     else:
-        st.info("Aún no se han registrado servicios hoy.")
+        st.info("Aún no se han registrado servicios hoy (Historial en cero).")
 
-# 2. REGISTRAR SERVICIO
+# 1. REGISTRAR SERVICIO
 elif opcion_index == 1:
     st.header("Registrar Nuevo Corte o Servicio")
 
+    cliente_corte = st.text_input("Nombre del Cliente")
+    telefono_corte = st.text_input("Número de Teléfono (ej. +584121234567)")
+    barbero_asigna = st.selectbox("Barbero que atendió", lista_barberos)
+    
+    tipo_servicio = st.selectbox("Servicio Realizado", servicios_lista, key="select_servicio_reg")
+    
+    precio_sugerido = SERVICIOS_PRECIOS.get(tipo_servicio, 0.0)
+    
     with st.form("form_servicio"):
-        cliente_corte = st.text_input("Nombre del Cliente")
-        telefono_corte = st.text_input(
-            "Número de Teléfono (ej. +584121234567)"
-        )
-        barbero_asigna = st.selectbox("Barbero que atendió", lista_barberos)
-        tipo_servicio = st.selectbox("Servicio Realizado", servicios_lista)
         precio_servicio = st.number_input(
-            "Precio Cobrado ($)", min_value=0.0, step=1.0
+            "Precio Cobrado ($) (Se actualiza automáticamente al cambiar el servicio)",
+            min_value=0.0,
+            step=1.0,
+            value=precio_sugerido,
         )
 
         submit_servicio = st.form_submit_button("✂️ Registrar Servicio")
@@ -363,20 +346,98 @@ elif opcion_index == 1:
             st.success("¡Servicio registrado con éxito!")
             st.rerun()
 
-# 3. AGENDAR CITAS (ADMIN)
+# 2. HISTORIAL FRANCISCO
 elif opcion_index == 2:
+    st.header("✂️ Historial y Trabajo - Barbero Francisco")
+    st.write("Consulta el detalle exacto de cada servicio, producción y estadísticas del Barbero Francisco.")
+
+    df_serv = st.session_state.servicios_realizados
+    barbero_seleccionado = "Barbero Francisco"
+    df_barbero = df_serv[df_serv["Barbero"] == barbero_seleccionado] if not df_serv.empty else pd.DataFrame()
+
+    st.markdown("---")
+
+    if not df_barbero.empty:
+        total_barbero = df_barbero["Precio ($)"].sum()
+        cantidad_cortes = len(df_barbero)
+
+        col_b1, col_b2 = st.columns(2)
+        col_b1.metric("Total Generado (Francisco)", f"${total_barbero:,.2f}")
+        col_b2.metric("Servicios Realizados", f"{cantidad_cortes} servicios")
+
+        st.write("")
+        st.subheader("📋 Historial de Servicios")
+        st.dataframe(
+            df_barbero[["Fecha", "Cliente", "Teléfono", "Servicio", "Precio ($)"]],
+            use_container_width=True,
+        )
+
+        st.markdown("---")
+        st.subheader("📊 Tipos de Servicios Realizados")
+        conteo_serv_barb = df_barbero["Servicio"].value_counts().reset_index()
+        conteo_serv_barb.columns = ["Servicio", "Cantidad"]
+        st.bar_chart(conteo_serv_barb.set_index("Servicio"))
+    else:
+        st.info("El barbero **Barbero Francisco** aún no tiene servicios registrados.")
+
+# 3. HISTORIAL JONDER
+elif opcion_index == 3:
+    st.header("✂️ Historial y Trabajo - Barbero Jonder")
+    st.write("Consulta el detalle exacto de cada servicio, producción y estadísticas del Barbero Jonder.")
+
+    df_serv = st.session_state.servicios_realizados
+    barbero_seleccionado = "Barbero Jonder"
+    df_barbero = df_serv[df_serv["Barbero"] == barbero_seleccionado] if not df_serv.empty else pd.DataFrame()
+
+    st.markdown("---")
+
+    if not df_barbero.empty:
+        total_barbero = df_barbero["Precio ($)"].sum()
+        cantidad_cortes = len(df_barbero)
+
+        col_b1, col_b2 = st.columns(2)
+        col_b1.metric("Total Generado (Jonder)", f"${total_barbero:,.2f}")
+        col_b2.metric("Servicios Realizados", f"{cantidad_cortes} servicios")
+
+        st.write("")
+        st.subheader("📋 Historial de Servicios")
+        st.dataframe(
+            df_barbero[["Fecha", "Cliente", "Teléfono", "Servicio", "Precio ($)"]],
+            use_container_width=True,
+        )
+
+        st.markdown("---")
+        st.subheader("📊 Tipos de Servicios Realizados")
+        conteo_serv_barb = df_barbero["Servicio"].value_counts().reset_index()
+        conteo_serv_barb.columns = ["Servicio", "Cantidad"]
+        st.bar_chart(conteo_serv_barb.set_index("Servicio"))
+    else:
+        st.info("El barbero **Barbero Jonder** aún no tiene servicios registrados.")
+
+# 4. AGENDAR CITAS (ADMIN)
+elif opcion_index == 4:
     st.header("Agendamiento de Citas y Recordatorios")
 
+    cli_cita = st.text_input("Nombre del Cliente", key="cli_cita_input")
+    tel_cita = st.text_input(
+        "Número de Teléfono (ej. +584121234567)", key="tel_cita_input"
+    )
+    barbero_cita = st.selectbox(
+        "Barbero que atendió", lista_barberos, key="barb_cita_sel"
+    )
+    
+    serv_cita = st.selectbox(
+        "Servicio Realizado", servicios_lista, key="serv_cita_sel"
+    )
+
+    precio_sug_admin = SERVICIOS_PRECIOS.get(serv_cita, 0.0)
+
     with st.form("form_cita"):
-        cli_cita = st.text_input("Nombre del Cliente")
-        tel_cita = st.text_input(
-            "Número de Teléfono (ej. +584121234567)", key="tel_cita_input"
-        )
-        barbero_cita = st.selectbox(
-            "Barbero que atendió", lista_barberos, key="barb_cita_sel"
-        )
-        serv_cita = st.selectbox(
-            "Servicio Realizado", servicios_lista, key="serv_cita_sel"
+        precio_cita_val = st.number_input(
+            "Precio Estimado ($) (Automático según el servicio)",
+            min_value=0.0,
+            step=1.0,
+            value=precio_sug_admin,
         )
 
         col_f, col_h = st.columns(2)
@@ -396,6 +457,7 @@ elif opcion_index == 2:
                     "Teléfono": [tel_cita if tel_cita else "N/A"],
                     "Barbero": [barbero_cita],
                     "Servicio": [serv_cita],
+                    "Precio Estimado ($)": [precio_cita_val],
                     "Estado": ["Pendiente"],
                 }
             )
@@ -413,7 +475,10 @@ elif opcion_index == 2:
             with st.expander(
                 f"📅 {row['Fecha y Hora']} - {row['Cliente']} ({row['Barbero']}) - [{row.get('Estado', 'Pendiente')}]"
             ):
-                st.write(f"**Servicio Realizado:** {row['Servicio']}")
+                st.write(f"**Servicio:** {row['Servicio']}")
+                st.write(
+                    f"**Precio Estimado:** ${row.get('Precio Estimado ($)', 0.0):,.2f}"
+                )
                 st.write(f"**Número de Teléfono:** {row['Teléfono']}")
 
                 tel_clean = "".join(filter(str.isdigit, str(row["Teléfono"])))
@@ -423,7 +488,7 @@ elif opcion_index == 2:
                     )
                     wsp_url = f"https://wa.me/{tel_clean}?text={msg}"
                     st.markdown(
-                        f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer;">💬 Notificar Cita por WhatsApp</button></a>',
+                        f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer; display:flex; align-items:center;">{svg_wsp} Notificar Cita por WhatsApp</button></a>',
                         unsafe_allow_html=True,
                     )
                 else:
@@ -441,8 +506,8 @@ elif opcion_index == 2:
     else:
         st.info("No hay citas programadas actualmente.")
 
-# 4. RECORDATORIO DE CORTES
-elif opcion_index == 3:
+# 5. RECORDATORIO DE CORTES
+elif opcion_index == 5:
     st.header("⏰ Recordatorio de Mantenimiento / Próximo Corte")
     st.write(
         "Notifica a tus clientes habituales cuando ya ha transcurrido cierto tiempo desde su último corte."
@@ -492,7 +557,7 @@ elif opcion_index == 3:
                         )
                         wsp_url = f"https://wa.me/{tel_clean}?text={msg}"
                         st.markdown(
-                            f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer;">💬 Enviar Recordatorio por WhatsApp</button></a>',
+                            f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer; display:flex; align-items:center;">{svg_wsp} Enviar Recordatorio por WhatsApp</button></a>',
                             unsafe_allow_html=True,
                         )
                     else:
@@ -504,8 +569,8 @@ elif opcion_index == 3:
     else:
         st.info("Registra servicios primero para calcular los recordatorios.")
 
-# 5. BARBEROS Y COMISIONES
-elif opcion_index == 4:
+# 6. BARBEROS Y COMISIONES
+elif opcion_index == 6:
     st.header("👥 Control de Comisiones y Balance por Barbero")
     st.write(
         "Calcula el porcentaje de comisión, resta los gastos asignados a cada barbero y obtiene la ganancia neta."
@@ -560,8 +625,8 @@ elif opcion_index == 4:
             "Registra servicios en la opción correspondiente para visualizar el desglose de comisiones."
         )
 
-# 6. GASTOS DEL LOCAL
-elif opcion_index == 5:
+# 7. GASTOS DEL LOCAL
+elif opcion_index == 7:
     st.header("📤 Gastos de la Barbería y Barberos")
     st.write(
         "Registra compras de insumos, adelantos o gastos operacionales asignados a cada barbero o al local."
@@ -605,8 +670,8 @@ elif opcion_index == 5:
     else:
         st.info("Aún no se han registrado gastos hoy.")
 
-# 7. COBRAR FIADOS
-elif opcion_index == 6:
+# 8. COBRAR FIADOS
+elif opcion_index == 8:
     st.header("📝 Cuentas Pendientes y Cobro (Fiados)")
 
     with st.form("form_fiados"):
@@ -650,7 +715,7 @@ elif opcion_index == 6:
                     )
                     wsp_url = f"https://wa.me/{tel_clean}?text={msg}"
                     st.markdown(
-                        f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer;">💬 Cobrar por WhatsApp</button></a>',
+                        f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer; display:flex; align-items:center;">{svg_wsp} Cobrar por WhatsApp</button></a>',
                         unsafe_allow_html=True,
                     )
                 else:
