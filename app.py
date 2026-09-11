@@ -284,7 +284,7 @@ NUMERO_WHATSAPP_ADMIN = "584125205165"
 
 USUARIOS_VALIDOS = {
     "admin": "admin",
-    "francisco": "francisco",
+    "francisco": "francisco1",
     "jonder": "barbero2",
 }
 
