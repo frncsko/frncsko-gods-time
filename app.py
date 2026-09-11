@@ -337,10 +337,7 @@ if not st.session_state.autenticado:
     with col_centered[1]:
         # Formulario de Cita Pública
         if st.session_state.ver_agendar_publico:
-          with st.form("form_cita_publica"):
-        st.subheader("📅 Reserva tu Cita")
-        st.write("Llena el formulario para reservar tu turno. Se enviará la confirmación directamente por WhatsApp.")
- 
+          
         tipo_reserva_pub = st.selectbox("Tipo de Cita", ["En Local", "A Domicilio"])
         cli_pub = st.text_input("Tu Nombre y Apellido")
         tel_pub = st.text_input("Tu Teléfono")
