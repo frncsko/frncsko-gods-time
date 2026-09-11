@@ -355,8 +355,7 @@ if not st.session_state.autenticado:
                             f'<a href="{wsp_link}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:12px 20px; border-radius:6px; font-weight:bold; width:100%; cursor:pointer; font-size:1.1em;">💬 Haz Clic Aquí para Notificar por WhatsApp</button></a>',
                             unsafe_allow_html=True,
                         )
-
-            with st.form("form_cita_publica"):
+ with st.form("form_cita_publica"):
                 cli_pub = st.text_input("Tu Nombre Completo")
                 tel_pub = st.text_input(
                     "Tu Número de WhatsApp (ej. +584121234567)"
