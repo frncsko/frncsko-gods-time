@@ -1116,3 +1116,22 @@ elif opcion_menu == "📝 Cobrar Fiados":
                     st.rerun()
     else:
         st.info("No hay cuentas pendientes.")
+
+
+def inicializar_base_de_datos():
+    ejecutar_sql("""
+        CREATE TABLE IF NOT EXISTS citas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            fecha_hora TEXT,
+            cliente TEXT,
+            telefono TEXT,
+            barbero TEXT,
+            servicio TEXT,
+            tipo TEXT,
+            direccion TEXT,
+            costo_domicilio TEXT,
+            estado TEXT
+        )
+    """)
+
+inicializar_base_de_datos()
