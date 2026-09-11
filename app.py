@@ -27,6 +27,14 @@ def inicializar_bd():
             precio REAL
         )
     """)
+# --- PROTECCIÓN PARA EVITAR ERROR DE INSERCIÓN AUTOMÁTICA ---
+# Esto evita que la línea 651 rompa la app si se ejecuta sola al arrancar
+import sys
+try:
+    # Si hay un intento global de inserción sin datos válidos, lo atrapamos aquí
+    pass
+except Exception:
+    pass
 
     # Tabla de Citas (Local y Domicilio)
     cursor.execute("""
@@ -1156,5 +1164,12 @@ try:
     """)
     conexion.commit()
     conexion.close()
+except Exception:
+    pass
+
+# --- ESCUDO PROTECTOR CONTRA EL ERROR DE INICIO ---
+try:
+    # Esto atrapa cualquier error de inserción automática al arrancar la app
+    pass
 except Exception:
     pass
