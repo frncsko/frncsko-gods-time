@@ -342,11 +342,8 @@ if not st.session_state.autenticado:
         serv_pub = st.selectbox("Servicio", ["Corte", "Barba", "Corte + Barba"])
         dir_pub = st.text_input("Dirección (Solo si es A Domicilio)")
         fecha_pub = st.date_input("Fecha de la Cita")
-        hora_pub = st.time_input("Hora de la Cita")
-        
+        hora_pub = st.time_input("Hora de la Cita")  
         fecha_hora_str = f"{fecha_pub} a las {hora_pub}"
-        
-        if submitted:
             if tipo_reserva_pub == "A Domicilio":
                 texto_wsp = f"🏠 NUEVA CITA A DOMICILIO - Cliente: {cli_pub}, Tel: {tel_pub}, Barbero: {barbero_pub}, Servicio: {serv_pub}, Dir: {dir_pub}, Fecha: {fecha_hora_str}"
             else:
