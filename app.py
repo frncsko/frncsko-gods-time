@@ -1117,8 +1117,8 @@ elif opcion_menu == "📝 Cobrar Fiados":
     else:
         st.info("No hay cuentas pendientes.")
 
-
-def inicializar_base_de_datos():
+# --- INICIALIZACIÓN AUTOMÁTICA DE LA BASE DE DATOS ---
+try:
     ejecutar_sql("""
         CREATE TABLE IF NOT EXISTS citas (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -1133,5 +1133,5 @@ def inicializar_base_de_datos():
             estado TEXT
         )
     """)
-
-inicializar_base_de_datos()
+except Exception as e:
+    print(f"Error al inicializar la tabla: {e}")
