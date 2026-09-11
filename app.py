@@ -365,10 +365,7 @@ if not st.session_state.autenticado:
                       
 
 
-            st.write("")
-            if st.button("⬅️ Volver al Inicio de Sesión"):
-                st.session_state.ver_agendar_publico = False
-                st.rerun()
+      
 
         # Inicio de Sesión
         else:
