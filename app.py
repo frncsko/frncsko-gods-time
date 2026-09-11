@@ -394,18 +394,7 @@ if not st.session_state.autenticado:
                         fecha_hora_str = (
                             f"{fecha_pub} {hora_pub.strftime('%H:%M')}"
                         )
-                        ejecutar_sql(
-                            "INSERT INTO citas (fecha_hora, cliente, telefono, barbero, servicio, tipo, direccion, costo_domicilio, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                            (
-                                fecha_hora_str,
-                                cli_pub,
-                                tel_pub,
-                                barbero_pub,
-                                serv_pub,
-                                tipo_reserva_pub,
-                                dir_pub if dir_pub else "N/A",
-                                costo_dom_pub,
-                                "Pendiente (Online)",
+                        
                             ),
                         )
 
