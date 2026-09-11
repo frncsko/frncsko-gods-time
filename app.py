@@ -344,7 +344,7 @@ if not st.session_state.autenticado:
         fecha_pub = st.date_input("Fecha de la Cita")
         hora_pub = st.time_input("Hora de la Cita")  
         fecha_hora_str = f"{fecha_pub} a las {hora_pub}"
-        st.markdown(
+    
                 
         
         fecha_hora_str = f"{fecha_pub} a las {hora_pub}"
