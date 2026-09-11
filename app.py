@@ -395,7 +395,7 @@ if not st.session_state.autenticado:
                             f"{fecha_pub} {hora_pub.strftime('%H:%M')}"
                         )
                         #
-                        if tipo_reserva_pub == "A Domicilio":
+                     if tipo_reserva_pub == "A Domicilio":
                             mensaje_wsp = urllib.parse.quote(
                                 f"🏠 *NUEVA CITA A DOMICILIO EN LÍNEA*\n\n"
                                 f"👤 *Cliente:* {cli_pub}\n"
