@@ -131,7 +131,7 @@ if not st.session_state.autenticado:
 
     with tab2:
         st.subheader("Nuestra Lista de Precios")
-        st.caption(Valores calculados a tasa de: f"{st.session_state.tasa_dolar:.2f} Bs/$")
+        st.caption(f"Valores calculados a tasa de: {st.session_state.tasa_dolar:.2f} Bs/$")
         
         for serv, precio_usd in SERVICIOS_PRECIOS.items():
             precio_bs = precio_usd * st.session_state.tasa_dolar
