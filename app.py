@@ -368,9 +368,8 @@ if not st.session_state.autenticado:
       
 
         # Inicio de Sesión
-        else:
-            st.subheader("🔑 Iniciar Sesión")
-with st.form("form_login"):
+    st.subheader("🔑 Iniciar Sesión")
+    with st.form("form_login"):
                 usuario_input = st.text_input(
                     "Usuario", value=st.session_state.usuario_recordado
                 )
