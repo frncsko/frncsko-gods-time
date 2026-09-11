@@ -506,7 +506,7 @@ with st.form("form_cita_publica"):
                     else:
                         st.error("Usuario o contraseña incorrectos.")
 
-    st.stop()
+
 
 # --- MENÚ LATERAL IZQUIERDO ---
 with st.sidebar:
