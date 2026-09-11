@@ -344,10 +344,6 @@ if not st.session_state.autenticado:
         fecha_pub = st.date_input("Fecha de la Cita")
         hora_pub = st.time_input("Hora de la Cita")  
         fecha_hora_str = f"{fecha_pub} a las {hora_pub}"
-                texto_wsp = f"🏠 NUEVA CITA A DOMICILIO - Cliente: {cli_pub}, Tel: {tel_pub}, Barbero: {barbero_pub}, Servicio: {serv_pub}, Dir: {dir_pub}, Fecha: {fecha_hora_str}"
-            else:
-                texto_wsp = f"💈 NUEVA CITA EN LOCAL - Cliente: {cli_pub}, Tel: {tel_pub}, Barbero: {barbero_pub}, Servicio: {serv_pub}, Fecha: {fecha_hora_str}"
-
             mensaje_wsp = urllib.parse.quote(texto_wsp)
             wsp_link = f"https://wa.me/{NUMERO_WHATSAPP_ADMIN}?text={mensaje_wsp}"
 
