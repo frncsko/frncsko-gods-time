@@ -344,9 +344,6 @@ if not st.session_state.autenticado:
         fecha_pub = st.date_input("Fecha de la Cita")
         hora_pub = st.time_input("Hora de la Cita")  
         fecha_hora_str = f"{fecha_pub} a las {hora_pub}"
-            mensaje_wsp = urllib.parse.quote(texto_wsp)
-            wsp_link = f"https://wa.me/{NUMERO_WHATSAPP_ADMIN}?text={mensaje_wsp}"
-
             st.success("¡Cita registrada con éxito en el sistema!")
             st.markdown(
                 f'<a href="{wsp_link}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:12px 20px; border-radius:6px; font-weight:bold; width:100%; cursor:pointer; font-size:1.1em;">💬 Haz Clic Aquí para Notificar por WhatsApp</button></a>',
