@@ -1,18 +1,18 @@
 import streamlit as st
 import urllib.parse
 
-# Configuración de la página
-st.set_page_config(page_title="Barberia God's Time", page_icon="✂️", layout="wide")
+# Configuración de la página (ancho centrado simulando app móvil/moderna)
+st.set_page_config(page_title="Barberia God's Time", page_icon="✂️", layout="centered")
 
 # -------------------------------------------------------------
-# ESTILOS CSS PERSONALIZADOS (TEMA OSCURO + EFECTO DORADO BRILLANTE)
+# ESTILOS CSS PERSONALIZADOS (ESTILO APP MÓVIL OSCURA / AMARILLO OCRE)
 # -------------------------------------------------------------
 st.markdown("""
 <style>
-    /* Estilo general de la app (Modo Oscuro Elegante) */
+    /* Fondo general oscuro estilo app */
     .stApp {
-        background-color: #121212;
-        color: #e0e0e0;
+        background-color: #161616;
+        color: #f0f0f0;
     }
     
     /* Efecto de letras doradas con brillo de espejo animado */
@@ -22,30 +22,43 @@ st.markdown("""
     }
 
     .gold-title {
-        font-size: 2.5rem;
+        font-size: 2.2rem;
         font-weight: 900;
         text-align: center;
-        background: linear-gradient(120deg, #b38728 0%, #fbf5b7 25%, #bf953f 50%, #fcf6ba 75%, #aa771c 100%);
+        background: linear-gradient(120deg, #b38728 0%, #ffdf73 25%, #d4af37 50%, #fff1a8 75%, #aa771c 100%);
         background-size: 200% auto;
         color: transparent;
         -webkit-background-clip: text;
         background-clip: text;
         animation: shine 4s linear infinite;
-        text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         margin-bottom: 0px;
     }
 
-    /* Tarjetas de métricas y contenedores modernos */
+    /* Tarjetas oscuras modernas */
     div.stMetric, div[data-testid="stVerticalBlock"] > div {
-        background-color: #1e1e1e;
-        border-radius: 10px;
+        background-color: #212121;
+        border-radius: 12px;
         padding: 15px;
-        border: 1px solid #2d2d2d;
+        border: 1px solid #333333;
     }
 
-    /* Ajustes para la barra lateral */
+    /* Botones principales estilo ocre/dorado de la app de referencia */
+    .stButton > button {
+        background-color: #d4af37;
+        color: #121212;
+        font-weight: bold;
+        border-radius: 8px;
+        border: none;
+    }
+    .stButton > button:hover {
+        background-color: #f3c653;
+        color: #000000;
+    }
+
+    /* Barra lateral */
     [data-testid="stSidebar"] {
-        background-color: #181818;
+        background-color: #1a1a1a;
         border-right: 1px solid #2d2d2d;
     }
 </style>
@@ -61,7 +74,7 @@ if "ventas" not in st.session_state:
     st.session_state.ventas = []
 
 if "tasa_dolar" not in st.session_state:
-    st.session_state.tasa_dolar = 36.50  # Tasa inicial de referencia
+    st.session_state.tasa_dolar = 36.50  # Tasa de referencia
 
 if "citas" not in st.session_state:
     st.session_state.citas = []
@@ -76,88 +89,87 @@ SERVICIOS_PRECIOS = {
 }
 
 # -------------------------------------------------------------
-# BARRA LATERAL (CONTROL DE ACCESO Y TASA)
+# BARRA LATERAL (ADMINISTRACIÓN Y TASA)
 # -------------------------------------------------------------
-st.sidebar.markdown("<h3 style='color: #fbf5b7; text-align: center;'>✂️ God's Time Admin</h3>", unsafe_allow_html=True)
+st.sidebar.markdown("<h3 style='color: #d4af37; text-align: center;'>✂️ God's Time</h3>", unsafe_allow_html=True)
 st.sidebar.info(f"💱 Tasa del Día: **{st.session_state.tasa_dolar:.2f} Bs/$**")
 
 if not st.session_state.autenticado:
     st.sidebar.divider()
     with st.sidebar.expander("🔑 Acceso Administrador"):
         with st.form("form_login_side", clear_on_submit=True):
-            usuario = st.text_input("Usuario")
+            usuario = st.text_input("Correo / Usuario")
             password = st.text_input("Contraseña", type="password")
-            submit_login = st.form_submit_button("Ingresar", use_container_width=True)
+            submit_login = st.form_submit_button("LOG IN", use_container_width=True)
             
             if submit_login:
                 if usuario == "admin" and password == "1234":
                     st.session_state.autenticado = True
-                    st.success("¡Bienvenido admin!")
+                    st.success("¡Bienvenido!")
                     st.rerun()
                 else:
-                    st.error("Datos incorrectos")
+                    st.error("Credenciales incorrectas")
 else:
     st.sidebar.divider()
-    st.sidebar.success("Modo Administrador Activo")
+    st.sidebar.success("Sesión Activa (Admin)")
     nueva_tasa = st.sidebar.number_input("Actualizar Tasa (Bs)", min_value=1.0, value=st.session_state.tasa_dolar, step=0.1)
     if nueva_tasa != st.session_state.tasa_dolar:
         st.session_state.tasa_dolar = nueva_tasa
         
     opcion_admin = st.sidebar.radio("Menú Admin:", [
-        "📊 Panel de Control", 
+        "📊 Dashboard General", 
         "💰 Registrar Venta", 
-        "📋 Citas Guardadas", 
+        "📋 Citas Pendientes", 
         "🚪 Cerrar Sesión"
     ])
 
 # -------------------------------------------------------------
 # ENCABEZADO CON EFECTO DORADO BRILLANTE
 # -------------------------------------------------------------
-st.markdown("<h1 class='gold-title'>✂️ BARBERIA GOD'S TIME</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #a0a0a0; font-size: 1.1rem;'>Sistema de Control y Gestión Profesional</p>", unsafe_allow_html=True)
+st.markdown("<h1 class='gold-title'>BARBERIA GOD'S TIME</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #888888; font-size: 0.95rem; letter-spacing: 2px;'>SINCE 2026 💈</p>", unsafe_allow_html=True)
 st.divider()
 
 # -------------------------------------------------------------
-# VISTA PÚBLICA (CLIENTES: AGENDAR CITA Y VER PRECIOS)
+# VISTA PÚBLICA (CLIENTES)
 # -------------------------------------------------------------
 if not st.session_state.autenticado:
-    tab1, tab2 = st.tabs(["📅 Agendar Cita", "💵 Ver Precios"])
     
-    with tab1:
-        st.subheader("Reserva tu espacio")
-        with st.form("form_cita_publica", clear_on_submit=True):
-            col_1, col_2 = st.columns(2)
-            with col_1:
-                cliente_cita = st.text_input("Tu Nombre y Apellido")
-            with col_2:
-                telefono_cita = st.text_input("Tu Número de Teléfono (Ej: 4121234567)")
+    # Categorías / Pestañas estilo interfaz móvil de referencia
+    tab_cita, tab_precios, tab_barberos = st.tabs(["📅 Reservar Cita", "✂️ Servicios", "👨‍🦱 Barberos"])
+    
+    with tab_cita:
+        st.subheader("Selecciona tu estilo y cita")
+        with st.form("form_cita_app", clear_on_submit=True):
+            cliente_cita = st.text_input("Nombre y Apellido")
+            telefono_cita = st.text_input("Teléfono de Contacto (Ej: 4121234567)")
             
-            servicio_cita = st.selectbox("Selecciona el Servicio", list(SERVICIOS_PRECIOS.keys()))
-            precio_cita_usd = SERVICIOS_PRECIOS[servicio_cita]
-            precio_cita_bs = precio_cita_usd * st.session_state.tasa_dolar
+            servicio_cita = st.selectbox("Servicio Seleccionado", list(SERVICIOS_PRECIOS.keys()))
+            precio_usd = SERVICIOS_PRECIOS[servicio_cita]
+            precio_bs = precio_usd * st.session_state.tasa_dolar
             
-            st.info(f"💵 Precio estimado: **${precio_cita_usd:.2f}** | 🇻🇪 **Bs {precio_cita_bs:,.2f}**")
+            st.info(f"💵 Inversión: **${precio_usd:.2f}** / 🇻🇪 **Bs {precio_bs:,.2f}**")
             
-            col_f, col_h, col_b = st.columns(3)
-            with col_f:
-                fecha_cita = st.date_input("Fecha de la Cita")
-            with col_h:
-                hora_cita = st.time_input("Hora de la Cita")
-            with col_b:
-                barbero_cita = st.selectbox("Barbero Preferido", ["Francisco", "Jonder"])
+            c1, c2 = st.columns(2)
+            with c1:
+                fecha_cita = st.date_input("Fecha")
+            with c2:
+                hora_cita = st.time_input("Hora")
+                
+            barbero_cita = st.selectbox("Barbero Disponible", ["Francisco", "Jonder"])
             
-            submit_cita = st.form_submit_button("Agendar y Enviar a WhatsApp", use_container_width=True)
+            book_btn = st.form_submit_button("BOOK AN APPOINTMENT", use_container_width=True)
             
-            if submit_cita:
+            if book_btn:
                 if cliente_cita and telefono_cita:
                     mensaje = (
-                        f"¡Hola! 👋 Quiero confirmar una cita en *Barberia God's Time* ✂️.\n\n"
+                        f"¡Hola! 👋 Quiero confirmar mi cita en *Barberia God's Time* ✂️.\n\n"
                         f"👤 Cliente: {cliente_cita}\n"
                         f"📅 Fecha: {fecha_cita}\n"
                         f"⏰ Hora: {hora_cita}\n"
                         f"💈 Servicio: {servicio_cita}\n"
                         f"👨‍🦱 Barbero: {barbero_cita}\n"
-                        f"💰 Precio: ${precio_cita_usd:.2f} (Bs {precio_cita_bs:,.2f})"
+                        f"💰 Total: ${precio_usd:.2f} (Bs {precio_bs:,.2f})"
                     )
                     
                     tel_limpio = "".join(filter(str.isdigit, telefono_cita))
@@ -176,78 +188,82 @@ if not st.session_state.autenticado:
                         "link": url_whatsapp
                     })
                     
-                    st.success("¡Cita registrada con éxito!")
-                    st.markdown(f"### 👉 [Haz clic aquí para enviar tu confirmación por WhatsApp]({url_whatsapp})", unsafe_allow_html=True)
+                    st.success("¡Cita lista para enviar!")
+                    st.markdown(f"### 👉 [Toca aquí para enviar los datos por WhatsApp]({url_whatsapp})", unsafe_allow_html=True)
                 else:
-                    st.error("Por favor ingresa tu nombre y número de teléfono.")
+                    st.error("Por favor completa tu nombre y número de teléfono.")
 
-    with tab2:
-        st.subheader("Nuestra Lista de Precios")
-        st.caption(f"Valores calculados a tasa de: {st.session_state.tasa_dolar:.2f} Bs/$")
-        
-        for serv, precio_usd in SERVICIOS_PRECIOS.items():
-            precio_bs = precio_usd * st.session_state.tasa_dolar
-            st.markdown(f"**{serv}** — 💵 **${precio_usd:.2f}** / 🇻🇪 **Bs {precio_bs:,.2f}**")
+    with tab_precios:
+        st.subheader("Catálogo de Servicios")
+        st.caption(f"Precios actualizados a tasa: {st.session_state.tasa_dolar:.2f} Bs/$")
+        for serv, p_usd in SERVICIOS_PRECIOS.items():
+            p_bs = p_usd * st.session_state.tasa_dolar
+            st.markdown(f"✔️ **{serv}** — 💵 **${p_usd:.2f}** | 🇻🇪 **Bs {p_bs:,.2f}**")
+
+    with tab_barberos:
+        st.subheader("Nuestro Equipo Profesional")
+        st.markdown("""
+        - 💈 **Francisco** (Especialista en cortes modernos y barba)
+        - 💈 **Jonder** (Especialista en fades y estilos clásicos)
+        """)
 
 # -------------------------------------------------------------
-# VISTA PANEL DE ADMINISTRADOR (CUANDO ESTÁ LOGUEADO)
+# VISTA ADMINISTRADOR (PANEL DE CONTROL TIPO TREINTA / SHEARBA)
 # -------------------------------------------------------------
 else:
-    if opcion_admin == "📊 Panel de Control":
-        st.title("📊 Panel de Control")
+    if opcion_admin == "📊 Dashboard General":
+        st.title("Panel de control")
+        st.caption("Resumen de estadísticas del negocio")
         
-        total_ventas_usd = sum(v["monto_usd"] for v in st.session_state.ventas)
-        total_ventas_bs = total_ventas_usd * st.session_state.tasa_dolar
+        total_usd = sum(v["monto_usd"] for v in st.session_state.ventas)
+        total_bs = total_usd * st.session_state.tasa_dolar
         
-        col1, col2, col3 = st.columns(3)
-        col1.metric("Ventas Totales ($)", f"${total_ventas_usd:.2f}")
-        col2.metric("Ventas Totales (Bs)", f"Bs {total_ventas_bs:,.2f}")
-        col3.metric("Servicios Realizados", len(st.session_state.ventas))
+        # Tarjetas de estadísticas simulando la imagen de referencia
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Citas Hoy", len(st.session_state.citas))
+        c2.metric("Ventas Hoy", f"${total_usd:.2f}")
+        c3.metric("Bolívares", f"Bs {total_bs:,.2f}")
+        c4.metric("Servicios", len(st.session_state.ventas))
         
         st.divider()
-        st.subheader("📋 Últimos servicios registrados")
-        if st.session_state.ventas:
-            for v in reversed(st.session_state.ventas[-5:]):
-                st.write(f"🔹 **{v['servicio']}** | 💵 ${v['monto_usd']:.2f} (Bs {v['monto_bs']:,.2f}) - Barbero: *{v['barbero']}*")
+        st.subheader("Citas de hoy")
+        if st.session_state.citas:
+            for c in reversed(st.session_state.citas[-5:]):
+                st.write(f"🕒 {c['hora']} | 👤 {c['cliente']} | 💈 {c['barbero']} - {c['servicio']}")
         else:
-            st.info("Aún no hay ventas registradas hoy.")
+            st.info("No hay citas registradas para esta fecha")
 
     elif opcion_admin == "💰 Registrar Venta":
-        st.title("💰 Registrar Nuevo Servicio")
-        
+        st.title("💰 Registrar Venta")
         with st.form("form_venta_admin", clear_on_submit=True):
-            servicio_seleccionado = st.selectbox("Seleccionar Servicio", list(SERVICIOS_PRECIOS.keys()))
-            precio_sugerido_usd = SERVICIOS_PRECIOS[servicio_seleccionado]
-            monto_usd = st.number_input("Monto en Dólares ($)", min_value=0.0, value=precio_sugerido_usd, step=1.0)
-            monto_bs = monto_usd * st.session_state.tasa_dolar
-            st.info(f"Equivalente en Bolívares: **Bs {monto_bs:,.2f}**")
+            servicio_sel = st.selectbox("Servicio", list(SERVICIOS_PRECIOS.keys()))
+            p_sugerido = SERVICIOS_PRECIOS[servicio_sel]
+            monto_u = st.number_input("Monto en Dólares ($)", min_value=0.0, value=p_sugerido, step=1.0)
+            monto_b = monto_u * st.session_state.tasa_dolar
+            st.info(f"Equivalente: **Bs {monto_b:,.2f}**")
             
-            barbero = st.selectbox("Barbero Responsable", ["Francisco", "Jonder"])
-            cliente = st.text_input("Nombre del Cliente")
-            if not cliente:
-                cliente = "Cliente General"
-                
-            submit_venta = st.form_submit_button("Guardar Venta", use_container_width=True)
+            barb = st.selectbox("Barbero", ["Francisco", "Jonder"])
+            cli = st.text_input("Cliente", value="Cliente General")
             
-            if submit_venta:
+            if st.form_submit_button("Guardar Transacción", use_container_width=True):
                 st.session_state.ventas.append({
-                    "servicio": servicio_seleccionado,
-                    "monto_usd": monto_usd,
-                    "monto_bs": monto_bs,
-                    "barbero": barbero,
-                    "cliente": cliente
+                    "servicio": servicio_sel,
+                    "monto_usd": monto_u,
+                    "monto_bs": monto_b,
+                    "barbero": barb,
+                    "cliente": cli
                 })
-                st.success("¡Venta registrada con éxito!")
+                st.success("¡Venta registrada exitosamente!")
 
-    elif opcion_admin == "📋 Citas Guardadas":
-        st.title("📋 Citas Solicitadas por Clientes")
+    elif opcion_admin == "📋 Citas Pendientes":
+        st.title("📋 Gestión de Citas")
         if st.session_state.citas:
-            for c in reversed(st.session_state.citas):
-                st.markdown(f"**{c['cliente']}** ({c['telefono']}) — *{c['servicio']}* con **{c['barbero']}** el {c['fecha']} a las {c['hora']}")
-                st.markdown(f"[💬 Enviar/Revisar WhatsApp]({c['link']})", unsafe_allow_html=True)
+            for c in st.session_state.citas:
+                st.markdown(f"**{c['cliente']}** ({c['telefono']}) — *{c['servicio']}* con **{c['barbero']}** ({c['fecha']} - {c['hora']})")
+                st.markdown(f"[💬 Abrir WhatsApp de Cita]({c['link']})", unsafe_allow_html=True)
                 st.divider()
         else:
-            st.info("No hay citas registradas todavía.")
+            st.info("No hay citas guardadas en este momento.")
 
     elif opcion_admin == "🚪 Cerrar Sesión":
         st.session_state.autenticado = False
