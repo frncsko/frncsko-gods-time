@@ -361,15 +361,7 @@ if not st.session_state.autenticado:
 
     
           
-                if submit_pub and cli_pub and tel_pub:
-                    if tipo_reserva_pub == "A Domicilio" and not dir_pub:
-                        st.error(
-                            "Por favor ingresa la dirección para el domicilio."
-                        )
-                    else:
-                        fecha_hora_str = (
-                            f"{fecha_pub} {hora_pub.strftime('%H:%M')}"
-                        )
+              
                         ejecutar_sql(
                             "INSERT INTO citas (fecha_hora, cliente, telefono, barbero, servicio, tipo, direccion, costo_domicilio, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                             (
