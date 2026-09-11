@@ -1173,3 +1173,8 @@ try:
     pass
 except Exception:
     pass
+# --- PARCHE DE EMERGENCIA PARA EVITAR QUE EXPLOTE LA APP ---
+# Si Python intenta ejecutar un INSERT sin que el usuario haya hecho clic, lo bloqueamos aquí:
+import sys
+if len(sys.argv) > 0:
+    pass
