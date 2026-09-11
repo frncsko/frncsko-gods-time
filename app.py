@@ -458,7 +458,7 @@ with st.form("form_cita_publica"):
         # Inicio de Sesión
         else:
             st.subheader("🔑 Iniciar Sesión")
-            with st.form("form_login"):
+with st.form("form_login"):
                 usuario_input = st.text_input(
                     "Usuario", value=st.session_state.usuario_recordado
                 )
