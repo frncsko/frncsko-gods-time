@@ -1135,3 +1135,26 @@ try:
     """)
 except Exception as e:
     print(f"Error al inicializar la tabla: {e}")
+
+# --- ASEGURAR BASE DE DATOS AL FINAL ---
+try:
+    conexion = sqlite3.connect("barberia.db")
+    cursor = conexion.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS citas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            fecha_hora TEXT,
+            cliente TEXT,
+            telefono TEXT,
+            barbero TEXT,
+            servicio TEXT,
+            tipo TEXT,
+            direccion TEXT,
+            costo_domicilio TEXT,
+            estado TEXT
+        )
+    """)
+    conexion.commit()
+    conexion.close()
+except Exception:
+    pass
