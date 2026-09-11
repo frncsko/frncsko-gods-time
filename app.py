@@ -387,7 +387,6 @@ with st.form("form_cita_publica"):
                 unsafe_allow_html=True
             )
             with st.form("form_cita_publica"):
->>>>>>> c3fe2e96948b2465931d5a46ffaadc8d5233e245
                 cli_pub = st.text_input("Tu Nombre Completo")
                 tel_pub = st.text_input(
                     "Tu Número de WhatsApp (ej. +584121234567)"
