@@ -27,14 +27,6 @@ def inicializar_bd():
             precio REAL
         )
     """)
-# --- PROTECCIÓN PARA EVITAR ERROR DE INSERCIÓN AUTOMÁTICA ---
-# Esto evita que la línea 651 rompa la app si se ejecuta sola al arrancar
-import sys
-try:
-    # Si hay un intento global de inserción sin datos válidos, lo atrapamos aquí
-    pass
-except Exception:
-    pass
 
     # Tabla de Citas (Local y Domicilio)
     cursor.execute("""
@@ -364,27 +356,7 @@ if not st.session_state.autenticado:
 
                 dir_pub = ""
                 costo_dom_pub = 0.0
-                if tipo_reserva_pub == "A Domicilio":
-                    dir_pub = st.text_input(
-                        "Dirección exacta (Urbanización, Calle, Casa/Edificio)"
-                    )
-                    costo_dom_pub = st.number_input(
-                        "Costo Extra por Traslado ($)",
-                        min_value=0.0,
-                        step=1.0,
-                        value=5.0,
-                    )
-
-                col_f_p, col_h_p = st.columns(2)
-                with col_f_p:
-                    fecha_pub = st.date_input("Fecha preferida")
-                with col_h_p:
-                    hora_pub = st.time_input("Hora preferida")
-
-                submit_pub = st.form_submit_button(
-                    "📩 Reservar Turno y Notificar por WhatsApp"
-                )
-
+          
                 if submit_pub and cli_pub and tel_pub:
                     if tipo_reserva_pub == "A Domicilio" and not dir_pub:
                         st.error(
@@ -394,8 +366,22 @@ if not st.session_state.autenticado:
                         fecha_hora_str = (
                             f"{fecha_pub} {hora_pub.strftime('%H:%M')}"
                         )
-                        #
-                     if tipo_reserva_pub == "A Domicilio":
+                        ejecutar_sql(
+                            "INSERT INTO citas (fecha_hora, cliente, telefono, barbero, servicio, tipo, direccion, costo_domicilio, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                            (
+                                fecha_hora_str,
+                                cli_pub,
+                                tel_pub,
+                                barbero_pub,
+                                serv_pub,
+                                tipo_reserva_pub,
+                                dir_pub if dir_pub else "N/A",
+                                costo_dom_pub,
+                                "Pendiente (Online)",
+                            ),
+                        )
+
+                        if tipo_reserva_pub == "A Domicilio":
                             mensaje_wsp = urllib.parse.quote(
                                 f"🏠 *NUEVA CITA A DOMICILIO EN LÍNEA*\n\n"
                                 f"👤 *Cliente:* {cli_pub}\n"
@@ -1110,57 +1096,3 @@ elif opcion_menu == "📝 Cobrar Fiados":
                     st.rerun()
     else:
         st.info("No hay cuentas pendientes.")
-
-# --- INICIALIZACIÓN AUTOMÁTICA DE LA BASE DE DATOS ---
-try:
-    ejecutar_sql("""
-        CREATE TABLE IF NOT EXISTS citas (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            fecha_hora TEXT,
-            cliente TEXT,
-            telefono TEXT,
-            barbero TEXT,
-            servicio TEXT,
-            tipo TEXT,
-            direccion TEXT,
-            costo_domicilio TEXT,
-            estado TEXT
-        )
-    """)
-except Exception as e:
-    print(f"Error al inicializar la tabla: {e}")
-
-# --- ASEGURAR BASE DE DATOS AL FINAL ---
-try:
-    conexion = sqlite3.connect("barberia.db")
-    cursor = conexion.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS citas (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            fecha_hora TEXT,
-            cliente TEXT,
-            telefono TEXT,
-            barbero TEXT,
-            servicio TEXT,
-            tipo TEXT,
-            direccion TEXT,
-            costo_domicilio TEXT,
-            estado TEXT
-        )
-    """)
-    conexion.commit()
-    conexion.close()
-except Exception:
-    pass
-
-# --- ESCUDO PROTECTOR CONTRA EL ERROR DE INICIO ---
-try:
-    # Esto atrapa cualquier error de inserción automática al arrancar la app
-    pass
-except Exception:
-    pass
-# --- PARCHE DE EMERGENCIA PARA EVITAR QUE EXPLOTE LA APP ---
-# Si Python intenta ejecutar un INSERT sin que el usuario haya hecho clic, lo bloqueamos aquí:
-import sys
-if len(sys.argv) > 0:
-    pass
