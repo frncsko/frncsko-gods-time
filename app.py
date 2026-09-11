@@ -356,7 +356,6 @@ if not st.session_state.autenticado:
                 unsafe_allow_html=True,
             )
     with st.form("form_cita_publica"):
-=======
     mensaje_wsp = urllib.parse.quote(texto_wsp)
     wsp_link = f"https://wa.me/{NUMERO_WHATSAPP_ADMIN}?text={mensaje_wsp}"
 
