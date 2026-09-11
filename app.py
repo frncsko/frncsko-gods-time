@@ -357,8 +357,6 @@ if not st.session_state.autenticado:
 
             
            
-                barbero_pub = st.selectbox("Selecciona Barbero", lista_barberos)
-                serv_pub = st.selectbox("Servicio Deseado", servicios_lista)
 
                 dir_pub = ""
                 costo_dom_pub = 0.0
