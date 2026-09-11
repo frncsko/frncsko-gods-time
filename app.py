@@ -356,11 +356,7 @@ if not st.session_state.autenticado:
 
 
             
-            with st.form("form_cita_publica"):
-                cli_pub = st.text_input("Tu Nombre Completo")
-                tel_pub = st.text_input(
-                    "Tu Número de WhatsApp (ej. +584121234567)"
-                )
+           
                 barbero_pub = st.selectbox("Selecciona Barbero", lista_barberos)
                 serv_pub = st.selectbox("Servicio Deseado", servicios_lista)
 
