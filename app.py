@@ -167,4 +167,4 @@ if not st.session_state.autenticado:
                             f"⏰ Hora: {hora_cita}\n"
                             f"💈 Servicio: {servicio_cita}\n"
                             f"👨‍🦱 Barbero: {barbero_cita}\n"
-                            f"💰 Total: ${precio_usd:.2f} (Bs {precio_bs:,.2f
+                            mensaje = f"¡Hola! 👋 Quiero confirmar una cita en *Barbería Gods Time* ✂️.\n\n👤 Cliente: {cliente_cita}\n📅 Fecha: {fecha_cita}\n⏰ Hora: {hora_cita}\n💈 Servicio: {servicio_cita}\n👨‍🦱 Barbero: {barbero_cita}\n💰 Total: ${precio_usd:.2f} (Bs {precio_bs:,.2f})"
