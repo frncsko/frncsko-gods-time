@@ -358,8 +358,8 @@ if not st.session_state.autenticado:
             
            
 
-                dir_pub = ""
-                costo_dom_pub = 0.0
+
+    
           
                 if submit_pub and cli_pub and tel_pub:
                     if tipo_reserva_pub == "A Domicilio" and not dir_pub:
