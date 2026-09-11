@@ -362,20 +362,7 @@ if not st.session_state.autenticado:
     
           
               
-                        ejecutar_sql(
-                            "INSERT INTO citas (fecha_hora, cliente, telefono, barbero, servicio, tipo, direccion, costo_domicilio, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                            (
-                                fecha_hora_str,
-                                cli_pub,
-                                tel_pub,
-                                barbero_pub,
-                                serv_pub,
-                                tipo_reserva_pub,
-                                dir_pub if dir_pub else "N/A",
-                                costo_dom_pub,
-                                "Pendiente (Online)",
-                            ),
-                        )
+                      
 
                         if tipo_reserva_pub == "A Domicilio":
                             mensaje_wsp = urllib.parse.quote(
