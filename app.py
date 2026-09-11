@@ -342,9 +342,19 @@ if not st.session_state.autenticado:
                 "Llena el formulario para reservar tu turno. Se enviará la confirmación directamente por WhatsApp."
             )
 
-            tipo_reserva_pub = st.radio(
-                "Tipo de Servicio", ["En Local", "A Domicilio"]
-            )
+            if tipo_reserva_pub == "A Domicilio":
+    texto_wsp = f"🏠 NUEVA CITA A DOMICILIO - Cliente: {cli_pub}, Tel: {tel_pub}, Barbero: {barbero_pub}, Servicio: {serv_pub}, Dir: {dir_pub}, Fecha: {fecha_hora_str}"
+else:
+    texto_wsp = f"💈 NUEVA CITA EN LOCAL - Cliente: {cli_pub}, Tel: {tel_pub}, Barbero: {barbero_pub}, Servicio: {serv_pub}, Fecha: {fecha_hora_str}"
+
+mensaje_wsp = urllib.parse.quote(texto_wsp)
+wsp_link = f"https://wa.me/{NUMERO_WHATSAPP_ADMIN}?text={mensaje_wsp}"
+
+st.success("¡Cita registrada con éxito en el sistema!")
+st.markdown(
+    f'<a href="{wsp_link}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:12px 20px; border-radius:6px; font-weight:bold; width:100%; cursor:pointer; font-size:1.1em;">💬 Haz Clic Aquí para Notificar por WhatsApp</button></a>',
+    unsafe_allow_html=True,
+)
 
             with st.form("form_cita_publica"):
                 cli_pub = st.text_input("Tu Nombre Completo")
