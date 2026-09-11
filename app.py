@@ -336,8 +336,6 @@ if not st.session_state.autenticado:
     col_centered = st.columns([1, 2, 1])
     with col_centered[1]:
         # Formulario de Cita Pública
-        if st.session_state.ver_agendar_publico:    
-        tipo_reserva_pub = st.selectbox("Tipo de Cita", ["En Local", "A Domicilio"])
         cli_pub = st.text_input("Tu Nombre y Apellido")
         tel_pub = st.text_input("Tu Teléfono")
         barbero_pub = st.selectbox("Selecciona Barbero", ["Cualquiera", "Barbero 1", "Barbero 2"])
