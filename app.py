@@ -352,13 +352,7 @@ if not st.session_state.autenticado:
         
 
         
-            if tipo_reserva_pub == "A Domicilio":
-                texto_wsp = f"🏠 NUEVA CITA A DOMICILIO - Cliente: {cli_pub}, Tel: {tel_pub}, Barbero: {barbero_pub}, Servicio: {serv_pub}, Dir: {dir_pub}, Fecha: {fecha_hora_str}"
-            else:
-                texto_wsp = f"💈 NUEVA CITA EN LOCAL - Cliente: {cli_pub}, Tel: {tel_pub}, Barbero: {barbero_pub}, Servicio: {serv_pub}, Fecha: {fecha_hora_str}"
-
-            mensaje_wsp = urllib.parse.quote(texto_wsp)
-            wsp_link = f"https://wa.me/{NUMERO_WHATSAPP_ADMIN}?text={mensaje_wsp}"
+           
 
             st.success("¡Cita registrada con éxito en el sistema!")
             st.markdown(
