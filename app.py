@@ -290,7 +290,7 @@ USUARIOS_VALIDOS = {
 
 lista_barberos = ["Barbero Francisco", "Barbero Jonder"]
 servicios_lista = [
-    "TICOGORDO",
+    "CORTE",
     "BARBA",
     "CORTE / BARBA",
     "Corte + Cejas",
