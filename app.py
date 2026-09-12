@@ -12,12 +12,15 @@ st.set_page_config(
 cookie_manager = stx.CookieManager()
 
 # 3. Leer la cookie guardada
+# 3. Mantenimiento de sesión
 usuario_guardado = cookie_manager.get(cookie="usuario_sesion")
 
-if usuario_guardado:
+if usuario_guardado and st.session_state.get("autenticado", True):
     st.session_state["autenticado"] = True
     st.session_state["usuario"] = usuario_guardado
-
+else:
+    st.session_state["autenticado"] = False
+    st.session_state["usuario"] = None
 # Importaciones adicionales
 import base64
 import os
@@ -441,12 +444,15 @@ st.markdown("---")
 col_user_info, col_logout = st.columns([3, 1])
 with col_user_info:
     st.markdown(f"👤 **Conectado como:** `{st.session_state.usuario_actual}`")
-    with col_logout:
+        with col_logout:
         if st.button("LOG OUT"):
             cookie_manager.delete("usuario_sesion", key="logout_cookie")
             st.session_state["autenticado"] = False
             st.session_state["usuario"] = None
+            import time
+            time.sleep(0.5)
             st.rerun()
+
 st.markdown("")
 
 # --- NUEVO MENÚ EN TARJETAS TIPO APP ---
