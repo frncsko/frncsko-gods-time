@@ -8,36 +8,31 @@ st.set_page_config(
     page_title="Barbería Gods Time", page_icon="💈", layout="wide"
 )
 
-# 2. Cargar imagen de fondo local con manejo de errores y ajuste completo
-bg_css = ""
-try:
-    with open("GTBARBER.jpg", "rb") as f:
-        bytes_imagen = f.read()
-        imagen_base64 = base64.b64encode(bytes_imagen).decode()
-        bg_css = f"""
-        .stApp {{
-            background-image: linear-gradient(rgba(14, 14, 16, 0.85), rgba(14, 14, 16, 0.85)), 
-                        url("data:image/png;base64,{imagen_base64}");
-            background-size: contain;
-            background-position: center center;
-            background-repeat: repeat;
-            background-attachment: fixed;
-        }}
-        """
-except FileNotFoundError:
-    bg_css = """
-    .stApp {
-        background-color: #0E0E10;
-    }
-    """
+# 2. Estilo CSS con fondo animado de fútbol (balón en movimiento y gol) y título arriba
+bg_css = """
+@keyframes moveBall {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
 
-# 3. Estilo CSS (Título más arriba con borde negro y diseño general)
+.stApp {
+    background: linear-gradient(rgba(14, 14, 16, 0.82), rgba(14, 14, 16, 0.85)), 
+                url("https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1920&auto=format&fit=crop");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    animation: moveBall 25s ease infinite alternate;
+}
+"""
+
+# 3. Estilo CSS general (Título arriba con borde negro y diseño general)
 st.markdown(
     f"""
     <style>
     {bg_css}
     
-    /* TÍTULO MÁS ARRIBA CON BORDE NEGRO Y LETRAS BLANCAS */
+    /* TÍTULO BIEN ARRIBA CON BORDE NEGRO Y LETRAS BLANCAS */
     .border-title {{
         font-size: 2.8rem;
         font-weight: 900;
@@ -47,8 +42,9 @@ st.markdown(
         -webkit-text-stroke: 2px #000000;
         text-shadow: 3px 3px 0px #000000, -1px -1px 0px #000000, 1px -1px 0px #000000, -1px 1px 0px #000000, 1px 1px 0px #000000;
         letter-spacing: 2px;
-        margin-top: -30px;
+        margin-top: -65px;
         margin-bottom: 0px;
+        padding-top: 0px;
     }}
 
     .stApp {{ color: #E0E0E0; }}
@@ -176,7 +172,7 @@ if "fiados" not in st.session_state:
 
 # --- MENÚ LATERAL IZQUIERDO (LOGIN PEQUEÑO Y DIVIDIDO POR SECCIONES ESTILO TREINTA) ---
 with st.sidebar:
-    st.markdown("### 💈 Barbería Gods Time")
+    st.markdown("### ⚽ 💈 Barbería Gods Time")
 
     if not st.session_state.autenticado:
         st.markdown("#### 🔑 Iniciar Sesión")
@@ -273,10 +269,11 @@ with st.sidebar:
             st.session_state.ver_agendar_publico = False
             st.rerun()
 
-# --- SI NO ESTÁ AUTENTICADO: PANTALLA PRINCIPAL CON TÍTULO, DESCRIPCIÓN Y BOTÓN DE AGENDAR GRANDE EN EL CENTRO ---
+# --- SI NO ESTÁ AUTENTICADO: TÍTULO ARRIBA Y BOTÓN DE AGENDAR GRANDE EN EL CENTRO ---
 if not st.session_state.autenticado:
+    # TÍTULO COLOCADO ARRIBA CON BORDE NEGRO
     st.markdown(
-        '<div class="border-title" style="margin-top: 20px;">💈 Barbería Gods Time 💈</div>',
+        '<div class="border-title">💈 Barbería Gods Time 💈</div>',
         unsafe_allow_html=True,
     )
     st.markdown(
@@ -336,7 +333,7 @@ if not st.session_state.autenticado:
                         [st.session_state.citas, nueva_cita], ignore_index=True
                     )
 
-                    # MENSAJE DE WHATSAPP ACTUALIZADO CON ICONOS DE BARBERÍA Y TELÉFONO
+                    # MENSAJE DE WHATSAPP CON ICONOS DE BARBERÍA Y TELÉFONO
                     mensaje_wsp = urllib.parse.quote(
                         f"💈 *¡NUEVA CITA RESERVADA EN LÍNEA!* ✂️\n\n"
                         f"👤 *Cliente:* {cli_pub}\n"
