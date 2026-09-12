@@ -348,22 +348,22 @@ if not st.session_state.autenticado:
                 )
 
         st.write("")
-        if st.button("⬅️ Volver al Inicio de Sesión"):
+        if st.button("⬅️ REGRESAR AL INICIO"):
             st.session_state.ver_agendar_publico = False
             st.rerun()
 
     else:
-        st.subheader("🔑 Iniciar Sesión")
+        st.subheader("🔑 LOGIN")
         with st.form("form_login"):
             usuario_input = (
                 st.text_input(
-                    "Usuario", value=st.session_state.usuario_recordado
+                    "USER", value=st.session_state.usuario_recordado
                 )
                 .strip()
                 .lower()
             )
             password_input = st.text_input(
-                "Contraseña",
+                "PASSWORD",
                 type="password",
                 value=st.session_state.password_recordado,
             )
