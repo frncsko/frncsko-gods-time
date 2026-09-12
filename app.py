@@ -9,6 +9,13 @@ st.set_page_config(
     page_title="Barbería Gods Time", page_icon="🪒", layout="centered"
 )
 
+col_vacia, col_notif = st.columns([0.85, 0.15]) # Divide la pantalla para mover la campana a la derecha
+
+with col_notif:
+    with st.popover("🔔", help="Ver notificaciones"):
+        st.subheader("Notificaciones")
+        st.write("📌 **Nueva Reserva:** Carlos a las 3:00 PM")
+        st.write("📌 **Recordatorio:** Revisar agenda de hoy")
 # 2. Cargar imagen de fondo local con manejo de errores
 bg_css = ""
 try:
