@@ -7,6 +7,41 @@ import streamlit as st
 # 1. Configuración inicial de la página
 st.set_page_config(
     page_title="Barbería Gods Time", page_icon="💈", layout="wide"
+
+    # --- EFECTO / AMBIENTACIÓN DE HALLOWEEN ---
+st.markdown(
+    """
+    <style>
+    .halloween-banner {
+        background: linear-gradient(90deg, #1f1b24, #3b2a1a);
+        border: 2px solid #ff7518;
+        padding: 10px;
+        border-radius: 8px;
+        color: #ffb020;
+        text-align: center;
+        font-weight: bold;
+        box-shadow: 0px 0px 10px rgba(255, 117, 24, 0.5);
+    }
+    </style>
+    
+    <div class="halloween-banner">
+        🎃 ¡Modo Halloween Activo en Barbería God's Time! 👻
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+activar_halloween = st.sidebar.checkbox("🎃 Activar Efecto Halloween", value=False)
+
+if activar_halloween:
+    st.sidebar.markdown(
+        """
+        <div style="background-color: #2e1a47; padding: 10px; border-radius: 5px; text-align: center; color: #ff9900; border: 1px dashed #ff7518;">
+            🕸️ <i>Ambiente tenebroso activado</i> 🕷️
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 )
 
 
