@@ -1,26 +1,29 @@
 import streamlit as st
 import extra_streamlit_components as stx
 
-# Inicializar gestor de cookies al principio del script
+# 1. Configuración de página (SIEMPRE debe ser la primera orden de Streamlit)
+st.set_page_config(
+    page_title="Barbería Gods Time", 
+    page_icon="✂️", 
+    layout="centered"
+)
+
+# 2. Inicializar gestor de cookies
 cookie_manager = stx.CookieManager()
 
+# 3. Mantenimiento de sesión
 usuario_guardado = cookie_manager.get(cookie="usuario_sesion")
 
 if usuario_guardado:
     st.session_state["autenticado"] = True
     st.session_state["usuario"] = usuario_guardado
 
-# A partir de aquí continúa el resto de tu código
+# Importaciones adicionales
 import base64
 import os
 import urllib.parse
 import pandas as pd
-import streamlit as st
 
-# 1. Configuración inicial de la página (Diseño compacto tipo app)
-st.set_page_config(
-    page_title="Barbería Gods Time", page_icon="🪒", layout="centered"
-)
 
 col_vacia, col_notif = st.columns([0.85, 0.15]) # Divide la pantalla para mover la campana a la derecha
 
