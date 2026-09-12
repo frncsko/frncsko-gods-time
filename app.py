@@ -228,7 +228,6 @@ def armar_telefono_wsp(codigo_pais, numero_local):
     num_limpio = "".join(filter(str.isdigit, str(numero_local)))
     if not num_limpio:
         return ""
-    # Si el usuario ya incluyó el código o solo escribió el número local
     codigo_limpio = "".join(filter(str.isdigit, str(codigo_pais)))
     if num_limpio.startswith(codigo_limpio):
         return num_limpio
@@ -389,6 +388,7 @@ with st.sidebar:
         "👥 Barberos y Comisión",
         "📤 Gastos del Local",
         "📝 Cobrar Fiados",
+        "📥 Respaldar / Exportar Datos",
     ]
 
     opcion_menu = st.radio("", opciones_menu)
@@ -836,3 +836,100 @@ elif opcion_index == 6:
                     st.rerun()
     else:
         st.info("No hay cuentas pendientes.")
+
+# 8. RESPALDAR / EXPORTAR DATOS
+elif opcion_index == 7:
+    st.header("📥 Respaldar y Descargar Historial")
+    st.write(
+        "Descarga tus archivos de respaldo directamente a tu computadora para asegurarte de no perder nunca la información."
+    )
+
+    col_b1, col_b2 = st.columns(2)
+
+    with col_b1:
+        st.subheader("Descargar Respaldos (CSV)")
+
+        # Botón para descargar servicios
+        csv_servicios_bytes = (
+            st.session_state.servicios_realizados.to_csv(index=False).encode(
+                "utf-8"
+            )
+        )
+        st.download_button(
+            label="📥 Descargar Historial de Servicios",
+            data=csv_servicios_bytes,
+            file_name="respaldo_servicios.csv",
+            mime="text/csv",
+        )
+
+        # Botón para descargar citas
+        csv_citas_bytes = st.session_state.citas.to_csv(index=False).encode(
+            "utf-8"
+        )
+        st.download_button(
+            label="📥 Descargar Citas Programadas",
+            data=csv_citas_bytes,
+            file_name="respaldo_citas.csv",
+            mime="text/csv",
+        )
+
+    with col_b2:
+        st.subheader("‎")  # Espaciador visual
+        # Botón para descargar gastos
+        csv_gastos_bytes = (
+            st.session_state.gastos_barberia.to_csv(index=False).encode(
+                "utf-8"
+            )
+        )
+        st.download_button(
+            label="📥 Descargar Registro de Gastos",
+            data=csv_gastos_bytes,
+            file_name="respaldo_gastos.csv",
+            mime="text/csv",
+        )
+
+        # Botón para descargar fiados
+        csv_fiados_bytes = st.session_state.fiados.to_csv(index=False).encode(
+            "utf-8"
+        )
+        st.download_button(
+            label="📥 Descargar Cuentas de Fiados",
+            data=csv_fiados_bytes,
+            file_name="respaldo_fiados.csv",
+            mime="text/csv",
+        )
+
+    st.markdown("---")
+    st.subheader("🔄 Restaurar o Cargar un Respaldo Anterior")
+    st.write(
+        "Si tienes un archivo CSV guardado previamente y quieres cargarlo de nuevo al sistema, súbelo aquí:"
+    )
+
+    archivo_subido = st.file_uploader(
+        "Selecciona un archivo CSV de respaldo", type=["csv"]
+    )
+    tipo_destino = st.selectbox(
+        "¿A qué sección pertenece este archivo?",
+        ["Servicios", "Citas", "Gastos", "Fiados"],
+    )
+
+    if archivo_subido is not None:
+        if st.button("📤 Cargar y Sobrescribir Datos con este Archivo"):
+            df_subido = pd.read_csv(archivo_subido)
+            if tipo_destino == "Servicios":
+                st.session_state.servicios_realizados = df_subido
+                guardar_csv(df_subido, "servicios")
+            elif tipo_destino == "Citas":
+                st.session_state.citas = df_subido
+                guardar_csv(df_subido, "citas")
+            elif tipo_destino == "Gastos":
+                st.session_state.gastos_barberia = df_subido
+                guardar_csv(df_subido, "gastos")
+            elif tipo_destino == "Fiados":
+                st.session_state.fiados = df_subido
+                guardar_csv(df_subido, "fiados")
+
+            st.success(
+                f"¡El respaldo de {tipo_destino} se ha cargado correctamente!"
+            )
+            st.rerun()
