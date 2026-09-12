@@ -9,7 +9,7 @@ st.set_page_config(
     page_title="Barbería Gods Time", page_icon="💈", layout="wide"
 )
 
-# 2. Cargar imagen de fondo local con manejo de errores (Ajustada para que se vea completa y centrada)
+# 2. Cargar imagen de fondo local con manejo de errores
 bg_css = ""
 try:
     with open("GTBARBER.jpg", "rb") as f:
@@ -32,7 +32,7 @@ except FileNotFoundError:
     }
     """
 
-# 3. Estilo CSS personalizado (Efecto brillante sin borde negro y con icono giratorio)
+# 3. Estilo CSS personalizado (Efecto brillante, icono giratorio y balones cayendo)
 st.markdown(
     f"""
     <style>
@@ -49,10 +49,33 @@ st.markdown(
         100% {{ transform: rotate(360deg); }}
     }}
 
+    @keyframes caer {{
+        0% {{ transform: translateY(-50px) rotate(0deg); opacity: 0.8; }}
+        100% {{ transform: translateY(105vh) rotate(720deg); opacity: 0.1; }}
+    }}
+
     .icono-giratorio {{
         display: inline-block;
         animation: girar 4s linear infinite;
     }}
+
+    /* Efecto de balones de fútbol cayendo */
+    .balon {{
+        position: fixed;
+        top: -50px;
+        font-size: 22px;
+        z-index: 1;
+        user-select: none;
+        pointer-events: none;
+        animation: caer linear infinite;
+    }}
+
+    .b1 {{ left: 5%; animation-duration: 7s; animation-delay: 0s; }}
+    .b2 {{ left: 18%; animation-duration: 9s; animation-delay: 2s; }}
+    .b3 {{ left: 35%; animation-duration: 6s; animation-delay: 1s; }}
+    .b4 {{ left: 52%; animation-duration: 8s; animation-delay: 3s; }}
+    .b5 {{ left: 70%; animation-duration: 10s; animation-delay: 0.5s; }}
+    .b6 {{ left: 88%; animation-duration: 7s; animation-delay: 4s; }}
 
     .titulo-brillante {{
         font-size: 3rem;
@@ -68,6 +91,8 @@ st.markdown(
         animation: shine 4s linear infinite;
         letter-spacing: 2px;
         margin-bottom: 0px;
+        position: relative;
+        z-index: 2;
     }}
 
     h2, h3 {{
@@ -127,6 +152,14 @@ st.markdown(
         opacity: 0.3;
     }}
     </style>
+
+    <!-- Balones de fútbol cayendo en el fondo -->
+    <div class="balon b1">⚽</div>
+    <div class="balon b2">⚽</div>
+    <div class="balon b3">⚽</div>
+    <div class="balon b4">⚽</div>
+    <div class="balon b5">⚽</div>
+    <div class="balon b6">⚽</div>
     """,
     unsafe_allow_html=True,
 )
@@ -135,7 +168,7 @@ st.markdown(
 NUMERO_WHATSAPP_ADMIN = "584125205165"
 
 USUARIOS_VALIDOS = {
-    "admin": "admin",
+    "admin": "godstime123",
     "francisco": "barbero1",
     "jonder": "barbero2",
 }
@@ -213,7 +246,7 @@ def guardar_csv(df, tipo):
         df.to_csv(CSV_FIADOS, index=False)
 
 
-# --- INICIALIZACIÓN DE ESTADOS CON CSV ---
+# --- INICIALIZACIÓN DE ESTADOS ---
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 if "usuario_actual" not in st.session_state:
@@ -222,6 +255,8 @@ if "ver_agendar_publico" not in st.session_state:
     st.session_state.ver_agendar_publico = False
 if "usuario_recordado" not in st.session_state:
     st.session_state.usuario_recordado = ""
+if "password_recordado" not in st.session_state:
+    st.session_state.password_recordado = ""
 
 # Cargar DataFrames desde archivos CSV
 (
@@ -344,8 +379,15 @@ if not st.session_state.autenticado:
                     .strip()
                     .lower()
                 )
-                password_input = st.text_input("Contraseña", type="password")
-                recordar_usuario = st.checkbox("Recordar usuario")
+                password_input = st.text_input(
+                    "Contraseña",
+                    type="password",
+                    value=st.session_state.password_recordado,
+                )
+                recordar_credenciales = st.checkbox(
+                    "Recordar usuario y contraseña",
+                    value=bool(st.session_state.usuario_recordado),
+                )
                 btn_login = st.form_submit_button("Ingresar al Sistema")
 
                 if btn_login:
@@ -357,10 +399,12 @@ if not st.session_state.autenticado:
                         st.session_state.usuario_actual = (
                             usuario_input.capitalize()
                         )
-                        if recordar_usuario:
+                        if recordar_credenciales:
                             st.session_state.usuario_recordado = usuario_input
+                            st.session_state.password_recordado = password_input
                         else:
                             st.session_state.usuario_recordado = ""
+                            st.session_state.password_recordado = ""
 
                         st.success(
                             f"¡Bienvenido, {st.session_state.usuario_actual}!"
