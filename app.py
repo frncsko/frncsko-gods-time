@@ -329,7 +329,7 @@ if not st.session_state.autenticado:
                 mensaje_texto = (
                     f"Estimado/a *Barbería Gods Time*,\n\n"
                     f"Les escribo para confirmar una nueva cita agendada en línea.\n\n"
-                    f"👤 *Cliente:* {cli_pub}\n"
+                    f"👤*Cliente:* {cli_pub}\n"
                     f"📱 *Teléfono:* +{tel_completo}\n"
                     f"✂️ *Barbero:* {barbero_pub}\n"
                     f"💈 *Servicio:* {serv_pub}\n"
