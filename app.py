@@ -8,7 +8,7 @@ st.set_page_config(
     page_title="Barbería Gods Time", page_icon="💈", layout="wide"
 )
 
-# 2. Cargar imagen de fondo local con manejo de errores y centrado perfecto
+# 2. Cargar imagen de fondo local con manejo de errores y ajuste completo
 bg_css = ""
 try:
     with open("GTBARBER.jpg", "rb") as f:
@@ -16,11 +16,11 @@ try:
         imagen_base64 = base64.b64encode(bytes_imagen).decode()
         bg_css = f"""
         .stApp {{
-            background-image: linear-gradient(rgba(14, 14, 16, 0.82), rgba(14, 14, 16, 0.82)), 
+            background-image: linear-gradient(rgba(14, 14, 16, 0.85), rgba(14, 14, 16, 0.85)), 
                         url("data:image/png;base64,{imagen_base64}");
-            background-size: cover;
+            background-size: contain;
             background-position: center center;
-            background-repeat: no-repeat;
+            background-repeat: repeat;
             background-attachment: fixed;
         }}
         """
@@ -31,16 +31,17 @@ except FileNotFoundError:
     }
     """
 
-# 3. Estilo CSS personalizado (Efecto Espejo/Metálico, Nieve y Diseño)
+# 3. Estilo CSS (Efecto Espejo, Más Nieve, Gorro Navideño y Fondo Completo)
 st.markdown(
     f"""
     <style>
     {bg_css}
     
-    /* EFECTO NIEVE CAYENDO */
+    /* EFECTO NIEVE CAYENDO (MUCHO MÁS INTENSA) */
     @keyframes snowfall {{
-        0% {{ transform: translateY(-10vh); opacity: 0.8; }}
-        100% {{ transform: translateY(105vh); opacity: 0.2; }}
+        0% {{ transform: translateY(-10vh) translateX(0); opacity: 0.9; }}
+        50% {{ transform: translateY(50vh) translateX(15px); opacity: 0.7; }}
+        100% {{ transform: translateY(105vh) translateX(-10px); opacity: 0.3; }}
     }}
     .snowflake {{
         position: fixed;
@@ -49,16 +50,43 @@ st.markdown(
         user-select: none;
         pointer-events: none;
         color: #ffffff;
-        font-size: 1rem;
+        font-size: 1.2rem;
         animation: snowfall linear infinite;
+        text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
     }}
-    .snowflake:nth-of-type(1) {{ left: 10%; animation-duration: 8s; animation-delay: 0s; }}
-    .snowflake:nth-of-type(2) {{ left: 20%; animation-duration: 12s; animation-delay: 2s; font-size: 0.8rem; }}
-    .snowflake:nth-of-type(3) {{ left: 35%; animation-duration: 7s; animation-delay: 1s; }}
-    .snowflake:nth-of-type(4) {{ left: 50%; animation-duration: 10s; animation-delay: 3s; font-size: 1.2rem; }}
-    .snowflake:nth-of-type(5) {{ left: 65%; animation-duration: 9s; animation-delay: 0.5s; }}
-    .snowflake:nth-of-type(6) {{ left: 80%; animation-duration: 11s; animation-delay: 4s; }}
-    .snowflake:nth-of-type(7) {{ left: 90%; animation-duration: 8s; animation-delay: 1.5s; }}
+    .snowflake:nth-of-type(1) {{ left: 5%; animation-duration: 6s; animation-delay: 0s; font-size: 0.8rem; }}
+    .snowflake:nth-of-type(2) {{ left: 12%; animation-duration: 9s; animation-delay: 1s; font-size: 1.4rem; }}
+    .snowflake:nth-of-type(3) {{ left: 20%; animation-duration: 5s; animation-delay: 0.5s; font-size: 1rem; }}
+    .snowflake:nth-of-type(4) {{ left: 28%; animation-duration: 7s; animation-delay: 2s; font-size: 1.6rem; }}
+    .snowflake:nth-of-type(5) {{ left: 35%; animation-duration: 8s; animation-delay: 1.2s; font-size: 0.9rem; }}
+    .snowflake:nth-of-type(6) {{ left: 45%; animation-duration: 6s; animation-delay: 0.3s; font-size: 1.3rem; }}
+    .snowflake:nth-of-type(7) {{ left: 55%; animation-duration: 10s; animation-delay: 2.5s; font-size: 1.5rem; }}
+    .snowflake:nth-of-type(8) {{ left: 62%; animation-duration: 7s; animation-delay: 1.8s; font-size: 1rem; }}
+    .snowflake:nth-of-type(9) {{ left: 70%; animation-duration: 5s; animation-delay: 0.7s; font-size: 1.2rem; }}
+    .snowflake:nth-of-type(10) {{ left: 78%; animation-duration: 9s; animation-delay: 3s; font-size: 1.7rem; }}
+    .snowflake:nth-of-type(11) {{ left: 85%; animation-duration: 6s; animation-delay: 1.1s; font-size: 0.9rem; }}
+    .snowflake:nth-of-type(12) {{ left: 92%; animation-duration: 8s; animation-delay: 0.4s; font-size: 1.4rem; }}
+
+    /* EFECTO NAVIDEÑO - GORRO SOBRE EL TÍTULO */
+    .xmas-container {{
+        position: relative;
+        display: inline-block;
+        text-align: center;
+        width: 100%;
+    }}
+    .xmas-hat {{
+        position: absolute;
+        top: -35px;
+        right: 42%;
+        font-size: 2.5rem;
+        transform: rotate(15deg);
+        z-index: 10;
+        animation: float-hat 3s ease-in-out infinite;
+    }}
+    @keyframes float-hat {{
+        0%, 100% {{ transform: translateY(0) rotate(15deg); }}
+        50% {{ transform: translateY(-5px) rotate(20deg); }}
+    }}
 
     /* TÍTULO CON EFECTO BRILLANTE TIPO ESPEJO / METÁLICO */
     .mirror-title {{
@@ -140,6 +168,11 @@ st.markdown(
     <div class="snowflake">❅</div>
     <div class="snowflake">❆</div>
     <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
     """,
     unsafe_allow_html=True,
 )
@@ -162,7 +195,7 @@ servicios_lista = [
     "Corte + Barba + Cejas (VIP)",
 ]
 
-# Inicialización de Estados (incluyendo memoria para recordar usuario)
+# Inicialización de Estados
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 if "usuario_actual" not in st.session_state:
@@ -208,17 +241,23 @@ if "fiados" not in st.session_state:
 
 # --- PANTALLA PÚBLICA / INICIO DE SESIÓN ---
 if not st.session_state.autenticado:
-    # TÍTULO CON EFECTO ESPEJO / METÁLICO
-    st.markdown('<div class="mirror-title">Barbería Gods Time</div>', unsafe_allow_html=True)
     st.markdown(
-        "<p style='color: #D4AF37 !important; font-size: 1.1em; text-align: center;'><i>Excelencia, estilo y precisión en cada detalle.</i></p>",
+        """
+        <div class="xmas-container">
+            <div class="xmas-hat">🎅</div>
+            <div class="mirror-title">💈 Barbería Gods Time 💈</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        "<p style='color: #D4AF37 !important; font-size: 1.1em; text-align: center;'><i>Excelencia, estilo y precisión en cada detalle. 🎄✨</i></p>",
         unsafe_allow_html=True,
     )
     st.markdown("---")
 
     col_centered = st.columns([1, 2, 1])
     with col_centered[1]:
-        # Formulario de Cita Pública
         if st.session_state.ver_agendar_publico:
             st.subheader("📅 Agendar Cita de Barbería")
             st.write(
@@ -282,13 +321,21 @@ if not st.session_state.autenticado:
                 st.session_state.ver_agendar_publico = False
                 st.rerun()
 
-        # Inicio de Sesión con Opción de Recordar Usuario
         else:
             st.subheader("🔑 Iniciar Sesión")
             with st.form("form_login"):
-                usuario_input = st.text_input("Usuario", value=st.session_state.usuario_guardado).strip().lower()
+                usuario_input = (
+                    st.text_input(
+                        "Usuario", value=st.session_state.usuario_guardado
+                    )
+                    .strip()
+                    .lower()
+                )
                 password_input = st.text_input("Contraseña", type="password")
-                recordar_usuario = st.checkbox("Recordar usuario", value=bool(st.session_state.usuario_guardado))
+                recordar_usuario = st.checkbox(
+                    "Recordar usuario",
+                    value=bool(st.session_state.usuario_guardado),
+                )
                 btn_login = st.form_submit_button("Ingresar al Sistema")
 
                 if btn_login:
@@ -297,8 +344,10 @@ if not st.session_state.autenticado:
                         and USUARIOS_VALIDOS[usuario_input] == password_input
                     ):
                         st.session_state.autenticado = True
-                        st.session_state.usuario_actual = usuario_input.capitalize()
-                        
+                        st.session_state.usuario_actual = (
+                            usuario_input.capitalize()
+                        )
+
                         if recordar_usuario:
                             st.session_state.usuario_guardado = usuario_input
                         else:
@@ -319,42 +368,85 @@ if not st.session_state.autenticado:
 
     st.stop()
 
-# --- MENÚ LATERAL IZQUIERDO ---
+# --- MENÚ LATERAL IZQUIERDO ESTILO TREINTA ---
 with st.sidebar:
-    st.markdown(f"👤 **Usuario:** {st.session_state.usuario_actual}")
-    if st.button("🚪 Cerrar Sesión"):
+    st.markdown("### 💈 Gods Time")
+    st.markdown(f"👤 **Hola,** {st.session_state.usuario_actual}")
+
+    st.markdown("---")
+    st.markdown("#### 💼 **NEGOCIO**")
+    opcion_caja = st.button(
+        "📊 Caja y Resumen", use_container_width=True, key="btn_caja"
+    )
+    opcion_servicio = st.button(
+        "✂️ Registrar Venta / Servicio",
+        use_container_width=True,
+        key="btn_serv",
+    )
+    opcion_gastos = st.button(
+        "📤 Gastos Operativos", use_container_width=True, key="btn_gastos"
+    )
+
+    st.markdown("#### 📅 **GESTIÓN**")
+    opcion_citas = st.button(
+        "📅 Agenda de Citas", use_container_width=True, key="btn_citas"
+    )
+    opcion_recordatorios = st.button(
+        "⏰ Recordatorios de Cortes",
+        use_container_width=True,
+        key="btn_recs",
+    )
+    opcion_comisiones = st.button(
+        "👥 Barberos y Comisiones",
+        use_container_width=True,
+        key="btn_comis",
+    )
+
+    st.markdown("#### 👥 **CLIENTES**")
+    opcion_fiados = st.button(
+        "📝 Cuentas por Cobrar (Fiados)",
+        use_container_width=True,
+        key="btn_fiados",
+    )
+
+    # Control de navegación mediante session_state para los botones del menú lateral estilo Treinta
+    if "menu_actual" not in st.session_state:
+        st.session_state.menu_actual = "📊 Caja y Resumen"
+
+    if opcion_caja:
+        st.session_state.menu_actual = "📊 Caja y Resumen"
+    elif opcion_servicio:
+        st.session_state.menu_actual = "✂️ Registrar Servicio"
+    elif opcion_gastos:
+        st.session_state.menu_actual = "📤 Gastos del Local"
+    elif opcion_citas:
+        st.session_state.menu_actual = "📅 Agendar Citas"
+    elif opcion_recordatorios:
+        st.session_state.menu_actual = "⏰ Recordatorio de Cortes"
+    elif opcion_comisiones:
+        st.session_state.menu_actual = "👥 Barberos y Comisión"
+    elif opcion_fiados:
+        st.session_state.menu_actual = "📝 Cobrar Fiados"
+
+    opcion_menu = st.session_state.menu_actual
+
+    st.markdown("---")
+    if st.button("🚪 Cerrar Sesión", use_container_width=True):
         st.session_state.autenticado = False
         st.session_state.usuario_actual = ""
         st.session_state.ver_agendar_publico = False
         st.rerun()
 
-    st.markdown("---")
-    st.subheader("📌 Menú Principal")
-
-    opciones_menu = [
-        "📊 Caja y Resumen",
-        "✂️ Registrar Servicio",
-        "📅 Agendar Citas",
-        "⏰ Recordatorio de Cortes",
-        "👥 Barberos y Comisión",
-        "📤 Gastos del Local",
-        "📝 Cobrar Fiados",
-    ]
-
-    opcion_menu = st.radio("", opciones_menu)
-
 # --- SISTEMA PRINCIPAL (ADMINISTRACIÓN) ---
-st.title("💈 BARBERÍA GODS TIME")
+st.title("💈 Barbería Gods Time 💈")
 st.markdown(
     "<p style='color: #D4AF37 !important; font-size: 1.1em;'><i>Excelencia, estilo y precisión en cada detalle.</i></p>",
     unsafe_allow_html=True,
 )
 st.markdown("---")
 
-opcion_index = opciones_menu.index(opcion_menu)
-
 # 1. CAJA Y RESUMEN GENERAL
-if opcion_index == 0:
+if opcion_menu == "📊 Caja y Resumen":
     st.header("Caja del Día y Resumen Financiero")
 
     df_servicios = st.session_state.servicios_realizados
@@ -381,7 +473,7 @@ if opcion_index == 0:
         st.info("Aún no se han registrado servicios hoy.")
 
 # 2. REGISTRAR SERVICIO
-elif opcion_index == 1:
+elif opcion_menu == "✂️ Registrar Servicio":
     st.header("Registrar Nuevo Corte o Servicio")
 
     with st.form("form_servicio"):
@@ -395,7 +487,7 @@ elif opcion_index == 1:
             "Precio Cobrado ($)", min_value=0.0, step=1.0
         )
 
-        submit_servicio = st.form_submit_button("✂️ Registrar Servicio")
+        submit_servicio = st.form_submit_button("✂️ Registrar Venta")
 
         if submit_servicio and cliente_corte:
             nuevo_registro = pd.DataFrame(
@@ -414,11 +506,11 @@ elif opcion_index == 1:
                 [st.session_state.servicios_realizados, nuevo_registro],
                 ignore_index=True,
             )
-            st.success("¡Servicio registrado con éxito!")
+            st.success("¡Venta registrada con éxito!")
             st.rerun()
 
 # 3. AGENDAR CITAS (ADMIN)
-elif opcion_index == 2:
+elif opcion_menu == "📅 Agendar Citas":
     st.header("Agendamiento de Citas y Recordatorios")
 
     with st.form("form_cita"):
@@ -496,7 +588,7 @@ elif opcion_index == 2:
         st.info("No hay citas programadas actualmente.")
 
 # 4. RECORDATORIO DE CORTES
-elif opcion_index == 3:
+elif opcion_menu == "⏰ Recordatorio de Cortes":
     st.header("⏰ Recordatorio de Mantenimiento / Próximo Corte")
     st.write(
         "Notifica a tus clientes habituales cuando ya ha transcurrido cierto tiempo desde su último corte."
@@ -559,7 +651,7 @@ elif opcion_index == 3:
         st.info("Registra servicios primero para calcular los recordatorios.")
 
 # 5. BARBEROS Y COMISIONES
-elif opcion_index == 4:
+elif opcion_menu == "👥 Barberos y Comisión":
     st.header("👥 Control de Comisiones y Balance por Barbero")
     st.write(
         "Calcula el porcentaje de comisión, resta los gastos asignados a cada barbero y obtiene la ganancia neta."
@@ -615,7 +707,7 @@ elif opcion_index == 4:
         )
 
 # 6. GASTOS DEL LOCAL
-elif opcion_index == 5:
+elif opcion_menu == "📤 Gastos del Local":
     st.header("📤 Gastos de la Barbería y Barberos")
     st.write(
         "Registra compras de insumos, adelantos o gastos operacionales asignados a cada barbero o al local."
@@ -660,7 +752,7 @@ elif opcion_index == 5:
         st.info("Aún no se han registrado gastos hoy.")
 
 # 7. COBRAR FIADOS
-elif opcion_index == 6:
+elif opcion_menu == "📝 Cobrar Fiados":
     st.header("📝 Cuentas Pendientes y Cobro (Fiados)")
 
     with st.form("form_fiados"):
