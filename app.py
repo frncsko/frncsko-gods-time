@@ -8,7 +8,7 @@ st.set_page_config(
     page_title="Barbería Gods Time", page_icon="💈", layout="wide"
 )
 
-# 2. Cargar imagen de fondo local con manejo de errores
+# 2. Cargar imagen de fondo local con manejo de errores y centrado perfecto
 bg_css = ""
 try:
     with open("GTBARBER.jpg", "rb") as f:
@@ -16,10 +16,11 @@ try:
         imagen_base64 = base64.b64encode(bytes_imagen).decode()
         bg_css = f"""
         .stApp {{
-            background-image: linear-gradient(rgba(14, 14, 16, 0.85), rgba(14, 14, 16, 0.85)), 
-                              url("data:image/png;base64,{imagen_base64}");
+            background-image: linear-gradient(rgba(14, 14, 16, 0.82), rgba(14, 14, 16, 0.82)), 
+                        url("data:image/png;base64,{imagen_base64}");
             background-size: cover;
-            background-position: center;
+            background-position: center center;
+            background-repeat: no-repeat;
             background-attachment: fixed;
         }}
         """
@@ -30,14 +31,51 @@ except FileNotFoundError:
     }
     """
 
-# 3. Estilo CSS personalizado
+# 3. Estilo CSS personalizado (Efecto Espejo/Metálico, Nieve y Diseño)
 st.markdown(
     f"""
     <style>
     {bg_css}
+    
+    /* EFECTO NIEVE CAYENDO */
+    @keyframes snowfall {{
+        0% {{ transform: translateY(-10vh); opacity: 0.8; }}
+        100% {{ transform: translateY(105vh); opacity: 0.2; }}
+    }}
+    .snowflake {{
+        position: fixed;
+        top: -10vh;
+        z-index: 9999;
+        user-select: none;
+        pointer-events: none;
+        color: #ffffff;
+        font-size: 1rem;
+        animation: snowfall linear infinite;
+    }}
+    .snowflake:nth-of-type(1) {{ left: 10%; animation-duration: 8s; animation-delay: 0s; }}
+    .snowflake:nth-of-type(2) {{ left: 20%; animation-duration: 12s; animation-delay: 2s; font-size: 0.8rem; }}
+    .snowflake:nth-of-type(3) {{ left: 35%; animation-duration: 7s; animation-delay: 1s; }}
+    .snowflake:nth-of-type(4) {{ left: 50%; animation-duration: 10s; animation-delay: 3s; font-size: 1.2rem; }}
+    .snowflake:nth-of-type(5) {{ left: 65%; animation-duration: 9s; animation-delay: 0.5s; }}
+    .snowflake:nth-of-type(6) {{ left: 80%; animation-duration: 11s; animation-delay: 4s; }}
+    .snowflake:nth-of-type(7) {{ left: 90%; animation-duration: 8s; animation-delay: 1.5s; }}
+
+    /* TÍTULO CON EFECTO BRILLANTE TIPO ESPEJO / METÁLICO */
+    .mirror-title {{
+        font-size: 2.8rem;
+        font-weight: 900;
+        text-align: center;
+        text-transform: uppercase;
+        background: linear-gradient(135deg, #b38f27 0%, #fff7cc 25%, #d4af37 50%, #ffffff 75%, #997a15 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0px 0px 20px rgba(212, 175, 55, 0.4);
+        letter-spacing: 2px;
+        margin-bottom: 5px;
+    }}
+
     .stApp {{ color: #E0E0E0; }}
     h1, h2, h3 {{
-        color: #D4AF37 !important;
         font-family: 'Helvetica Neue', sans-serif;
         font-weight: 700;
         letter-spacing: 1px;
@@ -93,11 +131,20 @@ st.markdown(
         opacity: 0.3;
     }}
     </style>
+
+    <!-- COPOS DE NIEVE ANIMADOS -->
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
+    <div class="snowflake">❄</div>
+    <div class="snowflake">❅</div>
+    <div class="snowflake">❆</div>
+    <div class="snowflake">❄</div>
     """,
     unsafe_allow_html=True,
 )
 
-# Configuración de WhatsApp del Administrador/Barbería (Reemplazar con tu número con código de país)
+# Configuración de WhatsApp del Administrador/Barbería
 NUMERO_WHATSAPP_ADMIN = "584125205165"
 
 USUARIOS_VALIDOS = {
@@ -115,13 +162,15 @@ servicios_lista = [
     "Corte + Barba + Cejas (VIP)",
 ]
 
-# Inicialización de Estados
+# Inicialización de Estados (incluyendo memoria para recordar usuario)
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 if "usuario_actual" not in st.session_state:
     st.session_state.usuario_actual = ""
 if "ver_agendar_publico" not in st.session_state:
     st.session_state.ver_agendar_publico = False
+if "usuario_guardado" not in st.session_state:
+    st.session_state.usuario_guardado = ""
 
 if "servicios_realizados" not in st.session_state:
     st.session_state.servicios_realizados = pd.DataFrame(
@@ -159,9 +208,10 @@ if "fiados" not in st.session_state:
 
 # --- PANTALLA PÚBLICA / INICIO DE SESIÓN ---
 if not st.session_state.autenticado:
-    st.title("💈 BARBERÍA GODS TIME")
+    # TÍTULO CON EFECTO ESPEJO / METÁLICO
+    st.markdown('<div class="mirror-title">Barbería Gods Time</div>', unsafe_allow_html=True)
     st.markdown(
-        "<p style='color: #D4AF37 !important; font-size: 1.1em;'><i>Excelencia, estilo y precisión en cada detalle.</i></p>",
+        "<p style='color: #D4AF37 !important; font-size: 1.1em; text-align: center;'><i>Excelencia, estilo y precisión en cada detalle.</i></p>",
         unsafe_allow_html=True,
     )
     st.markdown("---")
@@ -209,7 +259,6 @@ if not st.session_state.autenticado:
                         [st.session_state.citas, nueva_cita], ignore_index=True
                     )
 
-                    # Generar enlace directo a WhatsApp para notificar a la barbería
                     mensaje_wsp = urllib.parse.quote(
                         f"💈 *NUEVA CITA AGENDADA EN LÍNEA*\n\n"
                         f"👤 *Cliente:* {cli_pub}\n"
@@ -233,12 +282,13 @@ if not st.session_state.autenticado:
                 st.session_state.ver_agendar_publico = False
                 st.rerun()
 
-        # Inicio de Sesión
+        # Inicio de Sesión con Opción de Recordar Usuario
         else:
             st.subheader("🔑 Iniciar Sesión")
             with st.form("form_login"):
-                usuario_input = st.text_input("Usuario").strip().lower()
+                usuario_input = st.text_input("Usuario", value=st.session_state.usuario_guardado).strip().lower()
                 password_input = st.text_input("Contraseña", type="password")
+                recordar_usuario = st.checkbox("Recordar usuario", value=bool(st.session_state.usuario_guardado))
                 btn_login = st.form_submit_button("Ingresar al Sistema")
 
                 if btn_login:
@@ -247,9 +297,13 @@ if not st.session_state.autenticado:
                         and USUARIOS_VALIDOS[usuario_input] == password_input
                     ):
                         st.session_state.autenticado = True
-                        st.session_state.usuario_actual = (
-                            usuario_input.capitalize()
-                        )
+                        st.session_state.usuario_actual = usuario_input.capitalize()
+                        
+                        if recordar_usuario:
+                            st.session_state.usuario_guardado = usuario_input
+                        else:
+                            st.session_state.usuario_guardado = ""
+
                         st.success(
                             f"¡Bienvenido, {st.session_state.usuario_actual}!"
                         )
