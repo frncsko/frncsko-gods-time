@@ -185,7 +185,7 @@ lista_barberos = ["Barbero Francisco", "Barbero Jonder"]
 servicios_lista = [
     "CORTE",
     "BARBA",
-    "CORTE / BARBA",
+    "CORTE CLASICO / BARBA",
     "Corte + Mascarilla",
     "Corte + Barba + Cejas + Mascarilla + Lavado(VIP)",
    
