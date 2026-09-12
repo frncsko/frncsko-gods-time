@@ -150,7 +150,7 @@ st.markdown(
 NUMERO_WHATSAPP_ADMIN = "584125205165"
 
 USUARIOS_VALIDOS = {
-    "admin": "godstime123",
+    "admin": "admin",
     "francisco": "barbero1",
     "jonder": "barbero2",
 }
@@ -162,6 +162,7 @@ servicios_lista = [
     "CORTE / BARBA",
     "Corte + Cejas",
     "Corte + Barba + Cejas (VIP)",
+    "AFEITADA DE JOYO",
 ]
 
 
