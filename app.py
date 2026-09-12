@@ -304,11 +304,7 @@ if not st.session_state.autenticado:
         st.markdown(
             "<div class='header-esquina-derecha'>", unsafe_allow_html=True
         )
-        if st.button("📅 ¡AGENDAR CITA AQUÍ! ✨", key="btn_top_agendar"):
-            st.session_state.ver_agendar_publico = True
-            st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
-
+       
     st.markdown(
         "<h1 class='titulo-contenedor'><span class='icono-base'><span class='icono-giratorio-interno'>💈</span></span> <span class='texto-brillante'>BARBERÍA GODS TIME</span></h1>",
         unsafe_allow_html=True,
