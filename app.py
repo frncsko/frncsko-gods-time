@@ -32,19 +32,7 @@ def inicializar_bd():
 
     
 
-    # Tabla de Fiados
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS fiados (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            cliente TEXT,
-            telefono TEXT,
-            deuda REAL,
-            estado TEXT
-        )
-    """)
-
-    conn.commit()
-    conn.close()
+    
 
 
 # Ejecutar la creación de tablas al iniciar
