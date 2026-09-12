@@ -28,21 +28,7 @@ def inicializar_bd():
         )
     """)
 
-    # Tabla de Citas (Local y Domicilio)
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS citas (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            fecha_hora TEXT,
-            cliente TEXT,
-            telefono TEXT,
-            barbero TEXT,
-            servicio TEXT,
-            tipo TEXT,
-            direccion TEXT,
-            costo_domicilio REAL,
-            estado TEXT
-        )
-    """)
+ 
 
     # Tabla de Gastos
     cursor.execute("""
