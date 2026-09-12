@@ -1,3 +1,19 @@
+import streamlit as st
+import extra_streamlit_components as stx
+
+# Inicializar gestor de cookies al principio del script
+@st.cache_resource
+def get_cookie_manager():
+    return stx.CookieManager()
+
+cookie_manager = get_cookie_manager()
+usuario_guardado = cookie_manager.get(cookie="usuario_sesion")
+
+if usuario_guardado:
+    st.session_state["autenticado"] = True
+    st.session_state["usuario"] = usuario_guardado
+
+# A partir de aquí continúa el resto de tu código
 import base64
 import os
 import urllib.parse
