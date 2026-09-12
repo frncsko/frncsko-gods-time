@@ -4,9 +4,9 @@ import urllib.parse
 import pandas as pd
 import streamlit as st
 
-# 1. Configuración inicial de la página
+# 1. Configuración inicial de la página (Diseño compacto tipo app)
 st.set_page_config(
-    page_title="Barbería Gods Time", page_icon="💈", layout="wide"
+    page_title="Barbería Gods Time", page_icon="💈", layout="centered"
 )
 
 # 2. Cargar imagen de fondo local con manejo de errores
@@ -17,9 +17,9 @@ try:
         imagen_base64 = base64.b64encode(bytes_imagen).decode()
         bg_css = f"""
         .stApp {{
-            background-image: linear-gradient(rgba(14, 14, 16, 0.85), rgba(14, 14, 16, 0.85)), 
+            background-image: linear-gradient(rgba(14, 14, 16, 0.90), rgba(14, 14, 16, 0.90)), 
                         url("data:image/png;base64,{imagen_base64}");
-            background-size: contain;
+            background-size: cover;
             background-repeat: no-repeat;
             background-position: center center;
             background-attachment: fixed;
@@ -32,7 +32,7 @@ except FileNotFoundError:
     }
     """
 
-# 3. Estilo CSS personalizado (Efecto brillante, icono giratorio y balones cayendo)
+# 3. Estilo CSS personalizado (Incluyendo barra de navegación inferior tipo App)
 st.markdown(
     f"""
     <style>
@@ -49,36 +49,13 @@ st.markdown(
         100% {{ transform: rotate(360deg); }}
     }}
 
-    @keyframes caer {{
-        0% {{ transform: translateY(-50px) rotate(0deg); opacity: 0.8; }}
-        100% {{ transform: translateY(105vh) rotate(720deg); opacity: 0.1; }}
-    }}
-
     .icono-giratorio {{
         display: inline-block;
         animation: girar 4s linear infinite;
     }}
 
-    /* Efecto de balones de fútbol cayendo */
-    .balon {{
-        position: fixed;
-        top: -50px;
-        font-size: 22px;
-        z-index: 1;
-        user-select: none;
-        pointer-events: none;
-        animation: caer linear infinite;
-    }}
-
-    .b1 {{ left: 5%; animation-duration: 7s; animation-delay: 0s; }}
-    .b2 {{ left: 18%; animation-duration: 9s; animation-delay: 2s; }}
-    .b3 {{ left: 35%; animation-duration: 6s; animation-delay: 1s; }}
-    .b4 {{ left: 52%; animation-duration: 8s; animation-delay: 3s; }}
-    .b5 {{ left: 70%; animation-duration: 10s; animation-delay: 0.5s; }}
-    .b6 {{ left: 88%; animation-duration: 7s; animation-delay: 4s; }}
-
     .titulo-brillante {{
-        font-size: 3rem;
+        font-size: 2.2rem;
         font-weight: 900;
         font-family: 'Helvetica Neue', sans-serif;
         text-align: center;
@@ -91,8 +68,6 @@ st.markdown(
         animation: shine 4s linear infinite;
         letter-spacing: 2px;
         margin-bottom: 0px;
-        position: relative;
-        z-index: 2;
     }}
 
     h2, h3 {{
@@ -102,64 +77,71 @@ st.markdown(
         letter-spacing: 1px;
     }}
     h4, h5, h6, p, label, span {{ color: #E0E0E0 !important; }}
+    
     div[data-testid="stMetric"] {{
         background-color: #1A1A1E;
         border: 1px solid #D4AF37;
-        border-radius: 8px;
+        border-radius: 12px;
         padding: 15px;
         box-shadow: 0 4px 10px rgba(212, 175, 55, 0.15);
     }}
     div[data-testid="stMetricLabel"] p {{ color: #C0C0C0 !important; }}
     div[data-testid="stMetricValue"] div {{ color: #F3E5AB !important; }}
+    
     .stButton > button {{
         background-color: #D4AF37 !important;
         color: #000000 !important;
         font-weight: bold !important;
         border: none !important;
-        border-radius: 6px !important;
+        border-radius: 8px !important;
         transition: all 0.3s ease;
     }}
     .stButton > button:hover {{
         background-color: #F3E5AB !important;
         box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
     }}
+    
     div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {{
         background-color: #1A1A1E !important;
         border: 1px solid #444444 !important;
         color: #FFFFFF !important;
-        border-radius: 6px;
+        border-radius: 8px;
     }}
     div[data-baseweb="input"] > div:focus-within, div[data-baseweb="select"] > div:focus-within {{
         border-color: #D4AF37 !important;
     }}
     input {{ color: #FFFFFF !important; }}
+    
     div[data-testid="stExpander"] {{
         background-color: #161619 !important;
         border: 1px solid #333333 !important;
-        border-radius: 8px;
+        border-radius: 10px;
     }}
     div[data-testid="stExpander"]:hover {{ border-color: #D4AF37 !important; }}
     div[data-testid="stExpander"] summary span {{
         color: #D4AF37 !important;
         font-weight: bold;
     }}
-    div[data-testid="stDataFrame"] {{
-        border: 1px solid #333333;
-        border-radius: 6px;
-    }}
+    
     hr {{
         border-color: #D4AF37 !important;
         opacity: 0.3;
     }}
-    </style>
 
-    <!-- Balones de fútbol cayendo en el fondo -->
-    <div class="balon b1">⚽</div>
-    <div class="balon b2">⚽</div>
-    <div class="balon b3">⚽</div>
-    <div class="balon b4">⚽</div>
-    <div class="balon b5">⚽</div>
-    <div class="balon b6">⚽</div>
+    /* Estilo barra inferior tipo App móvil */
+    .nav-bar-container {{
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #121215;
+        border-top: 1px solid #2A2A30;
+        display: flex;
+        justify-content: space-around;
+        padding: 10px 0;
+        z-index: 99999;
+    }}
+    </style>
     """,
     unsafe_allow_html=True,
 )
@@ -181,6 +163,7 @@ servicios_lista = [
     "Corte + Cejas",
     "Corte + Barba + Cejas (VIP)",
 ]
+
 
 # --- FUNCIONES DE PERSISTENCIA (CSV) ---
 CSV_SERVICIOS = "servicios.csv"
@@ -257,6 +240,8 @@ if "usuario_recordado" not in st.session_state:
     st.session_state.usuario_recordado = ""
 if "password_recordado" not in st.session_state:
     st.session_state.password_recordado = ""
+if "menu_actual" not in st.session_state:
+    st.session_state.menu_actual = "🏠 Inicio"
 
 # Cargar DataFrames desde archivos CSV
 (
@@ -267,7 +252,6 @@ if "password_recordado" not in st.session_state:
 ) = cargar_datos()
 
 
-# Función auxiliar para formatear teléfono con código de país
 def armar_telefono_wsp(codigo_pais, numero_local):
     num_limpio = "".join(filter(str.isdigit, str(numero_local)))
     if not num_limpio:
@@ -290,177 +274,223 @@ if not st.session_state.autenticado:
     )
     st.markdown("---")
 
-    col_centered = st.columns([1, 2, 1])
-    with col_centered[1]:
-        if st.session_state.ver_agendar_publico:
-            st.subheader("📅 Agendar Cita de Barbería")
-            st.write(
-                "Llena el formulario para reservar tu turno. Se enviará la confirmación directamente por WhatsApp."
+    if st.session_state.ver_agendar_publico:
+        st.subheader("📅 Agendar Cita de Barbería")
+        st.write(
+            "Llena el formulario para reservar tu turno. Se enviará la confirmación directamente por WhatsApp."
+        )
+
+        with st.form("form_cita_publica"):
+            cli_pub = st.text_input("Tu Nombre Completo")
+
+            c1_t, c2_t = st.columns([1, 2])
+            with c1_t:
+                cod_pub = st.selectbox(
+                    "País", ["+58 (VE)", "+57 (CO)", "+1 (US)", "+34 (ES)"]
+                )
+            with c2_t:
+                tel_pub_local = st.text_input("Tu Número (ej. 4121234567)")
+
+            barbero_pub = st.selectbox("Selecciona Barbero", lista_barberos)
+            serv_pub = st.selectbox("Servicio Deseado", servicios_lista)
+
+            col_f_p, col_h_p = st.columns(2)
+            with col_f_p:
+                fecha_pub = st.date_input("Fecha preferida")
+            with col_h_p:
+                hora_pub = st.time_input("Hora preferida")
+
+            submit_pub = st.form_submit_button(
+                "📩 Reservar Turno y Notificar por WhatsApp"
             )
 
-            with st.form("form_cita_publica"):
-                cli_pub = st.text_input("Tu Nombre Completo")
+            if submit_pub and cli_pub and tel_pub_local:
+                tel_completo = armar_telefono_wsp(cod_pub, tel_pub_local)
+                fecha_hora_str = f"{fecha_pub} {hora_pub.strftime('%H:%M')}"
 
-                c1_t, c2_t = st.columns([1, 2])
-                with c1_t:
-                    cod_pub = st.selectbox(
-                        "País", ["+58 (VE)", "+57 (CO)", "+1 (US)", "+34 (ES)"]
-                    )
-                with c2_t:
-                    tel_pub_local = st.text_input(
-                        "Tu Número (ej. 4121234567)"
-                    )
+                nueva_cita = pd.DataFrame(
+                    {
+                        "Fecha y Hora": [fecha_hora_str],
+                        "Cliente": [cli_pub],
+                        "Teléfono": [tel_completo],
+                        "Barbero": [barbero_pub],
+                        "Servicio": [serv_pub],
+                        "Estado": ["Pendiente (Online)"],
+                    }
+                )
+                st.session_state.citas = pd.concat(
+                    [st.session_state.citas, nueva_cita], ignore_index=True
+                )
+                guardar_csv(st.session_state.citas, "citas")
 
-                barbero_pub = st.selectbox("Selecciona Barbero", lista_barberos)
-                serv_pub = st.selectbox("Servicio Deseado", servicios_lista)
-
-                col_f_p, col_h_p = st.columns(2)
-                with col_f_p:
-                    fecha_pub = st.date_input("Fecha preferida")
-                with col_h_p:
-                    hora_pub = st.time_input("Hora preferida")
-
-                submit_pub = st.form_submit_button(
-                    "📩 Reservar Turno y Notificar por WhatsApp"
+                mensaje_texto = (
+                    f"Estimado/a *Barbería Gods Time*,\n\n"
+                    f"Les escribo para confirmar una nueva cita agendada en línea.\n\n"
+                    f"👤 *Cliente:* {cli_pub}\n"
+                    f"📱 *Teléfono:* +{tel_completo}\n"
+                    f"✂️ *Barbero:* {barbero_pub}\n"
+                    f"💈 *Servicio:* {serv_pub}\n"
+                    f"📅 *Fecha y Hora:* {fecha_hora_str}\n\n"
+                    f"Agradezco su atención."
+                )
+                mensaje_wsp = urllib.parse.quote(mensaje_texto)
+                wsp_link = (
+                    f"https://wa.me/{NUMERO_WHATSAPP_ADMIN}?text={mensaje_wsp}"
                 )
 
-                if submit_pub and cli_pub and tel_pub_local:
-                    tel_completo = armar_telefono_wsp(cod_pub, tel_pub_local)
-                    fecha_hora_str = f"{fecha_pub} {hora_pub.strftime('%H:%M')}"
-
-                    nueva_cita = pd.DataFrame(
-                        {
-                            "Fecha y Hora": [fecha_hora_str],
-                            "Cliente": [cli_pub],
-                            "Teléfono": [tel_completo],
-                            "Barbero": [barbero_pub],
-                            "Servicio": [serv_pub],
-                            "Estado": ["Pendiente (Online)"],
-                        }
-                    )
-                    st.session_state.citas = pd.concat(
-                        [st.session_state.citas, nueva_cita], ignore_index=True
-                    )
-                    guardar_csv(st.session_state.citas, "citas")
-
-                    mensaje_texto = (
-                        f"Estimado/a *Barbería Gods Time*,\n\n"
-                        f"Les escribo para confirmar una nueva cita agendada en línea.\n\n"
-                        f"👤 *Cliente:* {cli_pub}\n"
-                        f"📱 *Teléfono:* +{tel_completo}\n"
-                        f"✂️ *Barbero:* {barbero_pub}\n"
-                        f"💈 *Servicio:* {serv_pub}\n"
-                        f"📅 *Fecha y Hora:* {fecha_hora_str}\n\n"
-                        f"Agradezco su atención."
-                    )
-                    mensaje_wsp = urllib.parse.quote(mensaje_texto)
-                    wsp_link = (
-                        f"https://wa.me/{NUMERO_WHATSAPP_ADMIN}?text={mensaje_wsp}"
-                    )
-
-                    st.success("¡Cita registrada con éxito en el sistema!")
-                    st.markdown(
-                        f'<a href="{wsp_link}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:12px 20px; border-radius:6px; font-weight:bold; width:100%; cursor:pointer; font-size:1.1em;">💬 Haz Clic Aquí para Notificar por WhatsApp</button></a>',
-                        unsafe_allow_html=True,
-                    )
-
-            st.write("")
-            if st.button("⬅️ Volver al Inicio de Sesión"):
-                st.session_state.ver_agendar_publico = False
-                st.rerun()
-
-        else:
-            st.subheader("🔑 Iniciar Sesión")
-            with st.form("form_login"):
-                usuario_input = (
-                    st.text_input(
-                        "Usuario", value=st.session_state.usuario_recordado
-                    )
-                    .strip()
-                    .lower()
+                st.success("¡Cita registrada con éxito en el sistema!")
+                st.markdown(
+                    f'<a href="{wsp_link}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:12px 20px; border-radius:8px; font-weight:bold; width:100%; cursor:pointer; font-size:1.1em;">💬 Haz Clic Aquí para Notificar por WhatsApp</button></a>',
+                    unsafe_allow_html=True,
                 )
-                password_input = st.text_input(
-                    "Contraseña",
-                    type="password",
-                    value=st.session_state.password_recordado,
-                )
-                recordar_credenciales = st.checkbox(
-                    "Recordar usuario y contraseña",
-                    value=bool(st.session_state.usuario_recordado),
-                )
-                btn_login = st.form_submit_button("Ingresar al Sistema")
 
-                if btn_login:
-                    if (
-                        usuario_input in USUARIOS_VALIDOS
-                        and USUARIOS_VALIDOS[usuario_input] == password_input
-                    ):
-                        st.session_state.autenticado = True
-                        st.session_state.usuario_actual = (
-                            usuario_input.capitalize()
-                        )
-                        if recordar_credenciales:
-                            st.session_state.usuario_recordado = usuario_input
-                            st.session_state.password_recordado = password_input
-                        else:
-                            st.session_state.usuario_recordado = ""
-                            st.session_state.password_recordado = ""
+        st.write("")
+        if st.button("⬅️ Volver al Inicio de Sesión"):
+            st.session_state.ver_agendar_publico = False
+            st.rerun()
 
-                        st.success(
-                            f"¡Bienvenido, {st.session_state.usuario_actual}!"
-                        )
-                        st.rerun()
+    else:
+        st.subheader("🔑 Iniciar Sesión")
+        with st.form("form_login"):
+            usuario_input = (
+                st.text_input(
+                    "Usuario", value=st.session_state.usuario_recordado
+                )
+                .strip()
+                .lower()
+            )
+            password_input = st.text_input(
+                "Contraseña",
+                type="password",
+                value=st.session_state.password_recordado,
+            )
+            recordar_credenciales = st.checkbox(
+                "Recordar usuario y contraseña",
+                value=bool(st.session_state.usuario_recordado),
+            )
+            btn_login = st.form_submit_button("Ingresar al Sistema")
+
+            if btn_login:
+                if (
+                    usuario_input in USUARIOS_VALIDOS
+                    and USUARIOS_VALIDOS[usuario_input] == password_input
+                ):
+                    st.session_state.autenticado = True
+                    st.session_state.usuario_actual = (
+                        usuario_input.capitalize()
+                    )
+                    if recordar_credenciales:
+                        st.session_state.usuario_recordado = usuario_input
+                        st.session_state.password_recordado = password_input
                     else:
-                        st.error("Usuario o contraseña incorrectos.")
+                        st.session_state.usuario_recordado = ""
+                        st.session_state.password_recordado = ""
 
-            st.markdown("---")
-            st.write("¿Eres cliente y quieres reservar un turno?")
-            if st.button("📅 Agendar Cita Aquí (Público)"):
-                st.session_state.ver_agendar_publico = True
-                st.rerun()
+                    st.success(
+                        f"¡Bienvenido, {st.session_state.usuario_actual}!"
+                    )
+                    st.rerun()
+                else:
+                    st.error("Usuario o contraseña incorrectos.")
+
+        st.markdown("---")
+        st.write("¿Eres cliente y quieres reservar un turno?")
+        if st.button("📅 Agendar Cita Aquí (Público)"):
+            st.session_state.ver_agendar_publico = True
+            st.rerun()
 
     st.stop()
 
-# --- MENÚ LATERAL IZQUIERDO ---
-with st.sidebar:
-    st.markdown(f"👤 **Usuario:** {st.session_state.usuario_actual}")
-    if st.button("🚪 Cerrar Sesión"):
-        st.session_state.autenticado = False
-        st.session_state.usuario_actual = ""
-        st.session_state.ver_agendar_publico = False
-        st.rerun()
 
-    st.markdown("---")
-    st.subheader("📌 Menú Principal")
-
-    opciones_menu = [
-        "📊 Caja y Resumen",
-        "✂️ Registrar Servicio",
-        "📅 Agendar Citas",
-        "⏰ Recordatorio de Cortes",
-        "👥 Barberos y Comisión",
-        "📤 Gastos del Local",
-        "📝 Cobrar Fiados",
-        "📥 Respaldar / Exportar Datos",
-    ]
-
-    opcion_menu = st.radio("", opciones_menu)
-
-# --- SISTEMA PRINCIPAL (ADMINISTRACIÓN) ---
+# --- PANEL DE CONTROL PRINCIPAL (ESTILO TARJETAS / APP MÓVIL) ---
 st.markdown(
     '<h1 class="titulo-brillante"><span class="icono-giratorio">💈</span> BARBERÍA GODS TIME <span class="icono-giratorio">💈</span></h1>',
     unsafe_allow_html=True,
 )
 st.markdown(
-    "<p style='color: #D4AF37 !important; font-size: 1.1em; text-align: center;'><i>Excelencia, estilo y precisión en cada detalle.</i></p>",
+    "<p style='color: #D4AF37 !important; font-size: 1.0em; text-align: center;'><i>Excelencia, estilo y precisión en cada detalle.</i></p>",
     unsafe_allow_html=True,
 )
 st.markdown("---")
 
-opcion_index = opciones_menu.index(opcion_menu)
+# Barra superior de perfil y cierre de sesión compacto
+col_user_info, col_logout = st.columns([3, 1])
+with col_user_info:
+    st.markdown(f"👤 **Conectado como:** `{st.session_state.usuario_actual}`")
+with col_logout:
+    if st.button("🚪 Salir"):
+        st.session_state.autenticado = False
+        st.session_state.usuario_actual = ""
+        st.session_state.ver_agendar_publico = False
+        st.rerun()
 
-# 1. CAJA Y RESUMEN GENERAL
-if opcion_index == 0:
+st.markdown("")
+
+# --- NUEVO MENÚ EN TARJETAS TIPO APP ---
+st.subheader("📌 Menú de Control Rápido")
+
+# Fila 1 de botones de acceso rápido
+c1, c2, c3, c4 = st.columns(4)
+with c1:
+    if st.button(
+        "📊\nBalance",
+        use_container_width=True,
+        help="Caja y Resumen Financiero",
+    ):
+        st.session_state.menu_actual = "📊 Caja y Resumen"
+with c2:
+    if st.button(
+        "✂️\nServicio", use_container_width=True, help="Registrar Nuevo Corte"
+    ):
+        st.session_state.menu_actual = "✂️ Registrar Servicio"
+with c3:
+    if st.button(
+        "📅\nCitas", use_container_width=True, help="Agendar y Ver Citas"
+    ):
+        st.session_state.menu_actual = "📅 Agendar Citas"
+with c4:
+    if st.button(
+        "⏰\nAlertas", use_container_width=True, help="Recordatorios de Cortes"
+    ):
+        st.session_state.menu_actual = "⏰ Recordatorio de Cortes"
+
+# Fila 2 de botones de acceso rápido
+c5, c6, c7, c8 = st.columns(4)
+with c5:
+    if st.button(
+        "👥\nComisiones",
+        use_container_width=True,
+        help="Control de Barberos",
+    ):
+        st.session_state.menu_actual = "👥 Barberos y Comisión"
+with c6:
+    if st.button(
+        "📤\nGastos", use_container_width=True, help="Gastos de la Barbería"
+    ):
+        st.session_state.menu_actual = "📤 Gastos del Local"
+with c7:
+    if st.button(
+        "📝\nFiados", use_container_width=True, help="Cuentas Pendientes"
+    ):
+        st.session_state.menu_actual = "📝 Cobrar Fiados"
+with c8:
+    if st.button(
+        "📥\nRespaldos", use_container_width=True, help="Exportar e Importar CSV"
+    ):
+        st.session_state.menu_actual = "📥 Respaldar / Exportar Datos"
+
+st.markdown(
+    f"<p style='text-align:center; color:#D4AF37; font-size:0.9em;'>Sección activa: <b>{st.session_state.menu_actual}</b></p>",
+    unsafe_allow_html=True,
+)
+st.markdown("---")
+
+opcion_menu = st.session_state.menu_actual
+
+# --- CONTENIDO DE LAS SECCIONES ---
+
+# 1. CAJA Y RESUMEN
+if opcion_menu == "📊 Caja y Resumen":
     st.header("Caja del Día y Resumen Financiero")
 
     df_servicios = st.session_state.servicios_realizados
@@ -475,9 +505,9 @@ if opcion_index == 0:
     balance_neto = total_ingresos - total_gastos
 
     col1, col2, col3 = st.columns(3)
-    col1.metric("Ingresos por Servicios", f"${total_ingresos:,.2f}")
-    col2.metric("Gastos Operativos Totales", f"${total_gastos:,.2f}")
-    col3.metric("Balance Neto en Caja", f"${balance_neto:,.2f}")
+    col1.metric("Ingresos", f"${total_ingresos:,.2f}")
+    col2.metric("Gastos", f"${total_gastos:,.2f}")
+    col3.metric("Neto Caja", f"${balance_neto:,.2f}")
 
     st.markdown("---")
     st.subheader("Historial de Servicios del Día")
@@ -487,7 +517,7 @@ if opcion_index == 0:
         st.info("Aún no se han registrado servicios hoy.")
 
 # 2. REGISTRAR SERVICIO
-elif opcion_index == 1:
+elif opcion_menu == "✂️ Registrar Servicio":
     st.header("Registrar Nuevo Corte o Servicio")
 
     with st.form("form_servicio"):
@@ -536,7 +566,7 @@ elif opcion_index == 1:
             st.rerun()
 
 # 3. AGENDAR CITAS (ADMIN)
-elif opcion_index == 2:
+elif opcion_menu == "📅 Agendar Citas":
     st.header("Agendamiento de Citas y Recordatorios")
 
     with st.form("form_cita"):
@@ -601,8 +631,8 @@ elif opcion_index == 2:
             with st.expander(
                 f"📅 {row['Fecha y Hora']} - {row['Cliente']} ({row['Barbero']}) - [{row.get('Estado', 'Pendiente')}]"
             ):
-                st.write(f"**Servicio Realizado:** {row['Servicio']}")
-                st.write(f"**Número de Teléfono:** +{row['Teléfono']}")
+                st.write(f"**Servicio:** {row['Servicio']}")
+                st.write(f"**Teléfono:** +{row['Teléfono']}")
 
                 tel_clean = "".join(filter(str.isdigit, str(row["Teléfono"])))
                 if tel_clean and tel_clean != "NA":
@@ -610,20 +640,19 @@ elif opcion_index == 2:
                         f"Estimado/a *{row['Cliente']}*,\n\n"
                         f"Le escribimos de *Barbería God's Time* para confirmarle su cita con "
                         f"el/la barbero/a *{row['Barbero']}* programada para el día *{row['Fecha y Hora']}*.\n\n"
-                        f"Servicio solicitado: *{row['Servicio']}*\n\n"
-                        f"Le recordamos asistir con unos minutos de anticipación. "
-                        f"En caso de requerir reprogramar o cancelar, le agradecemos notificárnoslo con antelación.\n\n"
-                        f"¡Agradecemos su preferencia y lo esperamos!"
+                        f"Servicio solicitado: *{row['Servicio']}*.\n\n"
+                        f"¡Le esperamos!"
                     )
                     msg = urllib.parse.quote(msg_texto)
                     wsp_url = f"https://wa.me/{tel_clean}?text={msg}"
                     st.markdown(
-                        f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer;">💬 Notificar Cita por WhatsApp</button></a>',
+                        f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:6px; font-weight:bold; cursor:pointer;">💬 Notificar por WhatsApp</button></a>',
                         unsafe_allow_html=True,
                     )
                 else:
                     st.caption("Sin número válido registrado.")
 
+                st.write("")
                 if st.button(
                     f"Completar / Eliminar Cita de {row['Cliente']}",
                     key=f"del_cita_{idx}",
@@ -638,7 +667,7 @@ elif opcion_index == 2:
         st.info("No hay citas programadas actualmente.")
 
 # 4. RECORDATORIO DE CORTES
-elif opcion_index == 3:
+elif opcion_menu == "⏰ Recordatorio de Cortes":
     st.header("⏰ Recordatorio de Mantenimiento / Próximo Corte")
     st.write(
         "Notifica a tus clientes habituales cuando ya ha transcurrido cierto tiempo desde su último corte."
@@ -677,7 +706,7 @@ elif opcion_index == 3:
                     st.write(
                         f"**Servicio anterior:** {row['Servicio']} - {row['Fecha']}"
                     )
-                    st.write(f"**Número de Teléfono:** +{row['Teléfono']}")
+                    st.write(f"**Teléfono:** +{row['Teléfono']}")
 
                     tel_clean = "".join(
                         filter(str.isdigit, str(row["Teléfono"]))
@@ -685,27 +714,24 @@ elif opcion_index == 3:
                     if tel_clean and tel_clean != "NA":
                         msg_texto = (
                             f"Estimado/a *{row['Cliente']}*,\n\n"
-                            f"Le saludamos cordialmente de *Barbería God's Time*. Hemos notado que han transcurrido {row['Dias_transcurridos']} días desde su último servicio ({row['Servicio']}).\n\n"
-                            f"Nos encantaría recibirle nuevamente para mantener su estilo impecable. ¿Desea que le agendemos un espacio esta semana?\n\n"
-                            f"¡Quedamos a su completa disposición!"
+                            f"Le saludamos cordialmente de *Barbería God's Time*. Han transcurrido {row['Dias_transcurridos']} días desde su último servicio ({row['Servicio']}).\n\n"
+                            f"¿Desea que le agendemos un espacio esta semana?"
                         )
                         msg = urllib.parse.quote(msg_texto)
                         wsp_url = f"https://wa.me/{tel_clean}?text={msg}"
                         st.markdown(
-                            f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer;">💬 Enviar Recordatorio por WhatsApp</button></a>',
+                            f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:6px; font-weight:bold; cursor:pointer;">💬 Enviar Recordatorio por WhatsApp</button></a>',
                             unsafe_allow_html=True,
                         )
                     else:
                         st.caption("Sin número válido registrado.")
         else:
-            st.info(
-                "No hay clientes que hayan superado el límite de días seleccionado."
-            )
+            st.info("No hay clientes que hayan superado el límite de días.")
     else:
         st.info("Registra servicios primero para calcular los recordatorios.")
 
 # 5. BARBEROS Y COMISIONES
-elif opcion_index == 4:
+elif opcion_menu == "👥 Barberos y Comisión":
     st.header("👥 Control de Comisiones y Balance por Barbero")
     st.write(
         "Calcula el porcentaje de comisión, resta los gastos asignados a cada barbero y obtiene la ganancia neta."
@@ -756,12 +782,10 @@ elif opcion_index == 4:
         df_resumen = pd.DataFrame(resumen_barberos)
         st.dataframe(df_resumen, use_container_width=True)
     else:
-        st.info(
-            "Registra servicios en la opción correspondiente para visualizar el desglose de comisiones."
-        )
+        st.info("Registra servicios para visualizar el desglose de comisiones.")
 
 # 6. GASTOS DEL LOCAL
-elif opcion_index == 5:
+elif opcion_menu == "📤 Gastos del Local":
     st.header("📤 Gastos de la Barbería y Barberos")
     st.write(
         "Registra compras de insumos, adelantos o gastos operacionales asignados a cada barbero o al local."
@@ -774,11 +798,9 @@ elif opcion_index == 5:
             "¿A quién corresponde este gasto?", opciones_asignacion
         )
         desc_gasto = st.text_input(
-            "Descripción del gasto (ej. Cuchillas, gel, adelanto, etc.)"
+            "Descripción del gasto (ej. Cuchillas, gel, etc.)"
         )
-        monto_gasto = st.number_input(
-            "Monto ($)", min_value=0.0, step=0.5
-        )
+        monto_gasto = st.number_input("Monto ($)", min_value=0.0, step=0.5)
 
         submit_gasto = st.form_submit_button("Guardar Gasto")
 
@@ -807,7 +829,7 @@ elif opcion_index == 5:
         st.info("Aún no se han registrado gastos hoy.")
 
 # 7. COBRAR FIADOS
-elif opcion_index == 6:
+elif opcion_menu == "📝 Cobrar Fiados":
     st.header("📝 Cuentas Pendientes y Cobro (Fiados)")
 
     with st.form("form_fiados"):
@@ -858,19 +880,19 @@ elif opcion_index == 6:
             with st.expander(
                 f"📌 {row['Cliente']} - ${row['Deuda Pendiente ($)']:,.2f}"
             ):
-                st.write(f"**Número de Teléfono:** +{row['Teléfono']}")
+                st.write(f"**Teléfono:** +{row['Teléfono']}")
 
                 tel_clean = "".join(filter(str.isdigit, str(row["Teléfono"])))
                 if tel_clean and tel_clean != "NA":
                     msg_texto = (
                         f"Estimado/a *{row['Cliente']}*,\n\n"
                         f"Le escribimos de *Barbería God's Time* para recordarle amablemente que posee un saldo pendiente por cancelar de *${row['Deuda Pendiente ($)']:,.2f}*.\n\n"
-                        f"Agradecemos de antemano su pronta atención a este pago. ¡Muchas gracias!"
+                        f"Agradecemos su pronta atención."
                     )
                     msg = urllib.parse.quote(msg_texto)
                     wsp_url = f"https://wa.me/{tel_clean}?text={msg}"
                     st.markdown(
-                        f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer;">💬 Cobrar por WhatsApp</button></a>',
+                        f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:6px; font-weight:bold; cursor:pointer;">💬 Cobrar por WhatsApp</button></a>',
                         unsafe_allow_html=True,
                     )
                 else:
@@ -891,75 +913,66 @@ elif opcion_index == 6:
         st.info("No hay cuentas pendientes.")
 
 # 8. RESPALDAR / EXPORTAR DATOS
-elif opcion_index == 7:
+elif opcion_menu == "📥 Respaldar / Exportar Datos":
     st.header("📥 Respaldar y Descargar Historial")
     st.write(
-        "Descarga tus archivos de respaldo directamente a tu computadora para asegurarte de no perder nunca la información."
+        "Descarga tus archivos de respaldo directamente a tu computadora."
     )
 
     col_b1, col_b2 = st.columns(2)
 
     with col_b1:
         st.subheader("Descargar Respaldos (CSV)")
-
-        # Botón para descargar servicios
         csv_servicios_bytes = (
             st.session_state.servicios_realizados.to_csv(index=False).encode(
                 "utf-8"
             )
         )
         st.download_button(
-            label="📥 Descargar Historial de Servicios",
+            label="📥 Descargar Servicios",
             data=csv_servicios_bytes,
             file_name="respaldo_servicios.csv",
             mime="text/csv",
         )
 
-        # Botón para descargar citas
         csv_citas_bytes = st.session_state.citas.to_csv(index=False).encode(
             "utf-8"
         )
         st.download_button(
-            label="📥 Descargar Citas Programadas",
+            label="📥 Descargar Citas",
             data=csv_citas_bytes,
             file_name="respaldo_citas.csv",
             mime="text/csv",
         )
 
     with col_b2:
-        st.subheader("‎")  # Espaciador visual
-        # Botón para descargar gastos
+        st.subheader("‎")
         csv_gastos_bytes = (
             st.session_state.gastos_barberia.to_csv(index=False).encode(
                 "utf-8"
             )
         )
         st.download_button(
-            label="📥 Descargar Registro de Gastos",
+            label="📥 Descargar Gastos",
             data=csv_gastos_bytes,
             file_name="respaldo_gastos.csv",
             mime="text/csv",
         )
 
-        # Botón para descargar fiados
         csv_fiados_bytes = st.session_state.fiados.to_csv(index=False).encode(
             "utf-8"
         )
         st.download_button(
-            label="📥 Descargar Cuentas de Fiados",
+            label="📥 Descargar Fiados",
             data=csv_fiados_bytes,
             file_name="respaldo_fiados.csv",
             mime="text/csv",
         )
 
     st.markdown("---")
-    st.subheader("🔄 Restaurar o Cargar un Respaldo Anterior")
-    st.write(
-        "Si tienes un archivo CSV guardado previamente y quieres cargarlo de nuevo al sistema, súbelo aquí:"
-    )
-
+    st.subheader("🔄 Restaurar Respaldo")
     archivo_subido = st.file_uploader(
-        "Selecciona un archivo CSV de respaldo", type=["csv"]
+        "Selecciona un archivo CSV", type=["csv"]
     )
     tipo_destino = st.selectbox(
         "¿A qué sección pertenece este archivo?",
@@ -967,7 +980,7 @@ elif opcion_index == 7:
     )
 
     if archivo_subido is not None:
-        if st.button("📤 Cargar y Sobrescribir Datos con este Archivo"):
+        if st.button("📤 Cargar y Sobrescribir"):
             df_subido = pd.read_csv(archivo_subido)
             if tipo_destino == "Servicios":
                 st.session_state.servicios_realizados = df_subido
@@ -983,6 +996,6 @@ elif opcion_index == 7:
                 guardar_csv(df_subido, "fiados")
 
             st.success(
-                f"¡El respaldo de {tipo_destino} se ha cargado correctamente!"
+                f"¡El respaldo de {tipo_destino} se cargó correctamente!"
             )
             st.rerun()
