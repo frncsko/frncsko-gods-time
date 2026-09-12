@@ -1,28 +1,29 @@
 import streamlit as st
 import extra_streamlit_components as stx
 
-# 1. Configuración de página
+# 1. Configuración de página (SIEMPRE la primera orden)
 st.set_page_config(
     page_title="Barbería Gods Time",
     page_icon="✂️",
     layout="centered"
 )
 
-# 2. Inicializar cookies
+# 2. Inicializar gestor de cookies
 cookie_manager = stx.CookieManager()
 
-# 3. Leer la cookie guardada
-# 3. Mantenimiento de sesión
-usuario_guardado = cookie_manager.get(cookie="usuario_sesion")
+# 3. Leer cookie guardada
+usuario_cookie = cookie_manager.get(cookie="usuario_sesion")
 
-if usuario_guardado and st.session_state.get("autenticado", True):
+if usuario_cookie:
     st.session_state["autenticado"] = True
-    st.session_state["usuario"] = usuario_guardado
-else:
-    st.session_state["autenticado"] = False
-    st.session_state["usuario"] = None
+    st.session_state["usuario"] = usuario_cookie
+
 # Importaciones adicionales
 import base64
+import os
+import urllib.parse
+import pandas as pd
+import time
 import os
 import urllib.parse
 import pandas as pd
@@ -451,10 +452,18 @@ with col_logout:
         cookie_manager.delete("usuario_sesion", key="logout_cookie")
         st.session_state["autenticado"] = False
         st.session_state["usuario"] = None
-        import time
+        col_user_info, col_logout = st.columns([3, 1])
+
+with col_user_info:
+    st.markdown(f"👤 **Conectado como:** `{st.session_state.get('usuario', 'Usuario')}`")
+
+with col_logout:
+    if st.button("LOG OUT"):
+        cookie_manager.delete("usuario_sesion", key="logout_cookie")
+        st.session_state["autenticado"] = False
+        st.session_state["usuario"] = None
         time.sleep(0.5)
         st.rerun()
-
 st.markdown("")
 
 # --- NUEVO MENÚ EN TARJETAS TIPO APP ---
