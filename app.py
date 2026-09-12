@@ -441,13 +441,12 @@ st.markdown("---")
 col_user_info, col_logout = st.columns([3, 1])
 with col_user_info:
     st.markdown(f"👤 **Conectado como:** `{st.session_state.usuario_actual}`")
-with col_logout:
-    if st.button("LOG OUT"):
-    cookie_manager.delete("usuario_sesion", key="logout_cookie")
-    st.session_state["autenticado"] = False
-    st.session_state["usuario"] = None
-    st.rerun()
-
+    with col_logout:
+        if st.button("LOG OUT"):
+            cookie_manager.delete("usuario_sesion", key="logout_cookie")
+            st.session_state["autenticado"] = False
+            st.session_state["usuario"] = None
+            st.rerun()
 st.markdown("")
 
 # --- NUEVO MENÚ EN TARJETAS TIPO APP ---
