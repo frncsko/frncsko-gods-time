@@ -23,16 +23,6 @@ import base64
 import os
 import urllib.parse
 import pandas as pd
-    cookie_manager.set("usuario_sesion", "admin", max_age=2592000, key="auto_login_cookie")
-
-# Importaciones adicionales
-import base64
-import os
-import urllib.parse
-import pandas as pd
-import urllib.parse
-import pandas as pd
-
 
 col_vacia, col_notif = st.columns([0.85, 0.15]) # Divide la pantalla para mover la campana a la derecha
 
