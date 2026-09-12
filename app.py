@@ -6,7 +6,7 @@ import streamlit as st
 
 # 1. Configuración inicial de la página (Diseño compacto tipo app)
 st.set_page_config(
-    page_title="Barbería Gods Time", page_icon="", layout="centered"
+    page_title="Barbería Gods Time", page_icon="🪒", layout="centered"
 )
 
 # 2. Cargar imagen de fondo local con manejo de errores
