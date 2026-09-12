@@ -160,8 +160,8 @@ servicios_lista = [
     "CORTE",
     "BARBA",
     "CORTE / BARBA",
-    "Corte + MAMADA ANAL",
-    "Corte + Barba + Cejas (VIP)",
+    "Corte + Mascarilla",
+    "Corte + Barba + Cejas + Mascarilla + Lavado(VIP)",
    
 ]
 
