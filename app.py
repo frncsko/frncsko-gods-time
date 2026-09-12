@@ -31,73 +31,21 @@ except FileNotFoundError:
     }
     """
 
-# 3. Estilo CSS (Efecto Espejo, Más Nieve, Gorro Navideño y Fondo Completo)
+# 3. Estilo CSS (Sin dorado, sin Navidad, Título con borde negro y Login izquierdo pequeño)
 st.markdown(
     f"""
     <style>
     {bg_css}
     
-    /* EFECTO NIEVE CAYENDO (MUCHO MÁS INTENSA) */
-    @keyframes snowfall {{
-        0% {{ transform: translateY(-10vh) translateX(0); opacity: 0.9; }}
-        50% {{ transform: translateY(50vh) translateX(15px); opacity: 0.7; }}
-        100% {{ transform: translateY(105vh) translateX(-10px); opacity: 0.3; }}
-    }}
-    .snowflake {{
-        position: fixed;
-        top: -10vh;
-        z-index: 9999;
-        user-select: none;
-        pointer-events: none;
-        color: #ffffff;
-        font-size: 1.2rem;
-        animation: snowfall linear infinite;
-        text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
-    }}
-    .snowflake:nth-of-type(1) {{ left: 5%; animation-duration: 6s; animation-delay: 0s; font-size: 0.8rem; }}
-    .snowflake:nth-of-type(2) {{ left: 12%; animation-duration: 9s; animation-delay: 1s; font-size: 1.4rem; }}
-    .snowflake:nth-of-type(3) {{ left: 20%; animation-duration: 5s; animation-delay: 0.5s; font-size: 1rem; }}
-    .snowflake:nth-of-type(4) {{ left: 28%; animation-duration: 7s; animation-delay: 2s; font-size: 1.6rem; }}
-    .snowflake:nth-of-type(5) {{ left: 35%; animation-duration: 8s; animation-delay: 1.2s; font-size: 0.9rem; }}
-    .snowflake:nth-of-type(6) {{ left: 45%; animation-duration: 6s; animation-delay: 0.3s; font-size: 1.3rem; }}
-    .snowflake:nth-of-type(7) {{ left: 55%; animation-duration: 10s; animation-delay: 2.5s; font-size: 1.5rem; }}
-    .snowflake:nth-of-type(8) {{ left: 62%; animation-duration: 7s; animation-delay: 1.8s; font-size: 1rem; }}
-    .snowflake:nth-of-type(9) {{ left: 70%; animation-duration: 5s; animation-delay: 0.7s; font-size: 1.2rem; }}
-    .snowflake:nth-of-type(10) {{ left: 78%; animation-duration: 9s; animation-delay: 3s; font-size: 1.7rem; }}
-    .snowflake:nth-of-type(11) {{ left: 85%; animation-duration: 6s; animation-delay: 1.1s; font-size: 0.9rem; }}
-    .snowflake:nth-of-type(12) {{ left: 92%; animation-duration: 8s; animation-delay: 0.4s; font-size: 1.4rem; }}
-
-    /* EFECTO NAVIDEÑO - GORRO SOBRE EL TÍTULO */
-    .xmas-container {{
-        position: relative;
-        display: inline-block;
-        text-align: center;
-        width: 100%;
-    }}
-    .xmas-hat {{
-        position: absolute;
-        top: -35px;
-        right: 42%;
-        font-size: 2.5rem;
-        transform: rotate(15deg);
-        z-index: 10;
-        animation: float-hat 3s ease-in-out infinite;
-    }}
-    @keyframes float-hat {{
-        0%, 100% {{ transform: translateY(0) rotate(15deg); }}
-        50% {{ transform: translateY(-5px) rotate(20deg); }}
-    }}
-
-    /* TÍTULO CON EFECTO BRILLANTE TIPO ESPEJO / METÁLICO */
-    .mirror-title {{
+    /* TÍTULO CON BORDE NEGRO Y LETRAS BLANCAS */
+    .border-title {{
         font-size: 2.8rem;
         font-weight: 900;
         text-align: center;
         text-transform: uppercase;
-        background: linear-gradient(135deg, #b38f27 0%, #fff7cc 25%, #d4af37 50%, #ffffff 75%, #997a15 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-shadow: 0px 0px 20px rgba(212, 175, 55, 0.4);
+        color: #FFFFFF;
+        -webkit-text-stroke: 2px #000000;
+        text-shadow: 3px 3px 0px #000000, -1px -1px 0px #000000, 1px -1px 0px #000000, -1px 1px 0px #000000, 1px 1px 0px #000000;
         letter-spacing: 2px;
         margin-bottom: 5px;
     }}
@@ -111,24 +59,24 @@ st.markdown(
     h4, h5, h6, p, label, span {{ color: #E0E0E0 !important; }}
     div[data-testid="stMetric"] {{
         background-color: #1A1A1E;
-        border: 1px solid #D4AF37;
+        border: 1px solid #444444;
         border-radius: 8px;
         padding: 15px;
-        box-shadow: 0 4px 10px rgba(212, 175, 55, 0.15);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     }}
     div[data-testid="stMetricLabel"] p {{ color: #C0C0C0 !important; }}
-    div[data-testid="stMetricValue"] div {{ color: #F3E5AB !important; }}
+    div[data-testid="stMetricValue"] div {{ color: #FFFFFF !important; }}
     .stButton > button {{
-        background-color: #D4AF37 !important;
-        color: #000000 !important;
+        background-color: #333333 !important;
+        color: #FFFFFF !important;
         font-weight: bold !important;
-        border: none !important;
+        border: 1px solid #555555 !important;
         border-radius: 6px !important;
         transition: all 0.3s ease;
     }}
     .stButton > button:hover {{
-        background-color: #F3E5AB !important;
-        box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        background-color: #555555 !important;
+        border-color: #888888 !important;
     }}
     div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {{
         background-color: #1A1A1E !important;
@@ -137,7 +85,7 @@ st.markdown(
         border-radius: 6px;
     }}
     div[data-baseweb="input"] > div:focus-within, div[data-baseweb="select"] > div:focus-within {{
-        border-color: #D4AF37 !important;
+        border-color: #888888 !important;
     }}
     input {{ color: #FFFFFF !important; }}
     div[data-testid="stExpander"] {{
@@ -145,9 +93,9 @@ st.markdown(
         border: 1px solid #333333 !important;
         border-radius: 8px;
     }}
-    div[data-testid="stExpander"]:hover {{ border-color: #D4AF37 !important; }}
+    div[data-testid="stExpander"]:hover {{ border-color: #666666 !important; }}
     div[data-testid="stExpander"] summary span {{
-        color: #D4AF37 !important;
+        color: #FFFFFF !important;
         font-weight: bold;
     }}
     div[data-testid="stDataFrame"] {{
@@ -155,24 +103,10 @@ st.markdown(
         border-radius: 6px;
     }}
     hr {{
-        border-color: #D4AF37 !important;
-        opacity: 0.3;
+        border-color: #444444 !important;
+        opacity: 0.5;
     }}
     </style>
-
-    <!-- COPOS DE NIEVE ANIMADOS -->
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
-    <div class="snowflake">❄</div>
-    <div class="snowflake">❅</div>
-    <div class="snowflake">❆</div>
     """,
     unsafe_allow_html=True,
 )
@@ -239,48 +173,22 @@ if "fiados" not in st.session_state:
         columns=["Cliente", "Teléfono", "Deuda Pendiente ($)", "Estado"]
     )
 
-# --- PANTALLA PÚBLICA / INICIO DE SESIÓN ---
-if not st.session_state.autenticado:
-    st.markdown(
-        """
-        <div class="xmas-container">
-            <div class="xmas-hat">🎅</div>
-            <div class="mirror-title">💈 Barbería Gods Time 💈</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        "<p style='color: #D4AF37 !important; font-size: 1.1em; text-align: center;'><i>Excelencia, estilo y precisión en cada detalle. 🎄✨</i></p>",
-        unsafe_allow_html=True,
-    )
-    st.markdown("---")
+# --- MENÚ LATERAL IZQUIERDO Y LOGIN / AGENDAMIENTO PÚBLICO PEQUEÑO ---
+with st.sidebar:
+    st.markdown("### 💈 Barbería Gods Time")
 
-    col_centered = st.columns([1, 2, 1])
-    with col_centered[1]:
+    if not st.session_state.autenticado:
         if st.session_state.ver_agendar_publico:
-            st.subheader("📅 Agendar Cita de Barbería")
-            st.write(
-                "Llena el formulario para reservar tu turno. Se enviará la confirmación directamente por WhatsApp."
-            )
+            st.markdown("#### 📅 Agendar Cita")
+            with st.form("form_cita_publica_sidebar"):
+                cli_pub = st.text_input("Nombre Completo")
+                tel_pub = st.text_input("WhatsApp (+58...)")
+                barbero_pub = st.selectbox("Barbero", lista_barberos)
+                serv_pub = st.selectbox("Servicio", servicios_lista)
+                fecha_pub = st.date_input("Fecha")
+                hora_pub = st.time_input("Hora")
 
-            with st.form("form_cita_publica"):
-                cli_pub = st.text_input("Tu Nombre Completo")
-                tel_pub = st.text_input(
-                    "Tu Número de WhatsApp (ej. +584121234567)"
-                )
-                barbero_pub = st.selectbox("Selecciona Barbero", lista_barberos)
-                serv_pub = st.selectbox("Servicio Deseado", servicios_lista)
-
-                col_f_p, col_h_p = st.columns(2)
-                with col_f_p:
-                    fecha_pub = st.date_input("Fecha preferida")
-                with col_h_p:
-                    hora_pub = st.time_input("Hora preferida")
-
-                submit_pub = st.form_submit_button(
-                    "📩 Reservar Turno y Notificar por WhatsApp"
-                )
+                submit_pub = st.form_submit_button("Reservar Turno")
 
                 if submit_pub and cli_pub and tel_pub:
                     fecha_hora_str = f"{fecha_pub} {hora_pub.strftime('%H:%M')}"
@@ -310,20 +218,23 @@ if not st.session_state.autenticado:
                         f"https://wa.me/{NUMERO_WHATSAPP_ADMIN}?text={mensaje_wsp}"
                     )
 
-                    st.success("¡Cita registrada con éxito en el sistema!")
+                    st.success("¡Cita registrada con éxito!")
                     st.markdown(
-                        f'<a href="{wsp_link}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:12px 20px; border-radius:6px; font-weight:bold; width:100%; cursor:pointer; font-size:1.1em;">💬 Haz Clic Aquí para Notificar por WhatsApp</button></a>',
+                        f'<a href="{wsp_link}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:6px; font-weight:bold; width:100%; cursor:pointer; font-size:0.9em;">💬 Notificar por WhatsApp</button></a>',
                         unsafe_allow_html=True,
                     )
 
-            st.write("")
-            if st.button("⬅️ Volver al Inicio de Sesión"):
+            if st.button(
+                "⬅️ Volver al Login",
+                use_container_width=True,
+                key="btn_volver_login",
+            ):
                 st.session_state.ver_agendar_publico = False
                 st.rerun()
 
         else:
-            st.subheader("🔑 Iniciar Sesión")
-            with st.form("form_login"):
+            st.markdown("#### 🔑 Iniciar Sesión")
+            with st.form("form_login_sidebar"):
                 usuario_input = (
                     st.text_input(
                         "Usuario", value=st.session_state.usuario_guardado
@@ -333,10 +244,9 @@ if not st.session_state.autenticado:
                 )
                 password_input = st.text_input("Contraseña", type="password")
                 recordar_usuario = st.checkbox(
-                    "Recordar usuario",
-                    value=bool(st.session_state.usuario_guardado),
+                    "Recordar", value=bool(st.session_state.usuario_guardado)
                 )
-                btn_login = st.form_submit_button("Ingresar al Sistema")
+                btn_login = st.form_submit_button("Ingresar")
 
                 if btn_login:
                     if (
@@ -353,94 +263,104 @@ if not st.session_state.autenticado:
                         else:
                             st.session_state.usuario_guardado = ""
 
-                        st.success(
-                            f"¡Bienvenido, {st.session_state.usuario_actual}!"
-                        )
                         st.rerun()
                     else:
-                        st.error("Usuario o contraseña incorrectos.")
+                        st.error("Datos incorrectos.")
 
             st.markdown("---")
-            st.write("¿Eres cliente y quieres reservar un turno?")
-            if st.button("📅 Agendar Cita Aquí (Público)"):
+            if st.button(
+                "📅 Agendar Cita (Público)",
+                use_container_width=True,
+                key="btn_ir_agendar",
+            ):
                 st.session_state.ver_agendar_publico = True
                 st.rerun()
 
+    else:
+        st.markdown(f"👤 **Hola,** {st.session_state.usuario_actual}")
+        st.markdown("---")
+        st.markdown("#### 💼 **NEGOCIO**")
+        opcion_caja = st.button(
+            "📊 Caja y Resumen", use_container_width=True, key="btn_caja"
+        )
+        opcion_servicio = st.button(
+            "✂️ Registrar Venta", use_container_width=True, key="btn_serv"
+        )
+        opcion_gastos = st.button(
+            "📤 Gastos Operativos", use_container_width=True, key="btn_gastos"
+        )
+
+        st.markdown("#### 📅 **GESTIÓN**")
+        opcion_citas = st.button(
+            "📅 Agenda de Citas", use_container_width=True, key="btn_citas"
+        )
+        opcion_recordatorios = st.button(
+            "⏰ Recordatorios", use_container_width=True, key="btn_recs"
+        )
+        opcion_comisiones = st.button(
+            "👥 Barberos / Comisiones",
+            use_container_width=True,
+            key="btn_comis",
+        )
+
+        st.markdown("#### 👥 **CLIENTES**")
+        opcion_fiados = st.button(
+            "📝 Cuentas por Cobrar", use_container_width=True, key="btn_fiados"
+        )
+
+        if "menu_actual" not in st.session_state:
+            st.session_state.menu_actual = "📊 Caja y Resumen"
+
+        if opcion_caja:
+            st.session_state.menu_actual = "📊 Caja y Resumen"
+        elif opcion_servicio:
+            st.session_state.menu_actual = "✂️ Registrar Servicio"
+        elif opcion_gastos:
+            st.session_state.menu_actual = "📤 Gastos del Local"
+        elif opcion_citas:
+            st.session_state.menu_actual = "📅 Agendar Citas"
+        elif opcion_recordatorios:
+            st.session_state.menu_actual = "⏰ Recordatorio de Cortes"
+        elif opcion_comisiones:
+            st.session_state.menu_actual = "👥 Barberos y Comisión"
+        elif opcion_fiados:
+            st.session_state.menu_actual = "📝 Cobrar Fiados"
+
+        opcion_menu = st.session_state.menu_actual
+
+        st.markdown("---")
+        if st.button(
+            "🚪 Cerrar Sesión",
+            use_container_width=True,
+            key="btn_cerrar_sesion",
+        ):
+            st.session_state.autenticado = False
+            st.session_state.usuario_actual = ""
+            st.session_state.ver_agendar_publico = False
+            st.rerun()
+
+# --- SI NO ESTÁ AUTENTICADO, BLOQUEAR PANEL PRINCIPAL ---
+if not st.session_state.autenticado:
+    st.markdown(
+        """
+        <div style="text-align: center; margin-top: 100px;">
+            <div class="border-title">💈 Barbería Gods Time 💈</div>
+            <p style='color: #FFFFFF !important; font-size: 1.2em;'><i>Excelencia, estilo y precisión en cada detalle.</i></p>
+            <br>
+            <p style='color: #AAAAAA !important;'>Utiliza el panel izquierdo para <b>Iniciar Sesión</b> como administrador o barbero, o bien para <b>Agendar una Cita</b> en línea.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     st.stop()
 
-# --- MENÚ LATERAL IZQUIERDO ESTILO TREINTA ---
-with st.sidebar:
-    st.markdown("### 💈 Gods Time")
-    st.markdown(f"👤 **Hola,** {st.session_state.usuario_actual}")
-
-    st.markdown("---")
-    st.markdown("#### 💼 **NEGOCIO**")
-    opcion_caja = st.button(
-        "📊 Caja y Resumen", use_container_width=True, key="btn_caja"
-    )
-    opcion_servicio = st.button(
-        "✂️ Registrar Venta / Servicio",
-        use_container_width=True,
-        key="btn_serv",
-    )
-    opcion_gastos = st.button(
-        "📤 Gastos Operativos", use_container_width=True, key="btn_gastos"
-    )
-
-    st.markdown("#### 📅 **GESTIÓN**")
-    opcion_citas = st.button(
-        "📅 Agenda de Citas", use_container_width=True, key="btn_citas"
-    )
-    opcion_recordatorios = st.button(
-        "⏰ Recordatorios de Cortes",
-        use_container_width=True,
-        key="btn_recs",
-    )
-    opcion_comisiones = st.button(
-        "👥 Barberos y Comisiones",
-        use_container_width=True,
-        key="btn_comis",
-    )
-
-    st.markdown("#### 👥 **CLIENTES**")
-    opcion_fiados = st.button(
-        "📝 Cuentas por Cobrar (Fiados)",
-        use_container_width=True,
-        key="btn_fiados",
-    )
-
-    # Control de navegación mediante session_state para los botones del menú lateral estilo Treinta
-    if "menu_actual" not in st.session_state:
-        st.session_state.menu_actual = "📊 Caja y Resumen"
-
-    if opcion_caja:
-        st.session_state.menu_actual = "📊 Caja y Resumen"
-    elif opcion_servicio:
-        st.session_state.menu_actual = "✂️ Registrar Servicio"
-    elif opcion_gastos:
-        st.session_state.menu_actual = "📤 Gastos del Local"
-    elif opcion_citas:
-        st.session_state.menu_actual = "📅 Agendar Citas"
-    elif opcion_recordatorios:
-        st.session_state.menu_actual = "⏰ Recordatorio de Cortes"
-    elif opcion_comisiones:
-        st.session_state.menu_actual = "👥 Barberos y Comisión"
-    elif opcion_fiados:
-        st.session_state.menu_actual = "📝 Cobrar Fiados"
-
-    opcion_menu = st.session_state.menu_actual
-
-    st.markdown("---")
-    if st.button("🚪 Cerrar Sesión", use_container_width=True):
-        st.session_state.autenticado = False
-        st.session_state.usuario_actual = ""
-        st.session_state.ver_agendar_publico = False
-        st.rerun()
-
 # --- SISTEMA PRINCIPAL (ADMINISTRACIÓN) ---
-st.title("💈 Barbería Gods Time 💈")
 st.markdown(
-    "<p style='color: #D4AF37 !important; font-size: 1.1em;'><i>Excelencia, estilo y precisión en cada detalle.</i></p>",
+    '<div class="border-title">💈 Barbería Gods Time 💈</div>',
+    unsafe_allow_html=True,
+)
+st.markdown(
+    "<p style='text-align: center; color: #FFFFFF !important; font-size: 1.1em;'><i>Excelencia, estilo y precisión en cada detalle.</i></p>",
     unsafe_allow_html=True,
 )
 st.markdown("---")
@@ -478,9 +398,7 @@ elif opcion_menu == "✂️ Registrar Servicio":
 
     with st.form("form_servicio"):
         cliente_corte = st.text_input("Nombre del Cliente")
-        telefono_corte = st.text_input(
-            "Número de Teléfono (ej. +584121234567)"
-        )
+        telefono_corte = st.text_input("Número de Teléfono (+58...)")
         barbero_asigna = st.selectbox("Barbero que atendió", lista_barberos)
         tipo_servicio = st.selectbox("Servicio Realizado", servicios_lista)
         precio_servicio = st.number_input(
@@ -515,14 +433,12 @@ elif opcion_menu == "📅 Agendar Citas":
 
     with st.form("form_cita"):
         cli_cita = st.text_input("Nombre del Cliente")
-        tel_cita = st.text_input(
-            "Número de Teléfono (ej. +584121234567)", key="tel_cita_input"
-        )
+        tel_cita = st.text_input("Número de Teléfono (+58...)", key="tel_cita_input")
         barbero_cita = st.selectbox(
-            "Barbero que atendió", lista_barberos, key="barb_cita_sel"
+            "Barbero asignado", lista_barberos, key="barb_cita_sel"
         )
         serv_cita = st.selectbox(
-            "Servicio Realizado", servicios_lista, key="serv_cita_sel"
+            "Servicio", servicios_lista, key="serv_cita_sel"
         )
 
         col_f, col_h = st.columns(2)
@@ -559,8 +475,8 @@ elif opcion_menu == "📅 Agendar Citas":
             with st.expander(
                 f"📅 {row['Fecha y Hora']} - {row['Cliente']} ({row['Barbero']}) - [{row.get('Estado', 'Pendiente')}]"
             ):
-                st.write(f"**Servicio Realizado:** {row['Servicio']}")
-                st.write(f"**Número de Teléfono:** {row['Teléfono']}")
+                st.write(f"**Servicio:** {row['Servicio']}")
+                st.write(f"**Teléfono:** {row['Teléfono']}")
 
                 tel_clean = "".join(filter(str.isdigit, str(row["Teléfono"])))
                 if tel_clean:
@@ -569,7 +485,7 @@ elif opcion_menu == "📅 Agendar Citas":
                     )
                     wsp_url = f"https://wa.me/{tel_clean}?text={msg}"
                     st.markdown(
-                        f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer;">💬 Notificar Cita por WhatsApp</button></a>',
+                        f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer;">💬 Notificar por WhatsApp</button></a>',
                         unsafe_allow_html=True,
                     )
                 else:
@@ -627,7 +543,7 @@ elif opcion_menu == "⏰ Recordatorio de Cortes":
                     st.write(
                         f"**Servicio anterior:** {row['Servicio']} - {row['Fecha']}"
                     )
-                    st.write(f"**Número de Teléfono:** {row['Teléfono']}")
+                    st.write(f"**Teléfono:** {row['Teléfono']}")
 
                     tel_clean = "".join(
                         filter(str.isdigit, str(row["Teléfono"]))
@@ -720,7 +636,7 @@ elif opcion_menu == "📤 Gastos del Local":
             "¿A quién corresponde este gasto?", opciones_asignacion
         )
         desc_gasto = st.text_input(
-            "Descripción del gasto (ej. Cuchillas, gel, adelanto, etc.)"
+            "Descripción del gasto (ej. Cuchillas, gel, etc.)"
         )
         monto_gasto = st.number_input(
             "Monto ($)", min_value=0.0, step=0.5
@@ -757,7 +673,7 @@ elif opcion_menu == "📝 Cobrar Fiados":
 
     with st.form("form_fiados"):
         cli_fiado = st.text_input("Nombre del Cliente")
-        tel_fiado = st.text_input("Número de Teléfono (ej. +584121234567)")
+        tel_fiado = st.text_input("Número de Teléfono (+58...)")
         monto_fiado = st.number_input(
             "Saldo Pendiente ($)", min_value=0.0, step=1.0
         )
@@ -787,7 +703,7 @@ elif opcion_menu == "📝 Cobrar Fiados":
             with st.expander(
                 f"📌 {row['Cliente']} - ${row['Deuda Pendiente ($)']:,.2f}"
             ):
-                st.write(f"**Número de Teléfono:** {row['Teléfono']}")
+                st.write(f"**Teléfono:** {row['Teléfono']}")
 
                 tel_clean = "".join(filter(str.isdigit, str(row["Teléfono"])))
                 if tel_clean:
