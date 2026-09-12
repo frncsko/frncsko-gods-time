@@ -634,9 +634,9 @@ elif opcion_menu == "📅 Agendar Citas":
                 f"📅 {row['Fecha y Hora']} - {row['Cliente']} ({row['Barbero']}) - [{row.get('Estado', 'Pendiente')}]"
             ):
                 st.write(f"**Servicio:** {row['Servicio']}")
-                st.write(f"**Teléfono:** +{row['Teléfono']}")
+                st.write(f"**Teléfono:** {str(row['Teléfono']).split('.')[0]}")
 
-                tel_clean = "".join(filter(str.isdigit, str(row["Teléfono"])))
+                tel_clean = "".join(filter(str.isdigit, str(row["Teléfono"]).split(".")[0]))
                 if tel_clean and tel_clean != "NA":
                     msg_texto = (
                         f"Estimado/a *{row['Cliente']}*,\n\n"
