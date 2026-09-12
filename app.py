@@ -30,16 +30,7 @@ def inicializar_bd():
 
 
 
-    # Tabla de Gastos
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS gastos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            fecha TEXT,
-            barbero_asignacion TEXT,
-            descripcion TEXT,
-            monto REAL
-        )
-    """)
+    
 
     # Tabla de Fiados
     cursor.execute("""
@@ -279,7 +270,7 @@ servicios_lista = [
     "CORTE",
     "BARBA",
     "CORTE / BARBA",
-    "Corte + Cejas",
+    "MASCARILLA",
     "Corte + Barba + Cejas (VIP)",
 ]
 
