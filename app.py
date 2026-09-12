@@ -310,84 +310,14 @@ if not st.session_state.autenticado:
         unsafe_allow_html=True,
     )
     st.markdown(
-        "<p style='color: #D4AF37 !important; font-size: 1.1em;'><i>Excelencia, estilo y precisión en cada detalle.</i></p>",
+        "<p style='color: #D4AF37 !important; font-size: 1.1em;'><i>Excelencia, estilo y precisión en cada detalle TE ESPERAMOS.</i></p>",
         unsafe_allow_html=True,
     )
     st.markdown("---")
 
     col_centered = st.columns([1, 2, 1])
     with col_centered[1]:
-        # Formulario de Cita Pública
-        if st.session_state.ver_agendar_publico:
-            st.subheader("📅 Agendar Cita de Barbería")
-            st.write(
-                "Llena el formulario para reservar tu turno. Se enviará la confirmación directamente por WhatsApp."
-            )
-
-            tipo_reserva_pub = st.radio(
-                "Tipo de Servicio", ["En Local", "A Domicilio"]
-            )
-
-            with st.form("form_cita_publica"):
-                cli_pub = st.text_input("Tu Nombre Completo")
-                tel_pub = st.text_input(
-                    "Tu Número de WhatsApp (ej. +584121234567)"
-                )
-                barbero_pub = st.selectbox("Selecciona Barbero", lista_barberos)
-                serv_pub = st.selectbox("Servicio Deseado", servicios_lista)
-
-                dir_pub = ""
-                costo_dom_pub = 0.0
-                if tipo_reserva_pub == "A Domicilio":
-                    dir_pub = st.text_input(
-                        "Dirección exacta (Urbanización, Calle, Casa/Edificio)"
-                    )
-                    costo_dom_pub = st.number_input(
-                        "Costo Extra por Traslado ($)",
-                        min_value=0.0,
-                        step=1.0,
-                        value=5.0,
-                    )
-
-                col_f_p, col_h_p = st.columns(2)
-                with col_f_p:
-                    fecha_pub = st.date_input("Fecha preferida")
-                with col_h_p:
-                    hora_pub = st.time_input("Hora preferida")
-
-                submit_pub = st.form_submit_button(
-                    "📩 Reservar Turno y Notificar por WhatsApp"
-                )
-
-                if submit_pub and cli_pub and tel_pub:
-                    if tipo_reserva_pub == "A Domicilio" and not dir_pub:
-                        st.error(
-                            "Por favor ingresa la dirección para el domicilio."
-                        )
-                    else:
-                        fecha_hora_str = (
-                            f"{fecha_pub} {hora_pub.strftime('%H:%M')}"
-                        )
-                        ejecutar_sql(
-                            "INSERT INTO citas (fecha_hora, cliente, telefono, barbero, servicio, tipo, direccion, costo_domicilio, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                            (
-                                fecha_hora_str,
-                                cli_pub,
-                                tel_pub,
-                                barbero_pub,
-                                serv_pub,
-                                tipo_reserva_pub,
-                                dir_pub if dir_pub else "N/A",
-                                costo_dom_pub,
-                                "Pendiente (Online)",
-                            ),
-                        )
-
-                        
-            st.write("")
-            if st.button("⬅️ Volver al Inicio de Sesión"):
-                st.session_state.ver_agendar_publico = False
-                st.rerun()
+        
 
         # Inicio de Sesión
         else:
