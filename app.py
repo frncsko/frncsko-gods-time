@@ -28,7 +28,21 @@ def inicializar_bd():
         )
     """)
 
-    
+    # Tabla de Citas (Local y Domicilio)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS citas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            fecha_hora TEXT,
+            cliente TEXT,
+            telefono TEXT,
+            barbero TEXT,
+            servicio TEXT,
+            tipo TEXT,
+            direccion TEXT,
+            costo_domicilio REAL,
+            estado TEXT
+        )
+    """)
 
     # Tabla de Gastos
     cursor.execute("""
@@ -328,6 +342,10 @@ if not st.session_state.autenticado:
                 "Llena el formulario para reservar tu turno. Se enviará la confirmación directamente por WhatsApp."
             )
 
+            tipo_reserva_pub = st.radio(
+                "Tipo de Servicio", ["En Local", "A Domicilio"]
+            )
+
             with st.form("form_cita_publica"):
                 cli_pub = st.text_input("Tu Nombre Completo")
                 tel_pub = st.text_input(
@@ -335,22 +353,29 @@ if not st.session_state.autenticado:
                 )
                 barbero_pub = st.selectbox("Selecciona Barbero", lista_barberos)
                 serv_pub = st.selectbox("Servicio Deseado", servicios_lista)
-                tipo_reserva_pub = st.selectbox(
-                    "Tipo de Servicio", ["En Local", "A Domicilio"]
-                )
 
                 dir_pub = ""
                 costo_dom_pub = 0.0
                 if tipo_reserva_pub == "A Domicilio":
-                    dir_pub = st.text_input("Dirección del Domicilio")
+                    dir_pub = st.text_input(
+                        "Dirección exacta (Urbanización, Calle, Casa/Edificio)"
+                    )
                     costo_dom_pub = st.number_input(
-                        "Costo de Traslado ($)", min_value=0.0, value=5.0
+                        "Costo Extra por Traslado ($)",
+                        min_value=0.0,
+                        step=1.0,
+                        value=5.0,
                     )
 
-                fecha_pub = st.date_input("Fecha de la Cita")
-                hora_pub = st.time_input("Hora de la Cita")
+                col_f_p, col_h_p = st.columns(2)
+                with col_f_p:
+                    fecha_pub = st.date_input("Fecha preferida")
+                with col_h_p:
+                    hora_pub = st.time_input("Hora preferida")
 
-                submit_pub = st.form_submit_button("Confirmar y Enviar Cita")
+                submit_pub = st.form_submit_button(
+                    "📩 Reservar Turno y Notificar por WhatsApp"
+                )
 
                 if submit_pub and cli_pub and tel_pub:
                     if tipo_reserva_pub == "A Domicilio" and not dir_pub:
@@ -377,7 +402,7 @@ if not st.session_state.autenticado:
                         )
 
                         if tipo_reserva_pub == "A Domicilio":
-                            texto_wsp = (
+                            mensaje_wsp = urllib.parse.quote(
                                 f"🏠 *NUEVA CITA A DOMICILIO EN LÍNEA*\n\n"
                                 f"👤 *Cliente:* {cli_pub}\n"
                                 f"📱 *Teléfono:* {tel_pub}\n"
@@ -388,7 +413,7 @@ if not st.session_state.autenticado:
                                 f"📅 *Fecha y Hora:* {fecha_hora_str}"
                             )
                         else:
-                            texto_wsp = (
+                            mensaje_wsp = urllib.parse.quote(
                                 f"💈 *NUEVA CITA EN LOCAL EN LÍNEA*\n\n"
                                 f"👤 *Cliente:* {cli_pub}\n"
                                 f"📱 *Teléfono:* {tel_pub}\n"
@@ -397,7 +422,6 @@ if not st.session_state.autenticado:
                                 f"📅 *Fecha y Hora:* {fecha_hora_str}"
                             )
 
-                        mensaje_wsp = urllib.parse.quote(texto_wsp)
                         wsp_link = f"https://wa.me/{NUMERO_WHATSAPP_ADMIN}?text={mensaje_wsp}"
 
                         st.success("¡Cita registrada con éxito en el sistema!")
@@ -461,7 +485,8 @@ if not st.session_state.autenticado:
                         st.rerun()
                     else:
                         st.error("Usuario o contraseña incorrectos.")
-            st.stop()
+
+    st.stop()
 
 # --- MENÚ LATERAL IZQUIERDO ---
 with st.sidebar:
@@ -573,7 +598,13 @@ elif opcion_menu == "✂️ Registrar Servicio":
         telefono_corte = st.text_input(
             "Número de Teléfono (ej. +584121234567)"
         )
-                submit_servicio = st.form_submit_button("✂️ Registrar Servicio")
+        barbero_asigna = st.selectbox("Barbero que atendió", lista_barberos)
+        tipo_servicio = st.selectbox("Servicio Realizado", servicios_lista)
+        precio_servicio = st.number_input(
+            "Precio Cobrado ($)", min_value=0.0, step=1.0
+        )
+
+        submit_servicio = st.form_submit_button("✂️ Registrar Servicio")
 
         if submit_servicio and cliente_corte:
             fecha_actual = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M")
