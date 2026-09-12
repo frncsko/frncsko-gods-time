@@ -1,4 +1,5 @@
 import base64
+import os
 import urllib.parse
 import pandas as pd
 import streamlit as st
@@ -8,7 +9,7 @@ st.set_page_config(
     page_title="Barbería Gods Time", page_icon="💈", layout="wide"
 )
 
-# 2. Cargar imagen de fondo local con manejo de errores
+# 2. Cargar imagen de fondo local con manejo de errores (Ajustada para que se vea completa y centrada)
 bg_css = ""
 try:
     with open("GTBARBER.jpg", "rb") as f:
@@ -17,9 +18,10 @@ try:
         bg_css = f"""
         .stApp {{
             background-image: linear-gradient(rgba(14, 14, 16, 0.85), rgba(14, 14, 16, 0.85)), 
-                              url("data:image/png;base64,{imagen_base64}");
-            background-size: cover;
-            background-position: center;
+                        url("data:image/png;base64,{imagen_base64}");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center center;
             background-attachment: fixed;
         }}
         """
@@ -30,13 +32,36 @@ except FileNotFoundError:
     }
     """
 
-# 3. Estilo CSS personalizado
+# 3. Estilo CSS personalizado (Efecto brillante tipo espejo con borde negro)
 st.markdown(
     f"""
     <style>
     {bg_css}
     .stApp {{ color: #E0E0E0; }}
-    h1, h2, h3 {{
+    
+    @keyframes shine {{
+        0% {{ background-position: 200% 0; }}
+        100% {{ background-position: -200% 0; }}
+    }}
+
+    .titulo-brillante {{
+        font-size: 3rem;
+        font-weight: 900;
+        font-family: 'Helvetica Neue', sans-serif;
+        text-align: center;
+        text-transform: uppercase;
+        background: linear-gradient(90deg, #D4AF37 0%, #FFF8DC 35%, #D4AF37 70%, #996515 100%);
+        background-size: 200% auto;
+        color: transparent;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        -webkit-text-stroke: 1.5px black;
+        animation: shine 4s linear infinite;
+        letter-spacing: 2px;
+        margin-bottom: 0px;
+    }}
+
+    h2, h3 {{
         color: #D4AF37 !important;
         font-family: 'Helvetica Neue', sans-serif;
         font-weight: 700;
@@ -97,7 +122,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Configuración de WhatsApp del Administrador/Barbería (Reemplazar con tu número con código de país)
+# Configuración de WhatsApp y Constantes
 NUMERO_WHATSAPP_ADMIN = "584125205165"
 
 USUARIOS_VALIDOS = {
@@ -115,60 +140,115 @@ servicios_lista = [
     "Corte + Barba + Cejas (VIP)",
 ]
 
-# Inicialización de Estados
+# --- FUNCIONES DE PERSISTENCIA (CSV) ---
+CSV_SERVICIOS = "servicios.csv"
+CSV_CITAS = "citas.csv"
+CSV_GASTOS = "gastos.csv"
+CSV_FIADOS = "fiados.csv"
+
+
+def cargar_datos():
+    if os.path.exists(CSV_SERVICIOS):
+        servicios = pd.read_csv(CSV_SERVICIOS)
+    else:
+        servicios = pd.DataFrame(
+            columns=[
+                "Fecha",
+                "Cliente",
+                "Teléfono",
+                "Barbero",
+                "Servicio",
+                "Precio ($)",
+            ]
+        )
+
+    if os.path.exists(CSV_CITAS):
+        citas = pd.read_csv(CSV_CITAS)
+    else:
+        citas = pd.DataFrame(
+            columns=[
+                "Fecha y Hora",
+                "Cliente",
+                "Teléfono",
+                "Barbero",
+                "Servicio",
+                "Estado",
+            ]
+        )
+
+    if os.path.exists(CSV_GASTOS):
+        gastos = pd.read_csv(CSV_GASTOS)
+    else:
+        gastos = pd.DataFrame(
+            columns=["Fecha", "Barbero / Asignación", "Descripción", "Monto ($)"]
+        )
+
+    if os.path.exists(CSV_FIADOS):
+        fiados = pd.read_csv(CSV_FIADOS)
+    else:
+        fiados = pd.DataFrame(
+            columns=["Cliente", "Teléfono", "Deuda Pendiente ($)", "Estado"]
+        )
+
+    return servicios, citas, gastos, fiados
+
+
+def guardar_csv(df, tipo):
+    if tipo == "servicios":
+        df.to_csv(CSV_SERVICIOS, index=False)
+    elif tipo == "citas":
+        df.to_csv(CSV_CITAS, index=False)
+    elif tipo == "gastos":
+        df.to_csv(CSV_GASTOS, index=False)
+    elif tipo == "fiados":
+        df.to_csv(CSV_FIADOS, index=False)
+
+
+# --- INICIALIZACIÓN DE ESTADOS CON CSV ---
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 if "usuario_actual" not in st.session_state:
     st.session_state.usuario_actual = ""
 if "ver_agendar_publico" not in st.session_state:
     st.session_state.ver_agendar_publico = False
+if "usuario_recordado" not in st.session_state:
+    st.session_state.usuario_recordado = ""
 
-if "servicios_realizados" not in st.session_state:
-    st.session_state.servicios_realizados = pd.DataFrame(
-        columns=[
-            "Fecha",
-            "Cliente",
-            "Teléfono",
-            "Barbero",
-            "Servicio",
-            "Precio ($)",
-        ]
-    )
+# Cargar DataFrames desde archivos CSV
+(
+    st.session_state.servicios_realizados,
+    st.session_state.citas,
+    st.session_state.gastos_barberia,
+    st.session_state.fiados,
+) = cargar_datos()
 
-if "citas" not in st.session_state:
-    st.session_state.citas = pd.DataFrame(
-        columns=[
-            "Fecha y Hora",
-            "Cliente",
-            "Teléfono",
-            "Barbero",
-            "Servicio",
-            "Estado",
-        ]
-    )
 
-if "gastos_barberia" not in st.session_state:
-    st.session_state.gastos_barberia = pd.DataFrame(
-        columns=["Fecha", "Barbero / Asignación", "Descripción", "Monto ($)"]
-    )
+# Función auxiliar para formatear teléfono con código de país
+def armar_telefono_wsp(codigo_pais, numero_local):
+    num_limpio = "".join(filter(str.isdigit, str(numero_local)))
+    if not num_limpio:
+        return ""
+    # Si el usuario ya incluyó el código o solo escribió el número local
+    codigo_limpio = "".join(filter(str.isdigit, str(codigo_pais)))
+    if num_limpio.startswith(codigo_limpio):
+        return num_limpio
+    return f"{codigo_limpio}{num_limpio}"
 
-if "fiados" not in st.session_state:
-    st.session_state.fiados = pd.DataFrame(
-        columns=["Cliente", "Teléfono", "Deuda Pendiente ($)", "Estado"]
-    )
 
 # --- PANTALLA PÚBLICA / INICIO DE SESIÓN ---
 if not st.session_state.autenticado:
-    st.title("💈 BARBERÍA GODS TIME")
     st.markdown(
-        "<p style='color: #D4AF37 !important; font-size: 1.1em;'><i>Excelencia, estilo y precisión en cada detalle.</i></p>",
+        '<h1 class="titulo-brillante">💈 BARBERÍA GODS TIME</h1>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        "<p style='color: #D4AF37 !important; font-size: 1.1em; text-align: center;'><i>Excelencia, estilo y precisión en cada detalle.</i></p>",
         unsafe_allow_html=True,
     )
     st.markdown("---")
 
     col_centered = st.columns([1, 2, 1])
     with col_centered[1]:
-        # Formulario de Cita Pública
         if st.session_state.ver_agendar_publico:
             st.subheader("📅 Agendar Cita de Barbería")
             st.write(
@@ -177,9 +257,17 @@ if not st.session_state.autenticado:
 
             with st.form("form_cita_publica"):
                 cli_pub = st.text_input("Tu Nombre Completo")
-                tel_pub = st.text_input(
-                    "Tu Número de WhatsApp (ej. +584121234567)"
-                )
+
+                c1_t, c2_t = st.columns([1, 2])
+                with c1_t:
+                    cod_pub = st.selectbox(
+                        "País", ["+58 (VE)", "+57 (CO)", "+1 (US)", "+34 (ES)"]
+                    )
+                with c2_t:
+                    tel_pub_local = st.text_input(
+                        "Tu Número (ej. 4121234567)"
+                    )
+
                 barbero_pub = st.selectbox("Selecciona Barbero", lista_barberos)
                 serv_pub = st.selectbox("Servicio Deseado", servicios_lista)
 
@@ -193,13 +281,15 @@ if not st.session_state.autenticado:
                     "📩 Reservar Turno y Notificar por WhatsApp"
                 )
 
-                if submit_pub and cli_pub and tel_pub:
+                if submit_pub and cli_pub and tel_pub_local:
+                    tel_completo = armar_telefono_wsp(cod_pub, tel_pub_local)
                     fecha_hora_str = f"{fecha_pub} {hora_pub.strftime('%H:%M')}"
+
                     nueva_cita = pd.DataFrame(
                         {
                             "Fecha y Hora": [fecha_hora_str],
                             "Cliente": [cli_pub],
-                            "Teléfono": [tel_pub],
+                            "Teléfono": [tel_completo],
                             "Barbero": [barbero_pub],
                             "Servicio": [serv_pub],
                             "Estado": ["Pendiente (Online)"],
@@ -208,16 +298,19 @@ if not st.session_state.autenticado:
                     st.session_state.citas = pd.concat(
                         [st.session_state.citas, nueva_cita], ignore_index=True
                     )
+                    guardar_csv(st.session_state.citas, "citas")
 
-                    # Generar enlace directo a WhatsApp para notificar a la barbería
-                    mensaje_wsp = urllib.parse.quote(
-                        f"💈 *NUEVA CITA AGENDADA EN LÍNEA*\n\n"
+                    mensaje_texto = (
+                        f"Estimado/a *Barbería Gods Time*,\n\n"
+                        f"Les escribo para confirmar una nueva cita agendada en línea.\n\n"
                         f"👤 *Cliente:* {cli_pub}\n"
-                        f"📱 *Teléfono:* {tel_pub}\n"
+                        f"📱 *Teléfono:* +{tel_completo}\n"
                         f"✂️ *Barbero:* {barbero_pub}\n"
                         f"💈 *Servicio:* {serv_pub}\n"
-                        f"📅 *Fecha y Hora:* {fecha_hora_str}"
+                        f"📅 *Fecha y Hora:* {fecha_hora_str}\n\n"
+                        f"Agradezco su atención."
                     )
+                    mensaje_wsp = urllib.parse.quote(mensaje_texto)
                     wsp_link = (
                         f"https://wa.me/{NUMERO_WHATSAPP_ADMIN}?text={mensaje_wsp}"
                     )
@@ -233,12 +326,18 @@ if not st.session_state.autenticado:
                 st.session_state.ver_agendar_publico = False
                 st.rerun()
 
-        # Inicio de Sesión
         else:
             st.subheader("🔑 Iniciar Sesión")
             with st.form("form_login"):
-                usuario_input = st.text_input("Usuario").strip().lower()
+                usuario_input = (
+                    st.text_input(
+                        "Usuario", value=st.session_state.usuario_recordado
+                    )
+                    .strip()
+                    .lower()
+                )
                 password_input = st.text_input("Contraseña", type="password")
+                recordar_usuario = st.checkbox("Recordar usuario")
                 btn_login = st.form_submit_button("Ingresar al Sistema")
 
                 if btn_login:
@@ -250,6 +349,11 @@ if not st.session_state.autenticado:
                         st.session_state.usuario_actual = (
                             usuario_input.capitalize()
                         )
+                        if recordar_usuario:
+                            st.session_state.usuario_recordado = usuario_input
+                        else:
+                            st.session_state.usuario_recordado = ""
+
                         st.success(
                             f"¡Bienvenido, {st.session_state.usuario_actual}!"
                         )
@@ -290,9 +394,12 @@ with st.sidebar:
     opcion_menu = st.radio("", opciones_menu)
 
 # --- SISTEMA PRINCIPAL (ADMINISTRACIÓN) ---
-st.title("💈 BARBERÍA GODS TIME")
 st.markdown(
-    "<p style='color: #D4AF37 !important; font-size: 1.1em;'><i>Excelencia, estilo y precisión en cada detalle.</i></p>",
+    '<h1 class="titulo-brillante">💈 BARBERÍA GODS TIME</h1>',
+    unsafe_allow_html=True,
+)
+st.markdown(
+    "<p style='color: #D4AF37 !important; font-size: 1.1em; text-align: center;'><i>Excelencia, estilo y precisión en cada detalle.</i></p>",
     unsafe_allow_html=True,
 )
 st.markdown("---")
@@ -332,9 +439,17 @@ elif opcion_index == 1:
 
     with st.form("form_servicio"):
         cliente_corte = st.text_input("Nombre del Cliente")
-        telefono_corte = st.text_input(
-            "Número de Teléfono (ej. +584121234567)"
-        )
+
+        c1_s, c2_s = st.columns([1, 2])
+        with c1_s:
+            cod_serv = st.selectbox(
+                "Código País",
+                ["+58 (VE)", "+57 (CO)", "+1 (US)", "+34 (ES)"],
+                key="cod_s",
+            )
+        with c2_s:
+            telefono_corte_local = st.text_input("Número (ej. 4121234567)")
+
         barbero_asigna = st.selectbox("Barbero que atendió", lista_barberos)
         tipo_servicio = st.selectbox("Servicio Realizado", servicios_lista)
         precio_servicio = st.number_input(
@@ -344,13 +459,16 @@ elif opcion_index == 1:
         submit_servicio = st.form_submit_button("✂️ Registrar Servicio")
 
         if submit_servicio and cliente_corte:
+            tel_completo = (
+                armar_telefono_wsp(cod_serv, telefono_corte_local)
+                if telefono_corte_local
+                else "N/A"
+            )
             nuevo_registro = pd.DataFrame(
                 {
                     "Fecha": [pd.Timestamp.now().strftime("%Y-%m-%d %H:%M")],
                     "Cliente": [cliente_corte],
-                    "Teléfono": [
-                        telefono_corte if telefono_corte else "N/A"
-                    ],
+                    "Teléfono": [tel_completo],
                     "Barbero": [barbero_asigna],
                     "Servicio": [tipo_servicio],
                     "Precio ($)": [precio_servicio],
@@ -360,6 +478,7 @@ elif opcion_index == 1:
                 [st.session_state.servicios_realizados, nuevo_registro],
                 ignore_index=True,
             )
+            guardar_csv(st.session_state.servicios_realizados, "servicios")
             st.success("¡Servicio registrado con éxito!")
             st.rerun()
 
@@ -369,9 +488,19 @@ elif opcion_index == 2:
 
     with st.form("form_cita"):
         cli_cita = st.text_input("Nombre del Cliente")
-        tel_cita = st.text_input(
-            "Número de Teléfono (ej. +584121234567)", key="tel_cita_input"
-        )
+
+        c1_c, c2_c = st.columns([1, 2])
+        with c1_c:
+            cod_cita_sel = st.selectbox(
+                "Código País",
+                ["+58 (VE)", "+57 (CO)", "+1 (US)", "+34 (ES)"],
+                key="cod_c",
+            )
+        with c2_c:
+            tel_cita_local = st.text_input(
+                "Número (ej. 4121234567)", key="tel_cita_input"
+            )
+
         barbero_cita = st.selectbox(
             "Barbero que atendió", lista_barberos, key="barb_cita_sel"
         )
@@ -388,12 +517,17 @@ elif opcion_index == 2:
         submit_cita = st.form_submit_button("📅 Agendar Cita")
 
         if submit_cita and cli_cita:
+            tel_completo = (
+                armar_telefono_wsp(cod_cita_sel, tel_cita_local)
+                if tel_cita_local
+                else "N/A"
+            )
             fecha_hora_str = f"{fecha_cita} {hora_cita.strftime('%H:%M')}"
             nueva_cita = pd.DataFrame(
                 {
                     "Fecha y Hora": [fecha_hora_str],
                     "Cliente": [cli_cita],
-                    "Teléfono": [tel_cita if tel_cita else "N/A"],
+                    "Teléfono": [tel_completo],
                     "Barbero": [barbero_cita],
                     "Servicio": [serv_cita],
                     "Estado": ["Pendiente"],
@@ -402,6 +536,7 @@ elif opcion_index == 2:
             st.session_state.citas = pd.concat(
                 [st.session_state.citas, nueva_cita], ignore_index=True
             )
+            guardar_csv(st.session_state.citas, "citas")
             st.success("¡Cita agendada con éxito!")
             st.rerun()
 
@@ -414,13 +549,20 @@ elif opcion_index == 2:
                 f"📅 {row['Fecha y Hora']} - {row['Cliente']} ({row['Barbero']}) - [{row.get('Estado', 'Pendiente')}]"
             ):
                 st.write(f"**Servicio Realizado:** {row['Servicio']}")
-                st.write(f"**Número de Teléfono:** {row['Teléfono']}")
+                st.write(f"**Número de Teléfono:** +{row['Teléfono']}")
 
                 tel_clean = "".join(filter(str.isdigit, str(row["Teléfono"])))
-                if tel_clean:
-                    msg = urllib.parse.quote(
-                        f"Hola {row['Cliente']}, te recordamos tu cita en Barbería Gods Time para el {row['Fecha y Hora']}."
+                if tel_clean and tel_clean != "NA":
+                    msg_texto = (
+                        f"Estimado/a *{row['Cliente']}*,\n\n"
+                        f"Le escribimos de *Barbería God's Time* para confirmarle su cita con "
+                        f"el/la barbero/a *{row['Barbero']}* programada para el día *{row['Fecha y Hora']}*.\n\n"
+                        f"Servicio solicitado: *{row['Servicio']}*\n\n"
+                        f"Le recordamos asistir con unos minutos de anticipación. "
+                        f"En caso de requerir reprogramar o cancelar, le agradecemos notificárnoslo con antelación.\n\n"
+                        f"¡Agradecemos su preferencia y lo esperamos!"
                     )
+                    msg = urllib.parse.quote(msg_texto)
                     wsp_url = f"https://wa.me/{tel_clean}?text={msg}"
                     st.markdown(
                         f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer;">💬 Notificar Cita por WhatsApp</button></a>',
@@ -436,6 +578,7 @@ elif opcion_index == 2:
                     st.session_state.citas = st.session_state.citas.drop(
                         idx
                     ).reset_index(drop=True)
+                    guardar_csv(st.session_state.citas, "citas")
                     st.success("¡Cita removida!")
                     st.rerun()
     else:
@@ -481,15 +624,19 @@ elif opcion_index == 3:
                     st.write(
                         f"**Servicio anterior:** {row['Servicio']} - {row['Fecha']}"
                     )
-                    st.write(f"**Número de Teléfono:** {row['Teléfono']}")
+                    st.write(f"**Número de Teléfono:** +{row['Teléfono']}")
 
                     tel_clean = "".join(
                         filter(str.isdigit, str(row["Teléfono"]))
                     )
-                    if tel_clean:
-                        msg = urllib.parse.quote(
-                            f"Hola {row['Cliente']}! Saludos de Barbería Gods Time. Ya pasaron {row['Dias_transcurridos']} días desde tu último corte. ¿Te agendamos un espacio esta semana?"
+                    if tel_clean and tel_clean != "NA":
+                        msg_texto = (
+                            f"Estimado/a *{row['Cliente']}*,\n\n"
+                            f"Le saludamos cordialmente de *Barbería God's Time*. Hemos notado que han transcurrido {row['Dias_transcurridos']} días desde su último servicio ({row['Servicio']}).\n\n"
+                            f"Nos encantaría recibirle nuevamente para mantener su estilo impecable. ¿Desea que le agendemos un espacio esta semana?\n\n"
+                            f"¡Quedamos a su completa disposición!"
                         )
+                        msg = urllib.parse.quote(msg_texto)
                         wsp_url = f"https://wa.me/{tel_clean}?text={msg}"
                         st.markdown(
                             f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer;">💬 Enviar Recordatorio por WhatsApp</button></a>',
@@ -595,6 +742,7 @@ elif opcion_index == 5:
                 [st.session_state.gastos_barberia, nuevo_gasto],
                 ignore_index=True,
             )
+            guardar_csv(st.session_state.gastos_barberia, "gastos")
             st.success("Gasto registrado con éxito.")
             st.rerun()
 
@@ -611,7 +759,17 @@ elif opcion_index == 6:
 
     with st.form("form_fiados"):
         cli_fiado = st.text_input("Nombre del Cliente")
-        tel_fiado = st.text_input("Número de Teléfono (ej. +584121234567)")
+
+        c1_f, c2_f = st.columns([1, 2])
+        with c1_f:
+            cod_fiado_sel = st.selectbox(
+                "Código País",
+                ["+58 (VE)", "+57 (CO)", "+1 (US)", "+34 (ES)"],
+                key="cod_f",
+            )
+        with c2_f:
+            tel_fiado_local = st.text_input("Número (ej. 4121234567)")
+
         monto_fiado = st.number_input(
             "Saldo Pendiente ($)", min_value=0.0, step=1.0
         )
@@ -619,10 +777,15 @@ elif opcion_index == 6:
         submit_fiado = st.form_submit_button("Registrar Deuda")
 
         if submit_fiado and cli_fiado:
+            tel_completo = (
+                armar_telefono_wsp(cod_fiado_sel, tel_fiado_local)
+                if tel_fiado_local
+                else "N/A"
+            )
             nueva_deuda = pd.DataFrame(
                 {
                     "Cliente": [cli_fiado],
-                    "Teléfono": [tel_fiado if tel_fiado else "N/A"],
+                    "Teléfono": [tel_completo],
                     "Deuda Pendiente ($)": [monto_fiado],
                     "Estado": ["Pendiente"],
                 }
@@ -630,6 +793,7 @@ elif opcion_index == 6:
             st.session_state.fiados = pd.concat(
                 [st.session_state.fiados, nueva_deuda], ignore_index=True
             )
+            guardar_csv(st.session_state.fiados, "fiados")
             st.success("Deuda registrada correctamente.")
             st.rerun()
 
@@ -641,13 +805,16 @@ elif opcion_index == 6:
             with st.expander(
                 f"📌 {row['Cliente']} - ${row['Deuda Pendiente ($)']:,.2f}"
             ):
-                st.write(f"**Número de Teléfono:** {row['Teléfono']}")
+                st.write(f"**Número de Teléfono:** +{row['Teléfono']}")
 
                 tel_clean = "".join(filter(str.isdigit, str(row["Teléfono"])))
-                if tel_clean:
-                    msg = urllib.parse.quote(
-                        f"Hola {row['Cliente']}, te recordamos que tienes un saldo pendiente de ${row['Deuda Pendiente ($)']:,.2f} en Barbería Gods Time."
+                if tel_clean and tel_clean != "NA":
+                    msg_texto = (
+                        f"Estimado/a *{row['Cliente']}*,\n\n"
+                        f"Le escribimos de *Barbería God's Time* para recordarle amablemente que posee un saldo pendiente por cancelar de *${row['Deuda Pendiente ($)']:,.2f}*.\n\n"
+                        f"Agradecemos de antemano su pronta atención a este pago. ¡Muchas gracias!"
                     )
+                    msg = urllib.parse.quote(msg_texto)
                     wsp_url = f"https://wa.me/{tel_clean}?text={msg}"
                     st.markdown(
                         f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer;">💬 Cobrar por WhatsApp</button></a>',
@@ -664,6 +831,7 @@ elif opcion_index == 6:
                     st.session_state.fiados = st.session_state.fiados.drop(
                         idx
                     ).reset_index(drop=True)
+                    guardar_csv(st.session_state.fiados, "fiados")
                     st.success("¡Deuda saldada!")
                     st.rerun()
     else:
