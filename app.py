@@ -17,10 +17,12 @@ usuario_guardado = cookie_manager.get(cookie="usuario_sesion")
 if usuario_guardado:
     st.session_state["autenticado"] = True
     st.session_state["usuario"] = usuario_guardado
-else:
-    # 🟢 Si no hay cookie guardada, la crea automáticamente por 30 días
-    st.session_state["autenticado"] = True
-    st.session_state["usuario"] = "admin"
+
+# Importaciones adicionales
+import base64
+import os
+import urllib.parse
+import pandas as pd
     cookie_manager.set("usuario_sesion", "admin", max_age=2592000, key="auto_login_cookie")
 
 # Importaciones adicionales
