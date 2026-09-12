@@ -353,11 +353,11 @@ if not st.session_state.autenticado:
             st.rerun()
 
     else:
-        st.subheader("🔑 Usuario")
+        st.subheader("🔑 Acceso")
         with st.form("form_login"):
             usuario_input = (
                 st.text_input(
-                    "USER", value=st.session_state.usuario_recordado
+                    "Usuario", value=st.session_state.usuario_recordado
                 )
                 .strip()
                 .lower()
