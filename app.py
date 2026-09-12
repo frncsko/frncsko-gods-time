@@ -371,7 +371,7 @@ if not st.session_state.autenticado:
                 "Recordar usuario/contraseña",
                 value=bool(st.session_state.usuario_recordado),
             )
-            btn_login = st.form_submit_button("ENTER TO SYSTEM")
+            btn_login = st.form_submit_button("Entrar al Sistema")
 
             if btn_login:
                 if (
