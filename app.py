@@ -279,7 +279,7 @@ servicios_lista = [
     "CORTE",
     "BARBA",
     "CORTE / BARBA",
-    "Corte + Cejas",
+    "MASCARILLA",
     "Corte + Barba + Cejas (VIP)",
 ]
 
@@ -383,35 +383,7 @@ if not st.session_state.autenticado:
                             ),
                         )
 
-                        if tipo_reserva_pub == "A Domicilio":
-                            mensaje_wsp = urllib.parse.quote(
-                                f"🏠 *NUEVA CITA A DOMICILIO EN LÍNEA*\n\n"
-                                f"👤 *Cliente:* {cli_pub}\n"
-                                f"📱 *Teléfono:* {tel_pub}\n"
-                                f"✂️ *Barbero:* {barbero_pub}\n"
-                                f"💈 *Servicio:* {serv_pub}\n"
-                                f"📍 *Dirección:* {dir_pub}\n"
-                                f"💵 *Costo Traslado:* ${costo_dom_pub:,.2f}\n"
-                                f"📅 *Fecha y Hora:* {fecha_hora_str}"
-                            )
-                        else:
-                            mensaje_wsp = urllib.parse.quote(
-                                f"💈 *NUEVA CITA EN LOCAL EN LÍNEA*\n\n"
-                                f"👤 *Cliente:* {cli_pub}\n"
-                                f"📱 *Teléfono:* {tel_pub}\n"
-                                f"✂️ *Barbero:* {barbero_pub}\n"
-                                f"💈 *Servicio:* {serv_pub}\n"
-                                f"📅 *Fecha y Hora:* {fecha_hora_str}"
-                            )
-
-                        wsp_link = f"https://wa.me/{NUMERO_WHATSAPP_ADMIN}?text={mensaje_wsp}"
-
-                        st.success("¡Cita registrada con éxito en el sistema!")
-                        st.markdown(
-                            f'<a href="{wsp_link}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:12px 20px; border-radius:6px; font-weight:bold; width:100%; cursor:pointer; font-size:1.1em;">💬 Haz Clic Aquí para Notificar por WhatsApp</button></a>',
-                            unsafe_allow_html=True,
-                        )
-
+                        
             st.write("")
             if st.button("⬅️ Volver al Inicio de Sesión"):
                 st.session_state.ver_agendar_publico = False
