@@ -8,21 +8,21 @@ st.set_page_config(
     page_title="Barbería Gods Time", page_icon="💈", layout="wide"
 )
 
-# 2. Estilo CSS con fondo animado de fútbol (balón en movimiento y gol) y título arriba
+# 2. Estilo CSS con fondo animado de TERROR (niebla y sombras con movimiento) y título arriba
 bg_css = """
-@keyframes moveBall {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+@keyframes terrorFog {
+    0% { background-position: 0% 50%; filter: brightness(0.4) contrast(1.3); }
+    50% { background-position: 100% 50%; filter: brightness(0.25) contrast(1.5) hue-rotate(-10deg); }
+    100% { background-position: 0% 50%; filter: brightness(0.4) contrast(1.3); }
 }
 
 .stApp {
-    background: linear-gradient(rgba(14, 14, 16, 0.82), rgba(14, 14, 16, 0.85)), 
-                url("https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1920&auto=format&fit=crop");
+    background: linear-gradient(rgba(5, 5, 5, 0.92), rgba(15, 2, 2, 0.95)), 
+                url("https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1920&auto=format&fit=crop");
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    animation: moveBall 25s ease infinite alternate;
+    animation: terrorFog 15s ease infinite alternate;
 }
 """
 
@@ -172,7 +172,7 @@ if "fiados" not in st.session_state:
 
 # --- MENÚ LATERAL IZQUIERDO (LOGIN PEQUEÑO Y DIVIDIDO POR SECCIONES ESTILO TREINTA) ---
 with st.sidebar:
-    st.markdown("### ⚽ 💈 Barbería Gods Time")
+    st.markdown("### 🦇 💈 Barbería Gods Time")
 
     if not st.session_state.autenticado:
         st.markdown("#### 🔑 Iniciar Sesión")
@@ -271,13 +271,12 @@ with st.sidebar:
 
 # --- SI NO ESTÁ AUTENTICADO: TÍTULO ARRIBA Y BOTÓN DE AGENDAR GRANDE EN EL CENTRO ---
 if not st.session_state.autenticado:
-    # TÍTULO COLOCADO ARRIBA CON BORDE NEGRO
     st.markdown(
-        '<div class="border-title">💈 Barbería Gods Time 💈</div>',
+        '<div class="border-title">🦇 Barbería Gods Time 🦇</div>',
         unsafe_allow_html=True,
     )
     st.markdown(
-        "<p style='text-align: center; color: #FFFFFF !important; font-size: 1.2em; margin-top: 10px;'><i>Excelencia, estilo y precisión en cada detalle.</i></p>",
+        "<p style='text-align: center; color: #FFFFFF !important; font-size: 1.2em; margin-top: 10px;'><i>El terror del mal estilo... precisión milimétrica.</i></p>",
         unsafe_allow_html=True,
     )
     st.markdown("<br>", unsafe_allow_html=True)
@@ -335,7 +334,7 @@ if not st.session_state.autenticado:
 
                     # MENSAJE DE WHATSAPP CON ICONOS DE BARBERÍA Y TELÉFONO
                     mensaje_wsp = urllib.parse.quote(
-                        f"💈 *¡NUEVA CITA RESERVADA EN LÍNEA!* ✂️\n\n"
+                        f"🦇 *¡NUEVA CITA RESERVADA EN LÍNEA!* ✂️\n\n"
                         f"👤 *Cliente:* {cli_pub}\n"
                         f"📱 *Teléfono:* {tel_pub}\n"
                         f"💈 *Barbero:* {barbero_pub}\n"
@@ -362,11 +361,11 @@ if not st.session_state.autenticado:
 
 # --- SISTEMA PRINCIPAL (ADMINISTRACIÓN) ---
 st.markdown(
-    '<div class="border-title">💈 Barbería Gods Time 💈</div>',
+    '<div class="border-title">🦇 Barbería Gods Time 🦇</div>',
     unsafe_allow_html=True,
 )
 st.markdown(
-    "<p style='text-align: center; color: #FFFFFF !important; font-size: 1.1em;'><i>Excelencia, estilo y precisión en cada detalle.</i></p>",
+    "<p style='text-align: center; color: #FFFFFF !important; font-size: 1.1em;'><i>El terror del mal estilo... precisión milimétrica.</i></p>",
     unsafe_allow_html=True,
 )
 st.markdown("---")
@@ -487,7 +486,7 @@ elif opcion_menu == "📅 Agendar Citas":
                 tel_clean = "".join(filter(str.isdigit, str(row["Teléfono"])))
                 if tel_clean:
                     msg = urllib.parse.quote(
-                        f"💈 *Hola {row['Cliente']},* te recordamos tu cita en *Barbería Gods Time* para el 📅 {row['Fecha y Hora']} con el servicio de ✂️ {row['Servicio']}. ¡Te esperamos! 📱"
+                        f"🦇 *Hola {row['Cliente']},* te recordamos tu cita en *Barbería Gods Time* para el 📅 {row['Fecha y Hora']} con el servicio de ✂️ {row['Servicio']}. ¡Te esperamos! 📱"
                     )
                     wsp_url = f"https://wa.me/{tel_clean}?text={msg}"
                     st.markdown(
@@ -556,7 +555,7 @@ elif opcion_menu == "⏰ Recordatorio de Cortes":
                     )
                     if tel_clean:
                         msg = urllib.parse.quote(
-                            f"💈 *¡Hola {row['Cliente']}!* Saludos de *Barbería Gods Time*. Ya pasaron {row['Dias_transcurridos']} días desde tu último corte ✂️. ¿Te agendamos un espacio esta semana? 📱"
+                            f"🦇 *¡Hola {row['Cliente']}!* Saludos de *Barbería Gods Time*. Ya pasaron {row['Dias_transcurridos']} días desde tu último corte ✂️. ¿Te agendamos un espacio esta semana? 📱"
                         )
                         wsp_url = f"https://wa.me/{tel_clean}?text={msg}"
                         st.markdown(
@@ -714,7 +713,7 @@ elif opcion_menu == "📝 Cobrar Fiados":
                 tel_clean = "".join(filter(str.isdigit, str(row["Teléfono"])))
                 if tel_clean:
                     msg = urllib.parse.quote(
-                        f"💈 *¡Hola {row['Cliente']}!* Te recordamos que tienes un saldo pendiente de *${row['Deuda Pendiente ($)']:,.2f}* en *Barbería Gods Time*. ✂️📱"
+                        f"🦇 *¡Hola {row['Cliente']}!* Te recordamos que tienes un saldo pendiente de *${row['Deuda Pendiente ($)']:,.2f}* en *Barbería Gods Time*. ✂️📱"
                     )
                     wsp_url = f"https://wa.me/{tel_clean}?text={msg}"
                     st.markdown(
