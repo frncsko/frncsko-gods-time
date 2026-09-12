@@ -1,7 +1,7 @@
 import streamlit as st
 import extra_streamlit_components as stx
 
-# 1. Configuración de página (SIEMPRE debe ser la primera orden de Streamlit)
+# 1. Configuración de la página
 st.set_page_config(
     page_title="Barbería Gods Time", 
     page_icon="✂️", 
@@ -11,16 +11,23 @@ st.set_page_config(
 # 2. Inicializar gestor de cookies
 cookie_manager = stx.CookieManager()
 
-# 3. Mantenimiento de sesión
+# 3. Leer la cookie
 usuario_guardado = cookie_manager.get(cookie="usuario_sesion")
 
 if usuario_guardado:
     st.session_state["autenticado"] = True
     st.session_state["usuario"] = usuario_guardado
+else:
+    # 🟢 Si no hay cookie guardada, la crea automáticamente por 30 días
+    st.session_state["autenticado"] = True
+    st.session_state["usuario"] = "admin"
+    cookie_manager.set("usuario_sesion", "admin", max_age=2592000, key="auto_login_cookie")
 
 # Importaciones adicionales
 import base64
 import os
+import urllib.parse
+import pandas as pd
 import urllib.parse
 import pandas as pd
 
