@@ -164,6 +164,7 @@ servicios_lista = [
     "Corte + Barba + Cejas (VIP)",
     "AFEITADA DE JOYO",
     "AFEITADA DE PENE CON DISEÑO(VIP)",
+    "MAMADA CON GARGARA(VIP)",
 ]
 
 
