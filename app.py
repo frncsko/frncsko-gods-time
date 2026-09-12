@@ -1,17 +1,17 @@
 import streamlit as st
 import extra_streamlit_components as stx
 
-# 1. Configuración de la página
+# 1. Configuración de página
 st.set_page_config(
-    page_title="Barbería Gods Time", 
-    page_icon="✂️", 
+    page_title="Barbería Gods Time",
+    page_icon="✂️",
     layout="centered"
 )
 
-# 2. Inicializar gestor de cookies
+# 2. Inicializar cookies
 cookie_manager = stx.CookieManager()
 
-# 3. Leer la cookie
+# 3. Leer la cookie guardada
 usuario_guardado = cookie_manager.get(cookie="usuario_sesion")
 
 if usuario_guardado:
