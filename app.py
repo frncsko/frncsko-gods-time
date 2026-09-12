@@ -368,10 +368,10 @@ if not st.session_state.autenticado:
                 value=st.session_state.password_recordado,
             )
             recordar_credenciales = st.checkbox(
-                "Recordar usuario y contraseña",
+                "REMEMBER",
                 value=bool(st.session_state.usuario_recordado),
             )
-            btn_login = st.form_submit_button("Ingresar al Sistema")
+            btn_login = st.form_submit_button("ENTER TO SYSTEM")
 
             if btn_login:
                 if (
@@ -421,7 +421,7 @@ col_user_info, col_logout = st.columns([3, 1])
 with col_user_info:
     st.markdown(f"👤 **Conectado como:** `{st.session_state.usuario_actual}`")
 with col_logout:
-    if st.button("🚪 Salir"):
+    if st.button("🚪 LOG OUT"):
         st.session_state.autenticado = False
         st.session_state.usuario_actual = ""
         st.session_state.ver_agendar_publico = False
@@ -494,7 +494,7 @@ opcion_menu = st.session_state.menu_actual
 
 # 1. CAJA Y RESUMEN
 if opcion_menu == "📊 Caja y Resumen":
-    st.header("Caja del Día y Resumen Financiero")
+    st.header("REGISTRO DIARIO")
 
     df_servicios = st.session_state.servicios_realizados
     df_gastos = st.session_state.gastos_barberia
