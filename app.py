@@ -31,13 +31,13 @@ except FileNotFoundError:
     }
     """
 
-# 3. Estilo CSS (Sin dorado, sin Navidad, Título con borde negro y Login izquierdo pequeño)
+# 3. Estilo CSS (Título más arriba con borde negro y diseño general)
 st.markdown(
     f"""
     <style>
     {bg_css}
     
-    /* TÍTULO CON BORDE NEGRO Y LETRAS BLANCAS */
+    /* TÍTULO MÁS ARRIBA CON BORDE NEGRO Y LETRAS BLANCAS */
     .border-title {{
         font-size: 2.8rem;
         font-weight: 900;
@@ -47,7 +47,8 @@ st.markdown(
         -webkit-text-stroke: 2px #000000;
         text-shadow: 3px 3px 0px #000000, -1px -1px 0px #000000, 1px -1px 0px #000000, -1px 1px 0px #000000, 1px 1px 0px #000000;
         letter-spacing: 2px;
-        margin-bottom: 5px;
+        margin-top: -30px;
+        margin-bottom: 0px;
     }}
 
     .stApp {{ color: #E0E0E0; }}
@@ -173,112 +174,45 @@ if "fiados" not in st.session_state:
         columns=["Cliente", "Teléfono", "Deuda Pendiente ($)", "Estado"]
     )
 
-# --- MENÚ LATERAL IZQUIERDO Y LOGIN / AGENDAMIENTO PÚBLICO PEQUEÑO ---
+# --- MENÚ LATERAL IZQUIERDO (LOGIN PEQUEÑO Y DIVIDIDO POR SECCIONES ESTILO TREINTA) ---
 with st.sidebar:
     st.markdown("### 💈 Barbería Gods Time")
 
     if not st.session_state.autenticado:
-        if st.session_state.ver_agendar_publico:
-            st.markdown("#### 📅 Agendar Cita")
-            with st.form("form_cita_publica_sidebar"):
-                cli_pub = st.text_input("Nombre Completo")
-                tel_pub = st.text_input("WhatsApp (+58...)")
-                barbero_pub = st.selectbox("Barbero", lista_barberos)
-                serv_pub = st.selectbox("Servicio", servicios_lista)
-                fecha_pub = st.date_input("Fecha")
-                hora_pub = st.time_input("Hora")
+        st.markdown("#### 🔑 Iniciar Sesión")
+        with st.form("form_login_sidebar"):
+            usuario_input = (
+                st.text_input("Usuario", value=st.session_state.usuario_guardado)
+                .strip()
+                .lower()
+            )
+            password_input = st.text_input("Contraseña", type="password")
+            recordar_usuario = st.checkbox(
+                "Recordar", value=bool(st.session_state.usuario_guardado)
+            )
+            btn_login = st.form_submit_button("Ingresar")
 
-                submit_pub = st.form_submit_button("Reservar Turno")
+            if btn_login:
+                if (
+                    usuario_input in USUARIOS_VALIDOS
+                    and USUARIOS_VALIDOS[usuario_input] == password_input
+                ):
+                    st.session_state.autenticado = True
+                    st.session_state.usuario_actual = usuario_input.capitalize()
 
-                if submit_pub and cli_pub and tel_pub:
-                    fecha_hora_str = f"{fecha_pub} {hora_pub.strftime('%H:%M')}"
-                    nueva_cita = pd.DataFrame(
-                        {
-                            "Fecha y Hora": [fecha_hora_str],
-                            "Cliente": [cli_pub],
-                            "Teléfono": [tel_pub],
-                            "Barbero": [barbero_pub],
-                            "Servicio": [serv_pub],
-                            "Estado": ["Pendiente (Online)"],
-                        }
-                    )
-                    st.session_state.citas = pd.concat(
-                        [st.session_state.citas, nueva_cita], ignore_index=True
-                    )
-
-                    mensaje_wsp = urllib.parse.quote(
-                        f"💈 *NUEVA CITA AGENDADA EN LÍNEA*\n\n"
-                        f"👤 *Cliente:* {cli_pub}\n"
-                        f"📱 *Teléfono:* {tel_pub}\n"
-                        f"✂️ *Barbero:* {barbero_pub}\n"
-                        f"💈 *Servicio:* {serv_pub}\n"
-                        f"📅 *Fecha y Hora:* {fecha_hora_str}"
-                    )
-                    wsp_link = (
-                        f"https://wa.me/{NUMERO_WHATSAPP_ADMIN}?text={mensaje_wsp}"
-                    )
-
-                    st.success("¡Cita registrada con éxito!")
-                    st.markdown(
-                        f'<a href="{wsp_link}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:6px; font-weight:bold; width:100%; cursor:pointer; font-size:0.9em;">💬 Notificar por WhatsApp</button></a>',
-                        unsafe_allow_html=True,
-                    )
-
-            if st.button(
-                "⬅️ Volver al Login",
-                use_container_width=True,
-                key="btn_volver_login",
-            ):
-                st.session_state.ver_agendar_publico = False
-                st.rerun()
-
-        else:
-            st.markdown("#### 🔑 Iniciar Sesión")
-            with st.form("form_login_sidebar"):
-                usuario_input = (
-                    st.text_input(
-                        "Usuario", value=st.session_state.usuario_guardado
-                    )
-                    .strip()
-                    .lower()
-                )
-                password_input = st.text_input("Contraseña", type="password")
-                recordar_usuario = st.checkbox(
-                    "Recordar", value=bool(st.session_state.usuario_guardado)
-                )
-                btn_login = st.form_submit_button("Ingresar")
-
-                if btn_login:
-                    if (
-                        usuario_input in USUARIOS_VALIDOS
-                        and USUARIOS_VALIDOS[usuario_input] == password_input
-                    ):
-                        st.session_state.autenticado = True
-                        st.session_state.usuario_actual = (
-                            usuario_input.capitalize()
-                        )
-
-                        if recordar_usuario:
-                            st.session_state.usuario_guardado = usuario_input
-                        else:
-                            st.session_state.usuario_guardado = ""
-
-                        st.rerun()
+                    if recordar_usuario:
+                        st.session_state.usuario_guardado = usuario_input
                     else:
-                        st.error("Datos incorrectos.")
+                        st.session_state.usuario_guardado = ""
 
-            st.markdown("---")
-            if st.button(
-                "📅 Agendar Cita (Público)",
-                use_container_width=True,
-                key="btn_ir_agendar",
-            ):
-                st.session_state.ver_agendar_publico = True
-                st.rerun()
-
+                    st.rerun()
+                else:
+                    st.error("Datos incorrectos.")
     else:
         st.markdown(f"👤 **Hola,** {st.session_state.usuario_actual}")
         st.markdown("---")
+
+        # MENÚ DIVIDIDO ESTILO TREINTA
         st.markdown("#### 💼 **NEGOCIO**")
         opcion_caja = st.button(
             "📊 Caja y Resumen", use_container_width=True, key="btn_caja"
@@ -339,19 +273,94 @@ with st.sidebar:
             st.session_state.ver_agendar_publico = False
             st.rerun()
 
-# --- SI NO ESTÁ AUTENTICADO, BLOQUEAR PANEL PRINCIPAL ---
+# --- SI NO ESTÁ AUTENTICADO: PANTALLA PRINCIPAL CON TÍTULO, DESCRIPCIÓN Y BOTÓN DE AGENDAR GRANDE EN EL CENTRO ---
 if not st.session_state.autenticado:
     st.markdown(
-        """
-        <div style="text-align: center; margin-top: 100px;">
-            <div class="border-title">💈 Barbería Gods Time 💈</div>
-            <p style='color: #FFFFFF !important; font-size: 1.2em;'><i>Excelencia, estilo y precisión en cada detalle.</i></p>
-            <br>
-            <p style='color: #AAAAAA !important;'>Utiliza el panel izquierdo para <b>Iniciar Sesión</b> como administrador o barbero, o bien para <b>Agendar una Cita</b> en línea.</p>
-        </div>
-        """,
+        '<div class="border-title" style="margin-top: 20px;">💈 Barbería Gods Time 💈</div>',
         unsafe_allow_html=True,
     )
+    st.markdown(
+        "<p style='text-align: center; color: #FFFFFF !important; font-size: 1.2em; margin-top: 10px;'><i>Excelencia, estilo y precisión en cada detalle.</i></p>",
+        unsafe_allow_html=True,
+    )
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    col_centrada = st.columns([1, 2, 1])
+    with col_centrada[1]:
+        if not st.session_state.ver_agendar_publico:
+            # BOTÓN GRANDE Y CENTRADO PARA AGENDAR
+            if st.button(
+                "📅 ✂️ AGENDAR CITA EN LÍNEA 💈 📱",
+                use_container_width=True,
+                key="btn_grande_agendar",
+            ):
+                st.session_state.ver_agendar_publico = True
+                st.rerun()
+            st.markdown(
+                "<p style='text-align: center; color: #AAAAAA !important; font-size: 0.95em; margin-top: 15px;'>Inicia sesión en el panel lateral izquierdo si eres parte del equipo, o haz clic en el botón superior para reservar tu cita.</p>",
+                unsafe_allow_html=True,
+            )
+        else:
+            st.subheader("📅 Agendar Turno - Barbería Gods Time")
+            with st.form("form_cita_publica_centro"):
+                cli_pub = st.text_input("Tu Nombre Completo")
+                tel_pub = st.text_input(
+                    "Tu Número de Teléfono / WhatsApp (ej. +58412...)"
+                )
+                barbero_pub = st.selectbox("Selecciona Barbero", lista_barberos)
+                serv_pub = st.selectbox("Servicio Deseado", servicios_lista)
+
+                col_f_p, col_h_p = st.columns(2)
+                with col_f_p:
+                    fecha_pub = st.date_input("Fecha preferida")
+                with col_h_p:
+                    hora_pub = st.time_input("Hora preferida")
+
+                submit_pub = st.form_submit_button(
+                    "📩 Reservar Turno y Notificar por WhatsApp"
+                )
+
+                if submit_pub and cli_pub and tel_pub:
+                    fecha_hora_str = f"{fecha_pub} {hora_pub.strftime('%H:%M')}"
+                    nueva_cita = pd.DataFrame(
+                        {
+                            "Fecha y Hora": [fecha_hora_str],
+                            "Cliente": [cli_pub],
+                            "Teléfono": [tel_pub],
+                            "Barbero": [barbero_pub],
+                            "Servicio": [serv_pub],
+                            "Estado": ["Pendiente (Online)"],
+                        }
+                    )
+                    st.session_state.citas = pd.concat(
+                        [st.session_state.citas, nueva_cita], ignore_index=True
+                    )
+
+                    # MENSAJE DE WHATSAPP ACTUALIZADO CON ICONOS DE BARBERÍA Y TELÉFONO
+                    mensaje_wsp = urllib.parse.quote(
+                        f"💈 *¡NUEVA CITA RESERVADA EN LÍNEA!* ✂️\n\n"
+                        f"👤 *Cliente:* {cli_pub}\n"
+                        f"📱 *Teléfono:* {tel_pub}\n"
+                        f"💈 *Barbero:* {barbero_pub}\n"
+                        f"✂️ *Servicio:* {serv_pub}\n"
+                        f"📅 *Fecha y Hora:* {fecha_hora_str}\n\n"
+                        f"📍 *Barbería Gods Time*"
+                    )
+                    wsp_link = (
+                        f"https://wa.me/{NUMERO_WHATSAPP_ADMIN}?text={mensaje_wsp}"
+                    )
+
+                    st.success("¡Cita registrada con éxito!")
+                    st.markdown(
+                        f'<a href="{wsp_link}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:12px 20px; border-radius:6px; font-weight:bold; width:100%; cursor:pointer; font-size:1.1em;">💬 Haz Clic Aquí para Notificar por WhatsApp 📱</button></a>',
+                        unsafe_allow_html=True,
+                    )
+
+            st.write("")
+            if st.button("⬅️ Volver", use_container_width=True):
+                st.session_state.ver_agendar_publico = False
+                st.rerun()
+
     st.stop()
 
 # --- SISTEMA PRINCIPAL (ADMINISTRACIÓN) ---
@@ -481,11 +490,11 @@ elif opcion_menu == "📅 Agendar Citas":
                 tel_clean = "".join(filter(str.isdigit, str(row["Teléfono"])))
                 if tel_clean:
                     msg = urllib.parse.quote(
-                        f"Hola {row['Cliente']}, te recordamos tu cita en Barbería Gods Time para el {row['Fecha y Hora']}."
+                        f"💈 *Hola {row['Cliente']},* te recordamos tu cita en *Barbería Gods Time* para el 📅 {row['Fecha y Hora']} con el servicio de ✂️ {row['Servicio']}. ¡Te esperamos! 📱"
                     )
                     wsp_url = f"https://wa.me/{tel_clean}?text={msg}"
                     st.markdown(
-                        f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer;">💬 Notificar por WhatsApp</button></a>',
+                        f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer;">💬 Notificar Cita por WhatsApp 📱</button></a>',
                         unsafe_allow_html=True,
                     )
                 else:
@@ -550,11 +559,11 @@ elif opcion_menu == "⏰ Recordatorio de Cortes":
                     )
                     if tel_clean:
                         msg = urllib.parse.quote(
-                            f"Hola {row['Cliente']}! Saludos de Barbería Gods Time. Ya pasaron {row['Dias_transcurridos']} días desde tu último corte. ¿Te agendamos un espacio esta semana?"
+                            f"💈 *¡Hola {row['Cliente']}!* Saludos de *Barbería Gods Time*. Ya pasaron {row['Dias_transcurridos']} días desde tu último corte ✂️. ¿Te agendamos un espacio esta semana? 📱"
                         )
                         wsp_url = f"https://wa.me/{tel_clean}?text={msg}"
                         st.markdown(
-                            f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer;">💬 Enviar Recordatorio por WhatsApp</button></a>',
+                            f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer;">💬 Enviar Recordatorio por WhatsApp 📱</button></a>',
                             unsafe_allow_html=True,
                         )
                     else:
@@ -708,11 +717,11 @@ elif opcion_menu == "📝 Cobrar Fiados":
                 tel_clean = "".join(filter(str.isdigit, str(row["Teléfono"])))
                 if tel_clean:
                     msg = urllib.parse.quote(
-                        f"Hola {row['Cliente']}, te recordamos que tienes un saldo pendiente de ${row['Deuda Pendiente ($)']:,.2f} en Barbería Gods Time."
+                        f"💈 *¡Hola {row['Cliente']}!* Te recordamos que tienes un saldo pendiente de *${row['Deuda Pendiente ($)']:,.2f}* en *Barbería Gods Time*. ✂️📱"
                     )
                     wsp_url = f"https://wa.me/{tel_clean}?text={msg}"
                     st.markdown(
-                        f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer;">💬 Cobrar por WhatsApp</button></a>',
+                        f'<a href="{wsp_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold; cursor:pointer;">💬 Cobrar por WhatsApp 📱</button></a>',
                         unsafe_allow_html=True,
                     )
                 else:
