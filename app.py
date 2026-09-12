@@ -153,6 +153,49 @@ USUARIOS_VALIDOS = {
     "admin": "admin",
     "francisco": "barbero1",
     "jonder": "barbero2",
+    st.markdown("---")
+            st.write("¿Eres cliente y quieres reservar un turno?")
+            if st.button("📅 Agendar Cita Aquí (Público)"):
+                st.session_state.ver_agendar_publico = True
+                st.rerun()
+st.markdown("---")
+            st.subheader("📝 ¿No tienes cuenta? Regístrate")
+
+            with st.form("form_registro_nuevo"):
+                nuevo_user = st.text_input("Nuevo Usuario").strip().lower()
+                nuevo_pass = st.text_input("Contraseña", type="password")
+                nuevo_rol = st.selectbox(
+                    "Rol / Tipo", ["Barbero", "Administrador"]
+                )
+                btn_registrar = st.form_submit_button("Crear Cuenta")
+
+                if btn_registrar:
+                    if not nuevo_user or not nuevo_pass:
+                        st.error("Por favor completa todos los campos.")
+                    elif nuevo_user in USUARIOS_VALIDOS or (
+                        not st.session_state.df_usuarios.empty
+                        and nuevo_user
+                        in st.session_state.df_usuarios["Usuario"].values
+                    ):
+                        st.error(
+                            "El nombre de usuario ya existe. Elige otro."
+                        )
+                    else:
+                        nuevo_registro_df = pd.DataFrame(
+                            {
+                                "Usuario": [nuevo_user],
+                                "Password": [nuevo_pass],
+                                "Rol": [nuevo_rol],
+                            }
+                        )
+                        st.session_state.df_usuarios = pd.concat(
+                            [st.session_state.df_usuarios, nuevo_registro_df],
+                            ignore_index=True,
+                        )
+                        guardar_usuarios_extra(st.session_state.df_usuarios)
+                        st.success(
+                            "¡Cuenta creada con éxito! Ya puedes iniciar sesión arriba."
+                        )
 }
 
 lista_barberos = ["Barbero Francisco", "Barbero Jonder"]
@@ -329,7 +372,7 @@ if not st.session_state.autenticado:
                 mensaje_texto = (
                     f"Estimado/a *Barbería Gods Time*,\n\n"
                     f"Les escribo para confirmar una nueva cita agendada en línea.\n\n"
-                    f"👤*Cliente:* {cli_pub}\n"
+                    f"👤 *Cliente:* {cli_pub}\n"
                     f"📱 *Teléfono:* +{tel_completo}\n"
                     f"✂️ *Barbero:* {barbero_pub}\n"
                     f"💈 *Servicio:* {serv_pub}\n"
@@ -348,7 +391,7 @@ if not st.session_state.autenticado:
                 )
 
         st.write("")
-        if st.button("⬅️ Volver al Inicio de Sesión"):
+        if st.button("⬅️ REGRESAR AL INICIO"):
             st.session_state.ver_agendar_publico = False
             st.rerun()
 
@@ -357,13 +400,13 @@ if not st.session_state.autenticado:
         with st.form("form_login"):
             usuario_input = (
                 st.text_input(
-                    "Usuario", value=st.session_state.usuario_recordado
+                    "USER", value=st.session_state.usuario_recordado
                 )
                 .strip()
                 .lower()
             )
             password_input = st.text_input(
-                "Contraseña",
+                "PASSWORD",
                 type="password",
                 value=st.session_state.password_recordado,
             )
