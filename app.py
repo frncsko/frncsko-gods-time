@@ -353,7 +353,7 @@ if not st.session_state.autenticado:
             st.rerun()
 
     else:
-        st.subheader("🔑 LOGIN")
+        st.subheader("🔑 Usuario")
         with st.form("form_login"):
             usuario_input = (
                 st.text_input(
@@ -363,12 +363,12 @@ if not st.session_state.autenticado:
                 .lower()
             )
             password_input = st.text_input(
-                "PASSWORD",
+                "Contraseña",
                 type="password",
                 value=st.session_state.password_recordado,
             )
             recordar_credenciales = st.checkbox(
-                "REMEMBER",
+                "Recordar usuario/contraseña",
                 value=bool(st.session_state.usuario_recordado),
             )
             btn_login = st.form_submit_button("ENTER TO SYSTEM")
