@@ -153,7 +153,7 @@ USUARIOS_VALIDOS = {
     "admin": "admin",
     "francisco": "barbero1",
     "jonder": "barbero2",
-    
+}
 
 lista_barberos = ["Barbero Francisco", "Barbero Jonder"]
 servicios_lista = [
@@ -348,7 +348,7 @@ if not st.session_state.autenticado:
                 )
 
         st.write("")
-        if st.button("⬅️ REGRESAR AL INICIO"):
+        if st.button("⬅️ Volver al Inicio de Sesión"):
             st.session_state.ver_agendar_publico = False
             st.rerun()
 
@@ -357,13 +357,13 @@ if not st.session_state.autenticado:
         with st.form("form_login"):
             usuario_input = (
                 st.text_input(
-                    "USER", value=st.session_state.usuario_recordado
+                    "Usuario", value=st.session_state.usuario_recordado
                 )
                 .strip()
                 .lower()
             )
             password_input = st.text_input(
-                "PASSWORD",
+                "Contraseña",
                 type="password",
                 value=st.session_state.password_recordado,
             )
