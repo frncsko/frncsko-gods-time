@@ -32,7 +32,7 @@ except FileNotFoundError:
     }
     """
 
-# 3. Estilo CSS personalizado (Efecto brillante tipo espejo con borde negro)
+# 3. Estilo CSS personalizado (Efecto brillante sin borde negro y con icono giratorio)
 st.markdown(
     f"""
     <style>
@@ -42,6 +42,16 @@ st.markdown(
     @keyframes shine {{
         0% {{ background-position: 200% 0; }}
         100% {{ background-position: -200% 0; }}
+    }}
+
+    @keyframes girar {{
+        0% {{ transform: rotate(0deg); }}
+        100% {{ transform: rotate(360deg); }}
+    }}
+
+    .icono-giratorio {{
+        display: inline-block;
+        animation: girar 4s linear infinite;
     }}
 
     .titulo-brillante {{
@@ -55,7 +65,6 @@ st.markdown(
         color: transparent;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        -webkit-text-stroke: 1.5px black;
         animation: shine 4s linear infinite;
         letter-spacing: 2px;
         margin-bottom: 0px;
@@ -237,7 +246,7 @@ def armar_telefono_wsp(codigo_pais, numero_local):
 # --- PANTALLA PÚBLICA / INICIO DE SESIÓN ---
 if not st.session_state.autenticado:
     st.markdown(
-        '<h1 class="titulo-brillante">💈 BARBERÍA GODS TIME</h1>',
+        '<h1 class="titulo-brillante"><span class="icono-giratorio">💈</span> BARBERÍA GODS TIME <span class="icono-giratorio">💈</span></h1>',
         unsafe_allow_html=True,
     )
     st.markdown(
@@ -395,7 +404,7 @@ with st.sidebar:
 
 # --- SISTEMA PRINCIPAL (ADMINISTRACIÓN) ---
 st.markdown(
-    '<h1 class="titulo-brillante">💈 BARBERÍA GODS TIME</h1>',
+    '<h1 class="titulo-brillante"><span class="icono-giratorio">💈</span> BARBERÍA GODS TIME <span class="icono-giratorio">💈</span></h1>',
     unsafe_allow_html=True,
 )
 st.markdown(
