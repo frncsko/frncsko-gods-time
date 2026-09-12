@@ -306,7 +306,8 @@ if not st.session_state.autenticado:
             )
 
             if submit_pub and cli_pub and tel_pub_local:
-                tel_completo = armar_telefono_wsp(cod_pub, tel_pub_local)
+                tel_completo = str(armar_telefono_wsp(cod_pub, tel_pub_local)).split(".")[0]
+
                 fecha_hora_str = f"{fecha_pub} {hora_pub.strftime('%H:%M')}"
 
                 nueva_cita = pd.DataFrame(
