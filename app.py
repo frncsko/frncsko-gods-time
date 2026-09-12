@@ -6,7 +6,7 @@ import streamlit as st
 
 # 1. Configuración inicial de la página
 st.set_page_config(
-    page_title="Barbería Gods Time", page_icon="💈", layout="wide"
+    page_title="Barbería WIL LA CAGONA", page_icon="💈", layout="wide"
 )
 
 
