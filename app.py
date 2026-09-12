@@ -448,14 +448,12 @@ with col_user_info:
     st.markdown(f"👤 **Conectado como:** `{st.session_state.get('usuario', 'Admin')}`")
 
 with col_logout:
-    if st.button("LOG OUT"):
+    if st.button("LOG OUT", key="btn_logout"):
         cookie_manager.delete("usuario_sesion", key="logout_cookie")
         st.session_state["autenticado"] = False
         st.session_state["usuario"] = None
-        col_user_info, col_logout = st.columns([3, 1])
-
-with col_user_info:
-    st.markdown(f"👤 **Conectado como:** `{st.session_state.get('usuario', 'Usuario')}`")
+        time.sleep(0.5)
+        st.rerun()
 
 with col_logout:
     if st.button("LOG OUT"):
