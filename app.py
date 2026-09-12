@@ -4,11 +4,10 @@ import urllib.parse
 import pandas as pd
 import streamlit as st
 
-# 1. Configuración inicial de la página
-st.set_page_config(
-    page_title="Barbería Gods Time", page_icon="💈", layout="wide"
+# Configuración inicial de la página
+st.set_page_config(page_title="Barbería Gods Time", page_icon="💈", layout="wide")
 
-    # --- EFECTO / AMBIENTACIÓN DE HALLOWEEN ---
+# --- EFECTO / AMBIENTACIÓN DE HALLOWEEN ---
 st.markdown(
     """
     <style>
@@ -42,7 +41,6 @@ if activar_halloween:
         """,
         unsafe_allow_html=True
     )
-)
 
 
 # --- CONEXIÓN Y CONFIGURACIÓN DE BASE DE DATOS SQLITE ---
