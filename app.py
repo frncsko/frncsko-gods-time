@@ -51,7 +51,7 @@ PRECIOS_CORTES = {
 
 BARBEROS = ["Barbero 1", "Barbero 2", "Barbero 3"]
 
-# ESTILOS CON RAYOS REALISTAS, GOKU MEJORADO Y CRÉDITO REUBICADO
+# ESTILOS CON FONDO DE SCORPION (MORTAL KOMBAT), RAYOS REALISTAS Y CRÉDITO
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
@@ -61,7 +61,9 @@ st.markdown("""
     }
 
     .stApp {
-        background: radial-gradient(circle at 50% 10%, #0d1b2a 0%, #050811 100%);
+        background: linear-gradient(rgba(5, 8, 17, 0.82), rgba(13, 27, 42, 0.92)), 
+                    url('https://images.alphacoders.com/605/605592.png') no-repeat center center fixed;
+        background-size: cover;
         color: #e2e8f0;
         overflow-x: hidden;
     }
@@ -119,30 +121,16 @@ st.markdown("""
         z-index: 99999;
     }
 
-    /* CABECERA CON GOKU */
-    .header-dbz {
+    /* CABECERA */
+    .header-title {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 15px;
         margin-bottom: 10px;
     }
 
-    .goku-img {
-        width: 75px;
-        height: auto;
-        object-fit: contain;
-        filter: drop-shadow(0 0 12px rgba(0, 240, 255, 0.8));
-        animation: floatGoku 3s infinite ease-in-out;
-    }
-
-    @keyframes floatGoku {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-8px); }
-    }
-
     .title-electric {
-        font-size: 30px;
+        font-size: 32px;
         font-weight: 800;
         color: #00f0ff !important;
         text-align: center;
@@ -156,9 +144,9 @@ st.markdown("""
     }
 
     div[data-baseweb="tab-list"] {
-        background: rgba(13, 27, 42, 0.6) !important;
+        background: rgba(13, 27, 42, 0.75) !important;
         backdrop-filter: blur(16px);
-        border: 1px solid rgba(0, 240, 255, 0.2) !important;
+        border: 1px solid rgba(0, 240, 255, 0.3) !important;
         border-radius: 18px !important;
         padding: 6px !important;
         gap: 8px !important;
@@ -179,12 +167,12 @@ st.markdown("""
     }
 
     .card-3d, [data-testid="stForm"] {
-        background: rgba(10, 16, 30, 0.75);
-        backdrop-filter: blur(12px);
+        background: rgba(10, 16, 30, 0.85);
+        backdrop-filter: blur(14px);
         border-radius: 20px;
         padding: 24px;
         margin-bottom: 20px;
-        border: 1px solid rgba(0, 240, 255, 0.18);
+        border: 1px solid rgba(0, 240, 255, 0.25);
     }
 
     .stButton > button {
@@ -217,8 +205,7 @@ if not st.session_state.autenticado:
     
     with col2:
         st.markdown('''
-            <div class="header-dbz">
-                <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbnYydm5rdzBrbzFoc2lpaW13dGoxcnBscDliNnVraWVvdmsyYzFnZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/u00R4eeSj7K80/giphy.gif" class="goku-img" alt="Goku DBZ">
+            <div class="header-title">
                 <div class="title-electric">BARBERÍA GOD\'S TIME</div>
             </div>
         ''', unsafe_allow_html=True)
@@ -244,9 +231,8 @@ else:
     col_t, col_l = st.columns([4, 1])
     with col_t:
         st.markdown('''
-            <div class="header-dbz" style="justify-content: flex-start;">
-                <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbnYydm5rdzBrbzFoc2lpaW13dGoxcnBscDliNnVraWVvdmsyYzFnZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/u00R4eeSj7K80/giphy.gif" class="goku-img" style="width:55px;" alt="Goku DBZ">
-                <div class="title-electric" style="font-size:24px;">BARBERÍA GOD\'S TIME</div>
+            <div class="header-title" style="justify-content: flex-start;">
+                <div class="title-electric" style="font-size:26px;">BARBERÍA GOD\'S TIME</div>
             </div>
         ''', unsafe_allow_html=True)
     with col_l:
