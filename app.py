@@ -27,7 +27,6 @@ def guardar_datos(archivo, datos):
     with open(archivo, "w", encoding="utf-8") as f:
         json.dump(datos, f, ensure_ascii=False, indent=4)
 
-# Incremento y control de visitas
 if "visitas_db" not in st.session_state:
     total_visitas = cargar_datos(VISITAS_FILE, 0) + 1
     st.session_state.visitas_db = total_visitas
@@ -52,7 +51,7 @@ PRECIOS_CORTES = {
 
 BARBEROS = ["Barbero 1", "Barbero 2", "Barbero 3"]
 
-# ESTILOS MODERNOS 2026 - AZUL ELÉCTRICO, RAYOS Y FIRMA
+# ESTILOS CON RAYOS REALISTAS, GOKU Y CRÉDITO REUBICADO
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
@@ -67,7 +66,7 @@ st.markdown("""
         overflow-x: hidden;
     }
 
-    /* EFECTO DE RAYO CAYENDO DESDE EL CIELO */
+    /* EFECTO DE RAYOS ELÉCTRICOS REALISTAS (ZIGZAG) */
     .lightning-container {
         position: fixed;
         top: 0;
@@ -79,62 +78,76 @@ st.markdown("""
         overflow: hidden;
     }
 
-    .lightning {
+    .real-lightning {
         position: absolute;
-        top: 0;
-        width: 3px;
+        top: -10px;
+        width: 4px;
         height: 100vh;
         background: #ffffff;
-        box-shadow: 0 0 15px #00f0ff, 0 0 30px #00f0ff, 0 0 50px #7000ff;
+        box-shadow: 0 0 10px #00f0ff, 0 0 25px #00f0ff, 0 0 50px #7000ff, 0 0 80px #00f0ff;
         opacity: 0;
-        animation: strike 6s infinite ease-in-out;
+        clip-path: polygon(50% 0%, 0% 20%, 70% 35%, 10% 60%, 80% 75%, 30% 100%, 60% 100%, 90% 73%, 20% 58%, 80% 33%, 20% 18%);
+        animation: lightningStrike 5s infinite ease-in-out;
     }
 
-    .l1 { left: 20%; animation-delay: 1s; }
-    .l2 { left: 75%; animation-delay: 3.5s; }
-    .l3 { left: 50%; animation-delay: 5s; }
+    .rl1 { left: 15%; animation-delay: 0.8s; }
+    .rl2 { left: 82%; animation-delay: 2.7s; }
+    .rl3 { left: 48%; animation-delay: 4.2s; }
 
-    @keyframes strike {
-        0%, 92%, 100% { opacity: 0; transform: scaleY(0); }
-        93% { opacity: 1; transform: scaleY(1); }
-        94% { opacity: 0.2; }
-        95% { opacity: 1; }
-        96% { opacity: 0; }
+    @keyframes lightningStrike {
+        0%, 94%, 100% { opacity: 0; filter: drop-shadow(0 0 0px transparent); }
+        95% { opacity: 1; filter: drop-shadow(0 0 20px #00f0ff); }
+        96% { opacity: 0.2; }
+        97% { opacity: 1; filter: drop-shadow(0 0 30px #ffffff); }
+        98% { opacity: 0; }
     }
 
-    /* CRÉDITO DESARROLLADOR EN LA ESQUINA */
-    .dev-badge {
+    /* FIRMA EN LA ESQUINA SUPERIOR IZQUIERDA */
+    .dev-badge-top {
         position: fixed;
-        bottom: 15px;
-        right: 15px;
-        background: rgba(13, 27, 42, 0.85);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(0, 240, 255, 0.4);
-        border-radius: 20px;
+        top: 15px;
+        left: 15px;
+        background: rgba(10, 16, 30, 0.85);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(0, 240, 255, 0.5);
+        border-radius: 12px;
         padding: 6px 14px;
         color: #00f0ff;
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 800;
         letter-spacing: 0.5px;
-        box-shadow: 0 4px 15px rgba(0, 240, 255, 0.2);
+        box-shadow: 0 4px 15px rgba(0, 240, 255, 0.3);
         z-index: 99999;
     }
 
-    /* Títulos en Azul Eléctrico */
-    @keyframes electricPulse {
-        0% { text-shadow: 0 0 10px #00f0ff, 0 0 20px #00f0ff; }
-        50% { text-shadow: 0 0 20px #00f0ff, 0 0 35px #7000ff; }
-        100% { text-shadow: 0 0 10px #00f0ff, 0 0 20px #00f0ff; }
+    /* CONTENEDOR DE LA CABECERA CON GOKU */
+    .header-dbz {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 10px;
+    }
+
+    .goku-img {
+        width: 65px;
+        height: auto;
+        filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.6));
+        animation: floatGoku 3s infinite ease-in-out;
+    }
+
+    @keyframes floatGoku {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-6px) rotate(-3deg); }
     }
 
     .title-electric {
-        font-size: 32px;
+        font-size: 30px;
         font-weight: 800;
         color: #00f0ff !important;
         text-align: center;
         letter-spacing: 1px;
-        animation: electricPulse 4s infinite ease-in-out;
-        margin-bottom: 5px;
+        text-shadow: 0 0 15px #00f0ff, 0 0 30px #7000ff;
     }
 
     h1, h2, h3 {
@@ -142,7 +155,6 @@ st.markdown("""
         font-weight: 800 !important;
     }
 
-    /* Tabs 2026 */
     div[data-baseweb="tab-list"] {
         background: rgba(13, 27, 42, 0.6) !important;
         backdrop-filter: blur(16px);
@@ -150,17 +162,13 @@ st.markdown("""
         border-radius: 18px !important;
         padding: 6px !important;
         gap: 8px !important;
-        margin-bottom: 25px !important;
     }
 
     button[data-baseweb="tab"] {
         background: transparent !important;
         border-radius: 12px !important;
-        border: none !important;
-        padding: 12px 20px !important;
         color: #94a3b8 !important;
         font-weight: 600 !important;
-        font-size: 14px !important;
     }
 
     button[aria-selected="true"] {
@@ -176,7 +184,6 @@ st.markdown("""
         border-radius: 20px;
         padding: 24px;
         margin-bottom: 20px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
         border: 1px solid rgba(0, 240, 255, 0.18);
     }
 
@@ -192,15 +199,15 @@ st.markdown("""
     }
     </style>
 
-    <!-- Rayos cayendo del cielo -->
+    <!-- Rayos Eléctricos -->
     <div class="lightning-container">
-        <div class="lightning l1"></div>
-        <div class="lightning l2"></div>
-        <div class="lightning l3"></div>
+        <div class="real-lightning rl1"></div>
+        <div class="real-lightning rl2"></div>
+        <div class="real-lightning rl3"></div>
     </div>
 
-    <!-- Firma del desarrollador -->
-    <div class="dev-badge">⚡ Dev: FranciscoBRB</div>
+    <!-- Marca de Desarrollador -->
+    <div class="dev-badge-top">⚡ Dev: FranciscoBRB</div>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
@@ -211,7 +218,12 @@ if not st.session_state.autenticado:
     col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
-        st.markdown('<div class="title-electric">BARBERÍA GOD\'S TIME ⚡</div>', unsafe_allow_html=True)
+        st.markdown('''
+            <div class="header-dbz">
+                <img src="https://pngimg.com/uploads/goku/goku_PNG38.png" class="goku-img" alt="Goku DBZ">
+                <div class="title-electric">BARBERÍA GOD\'S TIME</div>
+            </div>
+        ''', unsafe_allow_html=True)
         st.markdown("<p style='text-align: center; color: #94a3b8; font-weight: 600;'>Excelencia, estilo y precisión en cada detalle</p>", unsafe_allow_html=True)
 
         with st.form("login_form"):
@@ -233,7 +245,12 @@ if not st.session_state.autenticado:
 else:
     col_t, col_l = st.columns([4, 1])
     with col_t:
-        st.markdown('<div class="title-electric" style="text-align:left; font-size:26px;">💈 BARBERÍA GOD\'S TIME ⚡</div>', unsafe_allow_html=True)
+        st.markdown('''
+            <div class="header-dbz" style="justify-content: flex-start;">
+                <img src="https://pngimg.com/uploads/goku/goku_PNG38.png" class="goku-img" style="width:50px;" alt="Goku DBZ">
+                <div class="title-electric" style="font-size:24px;">BARBERÍA GOD\'S TIME</div>
+            </div>
+        ''', unsafe_allow_html=True)
     with col_l:
         if st.button("🚪 Cerrar Sesión"):
             st.session_state.autenticado = False
@@ -253,7 +270,6 @@ else:
     # 1. PANEL PRINCIPAL
     with tab_inicio:
         st.markdown("### 📊 Métricas Operativas y Visitas")
-        
         df_cortes = pd.DataFrame(st.session_state.cortes_db)
         
         c1, c2, c3, c4 = st.columns(4)
@@ -387,4 +403,3 @@ else:
             guardar_datos(CALIFICACIONES_FILE, [])
             st.success("El historial completo ha sido borrado.")
             st.rerun()
-
