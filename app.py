@@ -40,10 +40,10 @@ PRECIOS_CORTES = {
     "Diseño / Cejas": 5.0
 }
 
-BARBEROS = ["Barbero 1", "Barbero 2", "Barbero 3"]
+BARBEROS = ["Francisco", "Jonder", "Barbero 3"]
 METODOS_PAGO = ["EFECTIVO", "PAGO MOVIL", "BINANCE"]
 
-# ESTILOS MODERNOS Y LIMPIOS CON BOTONES BRILLANTES Y DE NEÓN
+# ESTILOS MODERNOS Y LIMPIOS CON RELOJ DIGITAL DE NEÓN
 st.markdown("""
     <style>
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
@@ -62,16 +62,37 @@ st.markdown("""
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 10px;
+        margin-bottom: 5px;
     }
 
     .title-electric {
-        font-size: 32px;
-        font-weight: 800;
+        font-size: 34px;
+        font-weight: 900;
         color: #00f0ff !important;
         text-align: center;
-        letter-spacing: 1px;
-        text-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+        letter-spacing: 1.5px;
+        text-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
+    }
+
+    /* ESTILO RELOJ DIGITAL CON SEGUNDERO */
+    .clock-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 15px 0 25px 0;
+    }
+
+    .clock-box {
+        background: rgba(10, 16, 30, 0.9);
+        border: 2px solid #00f0ff;
+        border-radius: 16px;
+        padding: 10px 24px;
+        box-shadow: 0 0 20px rgba(0, 240, 255, 0.35);
+        font-size: 28px;
+        font-weight: 800;
+        color: #00f0ff;
+        letter-spacing: 2px;
+        font-family: monospace;
     }
 
     h1, h2, h3 {
@@ -177,8 +198,34 @@ if not st.session_state.autenticado:
             <div class="title-electric">BARBERÍA GOD\'S TIME</div>
         </div>
     ''', unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #94a3b8; font-weight: 600;'>Excelencia, estilo y precisión en cada detalle</p>", unsafe_allow_html=True)
     
+    st.markdown("<p style='text-align: center; color: #00f0ff; font-weight: 700; font-size: 18px;'>🔥 ¡Eleva tu presencia! El corte perfecto en el momento exacto. ⚡</p>", unsafe_allow_html=True)
+
+    # RELOJ DIGITAL EN TIEMPO REAL (HH:MM:SS AM/PM)
+    st.markdown('''
+        <div class="clock-container">
+            <div class="clock-box" id="live-clock">00:00:00 AM</div>
+        </div>
+        <script>
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            
+            hours = hours % 12;
+            hours = hours ? hours : 12; // Formato 12 horas (0 se convierte en 12)
+            const strHours = String(hours).padStart(2, '0');
+            
+            const timeString = strHours + ':' + minutes + ':' + seconds + ' ' + ampm;
+            document.getElementById('live-clock').textContent = timeString;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+        </script>
+    ''', unsafe_allow_html=True)
+
     tab_login, tab_cita_cliente = st.tabs(["⚡ ACCESO PERSONAL", "📅 AGENDAR CITA"])
 
     with tab_login:
@@ -191,7 +238,7 @@ if not st.session_state.autenticado:
                 submit = st.form_submit_button("ENTRAR AL SISTEMA")
 
             if submit:
-                if usuario == "admin" and contrasena == "admin":
+                if usuario == "admin" and contrasena == "1234":
                     st.session_state.autenticado = True
                     st.rerun()
                 else:
@@ -213,18 +260,20 @@ if not st.session_state.autenticado:
 
             if btn_agendar_login:
                 if nombre_c and telefono_c:
+                    hora_formateada = hora_c.strftime("%I:%M %p")
+                    
                     cita = {
                         "Cliente": nombre_c,
                         "Teléfono": telefono_c,
                         "Barbero": barbero_c,
                         "Fecha": str(fecha_c),
-                        "Hora": str(hora_c),
+                        "Hora": hora_formateada,
                         "Servicio": servicio_c
                     }
                     st.session_state.citas_db.append(cita)
                     guardar_datos(CITAS_FILE, st.session_state.citas_db)
                     
-                    mensaje = f"Hola {nombre_c}, confirmamos tu cita en Barbería God's Time el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c}."
+                    mensaje = f"Hola {nombre_c}, confirmamos tu cita en Barbería God's Time el {fecha_c} a las {hora_formateada} con {barbero_c} para {servicio_c}."
                     mensaje_encoded = urllib.parse.quote(mensaje)
                     phone_clean = telefono_c.replace("+", "").replace(" ", "").replace("-", "")
                     ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
@@ -306,7 +355,7 @@ else:
                 ref_final = referencia_pago.strip() if referencia_pago.strip() else ("N/A" if metodo_pago == "EFECTIVO" else "Sin ref.")
                 
                 nuevo_registro = {
-                    "Fecha": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                    "Fecha": datetime.now().strftime("%Y-%m-%d %I:%M:%S %p"),
                     "Barbero": barbero_sel,
                     "Servicio": corte_sel,
                     "Precio": precio_corte,
@@ -348,17 +397,19 @@ else:
             
         if st.button("AGENDAR Y NOTIFICAR POR WHATSAPP"):
             if nombre_c and telefono_c:
+                hora_formateada = hora_c.strftime("%I:%M %p")
+                
                 cita = {
                     "Cliente": nombre_c,
                     "Teléfono": telefono_c,
                     "Barbero": barbero_c,
                     "Fecha": str(fecha_c),
-                    "Hora": str(hora_c),
+                    "Hora": hora_formateada,
                     "Servicio": servicio_c
                 }
                 st.session_state.citas_db.append(cita)
                 guardar_datos(CITAS_FILE, st.session_state.citas_db)
-                mensaje = f"Hola {nombre_c}, confirmamos tu cita en Barbería God's Time el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c}."
+                mensaje = f"Hola {nombre_c}, confirmamos tu cita en Barbería God's Time el {fecha_c} a las {hora_formateada} con {barbero_c} para {servicio_c}."
                 mensaje_encoded = urllib.parse.quote(mensaje)
                 phone_clean = telefono_c.replace("+", "").replace(" ", "").replace("-", "")
                 ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
@@ -385,3 +436,4 @@ else:
             guardar_datos(CITAS_FILE, [])
             st.success("El historial completo ha sido borrado.")
             st.rerun()
+
