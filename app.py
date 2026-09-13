@@ -11,8 +11,6 @@ st.set_page_config(page_title="Barbería God's Time", layout="wide", initial_sid
 # --- PERSISTENCIA LOCAL DE DATOS ---
 CORTES_FILE = "cortes_data.json"
 CITAS_FILE = "citas_data.json"
-VISITAS_FILE = "visitas_data.json"
-CALIFICACIONES_FILE = "calificaciones_data.json"
 
 def cargar_datos(archivo, por_defecto=[]):
     if os.path.exists(archivo):
@@ -27,19 +25,12 @@ def guardar_datos(archivo, datos):
     with open(archivo, "w", encoding="utf-8") as f:
         json.dump(datos, f, ensure_ascii=False, indent=4)
 
-if "visitas_db" not in st.session_state:
-    total_visitas = cargar_datos(VISITAS_FILE, 0) + 1
-    st.session_state.visitas_db = total_visitas
-    guardar_datos(VISITAS_FILE, total_visitas)
-
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 if "cortes_db" not in st.session_state:
     st.session_state.cortes_db = cargar_datos(CORTES_FILE, [])
 if "citas_db" not in st.session_state:
     st.session_state.citas_db = cargar_datos(CITAS_FILE, [])
-if "calificaciones_db" not in st.session_state:
-    st.session_state.calificaciones_db = cargar_datos(CALIFICACIONES_FILE, [])
 
 PRECIOS_CORTES = {
     "Corte Clásico": 10.0,
@@ -50,8 +41,9 @@ PRECIOS_CORTES = {
 }
 
 BARBEROS = ["Barbero 1", "Barbero 2", "Barbero 3"]
+METODOS_PAGO = ["EFECTIVO", "PAGO MOVIL", "BINANCE"]
 
-# ESTILOS CON FONDO DE SCORPION (MORTAL KOMBAT), RAYOS REALISTAS Y CRÉDITO
+# ESTILOS MODERNOS Y LIMPIOS CON BOTONES DE MENÚ RENOVADOS
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
@@ -61,64 +53,8 @@ st.markdown("""
     }
 
     .stApp {
-        background: linear-gradient(rgba(5, 8, 17, 0.82), rgba(13, 27, 42, 0.92)), 
-                    url('https://images.alphacoders.com/605/605592.png') no-repeat center center fixed;
-        background-size: cover;
+        background: radial-gradient(circle at 50% 10%, #0d1b2a 0%, #050811 100%);
         color: #e2e8f0;
-        overflow-x: hidden;
-    }
-
-    /* RAYOS ELÉCTRICOS REALISTAS */
-    .lightning-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 1;
-        overflow: hidden;
-    }
-
-    .real-lightning {
-        position: absolute;
-        top: -10px;
-        width: 4px;
-        height: 100vh;
-        background: #ffffff;
-        box-shadow: 0 0 10px #00f0ff, 0 0 25px #00f0ff, 0 0 50px #7000ff;
-        opacity: 0;
-        clip-path: polygon(50% 0%, 0% 20%, 70% 35%, 10% 60%, 80% 75%, 30% 100%, 60% 100%, 90% 73%, 20% 58%, 80% 33%, 20% 18%);
-        animation: lightningStrike 5s infinite ease-in-out;
-    }
-
-    .rl1 { left: 15%; animation-delay: 0.8s; }
-    .rl2 { left: 82%; animation-delay: 2.7s; }
-    .rl3 { left: 48%; animation-delay: 4.2s; }
-
-    @keyframes lightningStrike {
-        0%, 94%, 100% { opacity: 0; }
-        95% { opacity: 1; filter: drop-shadow(0 0 20px #00f0ff); }
-        96% { opacity: 0.2; }
-        97% { opacity: 1; filter: drop-shadow(0 0 30px #ffffff); }
-        98% { opacity: 0; }
-    }
-
-    /* FIRMA EN LA ESQUINA SUPERIOR IZQUIERDA */
-    .dev-badge-top {
-        position: fixed;
-        top: 15px;
-        left: 15px;
-        background: rgba(10, 16, 30, 0.85);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(0, 240, 255, 0.5);
-        border-radius: 12px;
-        padding: 6px 14px;
-        color: #00f0ff;
-        font-size: 11px;
-        font-weight: 800;
-        box-shadow: 0 4px 15px rgba(0, 240, 255, 0.3);
-        z-index: 99999;
     }
 
     /* CABECERA */
@@ -135,7 +71,7 @@ st.markdown("""
         color: #00f0ff !important;
         text-align: center;
         letter-spacing: 1px;
-        text-shadow: 0 0 15px #00f0ff, 0 0 30px #7000ff;
+        text-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
     }
 
     h1, h2, h3 {
@@ -143,29 +79,41 @@ st.markdown("""
         font-weight: 800 !important;
     }
 
+    /* NUEVO DISEÑO PARA LOS BOTONES DEL MENÚ (TABS) */
     div[data-baseweb="tab-list"] {
-        background: rgba(13, 27, 42, 0.75) !important;
-        backdrop-filter: blur(16px);
-        border: 1px solid rgba(0, 240, 255, 0.3) !important;
-        border-radius: 18px !important;
-        padding: 6px !important;
-        gap: 8px !important;
+        background: rgba(13, 27, 42, 0.8) !important;
+        border: 1px solid rgba(0, 240, 255, 0.2) !important;
+        border-radius: 20px !important;
+        padding: 8px !important;
+        gap: 12px !important;
     }
 
     button[data-baseweb="tab"] {
-        background: transparent !important;
-        border-radius: 12px !important;
+        background: rgba(255, 255, 255, 0.03) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 14px !important;
         color: #94a3b8 !important;
-        font-weight: 600 !important;
+        font-weight: 700 !important;
+        padding: 10px 20px !important;
+        transition: all 0.3s ease !important;
+    }
+
+    button[data-baseweb="tab"]:hover {
+        background: rgba(0, 240, 255, 0.1) !important;
+        color: #00f0ff !important;
+        border-color: rgba(0, 240, 255, 0.3) !important;
     }
 
     button[aria-selected="true"] {
-        background: linear-gradient(135deg, #00f0ff 0%, #7000ff 100%) !important;
-        color: #ffffff !important;
+        background: linear-gradient(135deg, #00f0ff 0%, #0072ff 100%) !important;
+        color: #000000 !important;
         font-weight: 800 !important;
+        border: none !important;
         box-shadow: 0 4px 20px rgba(0, 240, 255, 0.4) !important;
+        transform: translateY(-2px);
     }
 
+    /* TARJETAS Y FORMULARIOS */
     .card-3d, [data-testid="stForm"] {
         background: rgba(10, 16, 30, 0.85);
         backdrop-filter: blur(14px);
@@ -186,14 +134,6 @@ st.markdown("""
         box-shadow: 0 6px 20px rgba(0, 240, 255, 0.35);
     }
     </style>
-
-    <div class="lightning-container">
-        <div class="real-lightning rl1"></div>
-        <div class="real-lightning rl2"></div>
-        <div class="real-lightning rl3"></div>
-    </div>
-
-    <div class="dev-badge-top">⚡ Dev: FranciscoBRB</div>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
@@ -242,25 +182,23 @@ else:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    tab_inicio, tab_cortes, tab_barberos, tab_citas, tab_feedback, tab_admin = st.tabs([
+    tab_inicio, tab_cortes, tab_barberos, tab_citas, tab_admin = st.tabs([
         "🏠 PANEL PRINCIPAL", 
         "✂️ REGISTRAR CORTE", 
         "💈 REGISTRO BARBEROS", 
         "📅 CITAS & WHATSAPP",
-        "⭐ CALIFICAR APP",
         "⚙️ ADMINISTRACIÓN"
     ])
 
     # 1. PANEL PRINCIPAL
     with tab_inicio:
-        st.markdown("### 📊 Métricas Operativas y Visitas")
+        st.markdown("### 📊 Métricas Operativas")
         df_cortes = pd.DataFrame(st.session_state.cortes_db)
         
-        c1, c2, c3, c4 = st.columns(4)
+        c1, c2, c3 = st.columns(3)
         total_cortes = len(df_cortes) if not df_cortes.empty else 0
         total_ingresos = df_cortes["Precio"].sum() if not df_cortes.empty else 0.0
         citas_pendientes = len(st.session_state.citas_db)
-        total_visitas = st.session_state.visitas_db
 
         with c1:
             st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Total Cortes</h4><h2 style="margin:5px 0 0 0;">{total_cortes}</h2></div>', unsafe_allow_html=True)
@@ -268,34 +206,43 @@ else:
             st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Ingresos Totales</h4><h2 style="margin:5px 0 0 0;">${total_ingresos:.2f}</h2></div>', unsafe_allow_html=True)
         with c3:
             st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Citas Agendadas</h4><h2 style="margin:5px 0 0 0;">{citas_pendientes}</h2></div>', unsafe_allow_html=True)
-        with c4:
-            st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">👁️ Visitas Recibidas</h4><h2 style="margin:5px 0 0 0;">{total_visitas}</h2></div>', unsafe_allow_html=True)
 
         st.markdown("### 💵 Lista de Servicios y Precios")
         precios_df = pd.DataFrame(list(PRECIOS_CORTES.items()), columns=["Servicio / Corte", "Precio ($)"])
         st.table(precios_df)
 
-    # 2. REGISTRAR CORTE
+    # 2. REGISTRAR CORTE (CON MÉTODO Y REFERENCIA DE PAGO)
     with tab_cortes:
         st.markdown("### ✂️ Registrar Nuevo Corte")
         with st.form("form_corte"):
-            barbero_sel = st.selectbox("Selecciona el Barbero", BARBEROS)
-            corte_sel = st.selectbox("Tipo de Corte / Servicio", list(PRECIOS_CORTES.keys()))
-            precio_corte = st.number_input("Precio ($)", value=float(PRECIOS_CORTES[corte_sel]), step=1.0)
-            cliente_nombre = st.text_input("Nombre del Cliente (Opcional)")
+            col1, col2 = st.columns(2)
+            with col1:
+                barbero_sel = st.selectbox("Selecciona el Barbero", BARBEROS)
+                corte_sel = st.selectbox("Tipo de Corte / Servicio", list(PRECIOS_CORTES.keys()))
+                precio_corte = st.number_input("Precio ($)", value=float(PRECIOS_CORTES[corte_sel]), step=1.0)
+                cliente_nombre = st.text_input("Nombre del Cliente (Opcional)")
+            
+            with col2:
+                metodo_pago = st.selectbox("Método de Pago", METODOS_PAGO)
+                referencia_pago = st.text_input("N° de Referencia / Transacción", placeholder="N/A para Efectivo")
+
             btn_guardar = st.form_submit_button("GUARDAR CORTE")
             
             if btn_guardar:
+                ref_final = referencia_pago.strip() if referencia_pago.strip() else ("N/A" if metodo_pago == "EFECTIVO" else "Sin ref.")
+                
                 nuevo_registro = {
                     "Fecha": datetime.now().strftime("%Y-%m-%d %H:%M"),
                     "Barbero": barbero_sel,
                     "Servicio": corte_sel,
                     "Precio": precio_corte,
+                    "Método Pago": metodo_pago,
+                    "Referencia": ref_final,
                     "Cliente": cliente_nombre if cliente_nombre else "Cliente Ocasional"
                 }
                 st.session_state.cortes_db.append(nuevo_registro)
                 guardar_datos(CORTES_FILE, st.session_state.cortes_db)
-                st.success(f"Corte registrado a {barbero_sel} correctamente.")
+                st.success(f"Corte registrado a {barbero_sel} correctamente vía {metodo_pago}.")
 
     # 3. REGISTRO POR BARBERO
     with tab_barberos:
@@ -349,41 +296,14 @@ else:
         if st.session_state.citas_db:
             st.dataframe(pd.DataFrame(st.session_state.citas_db), use_container_width=True)
 
-    # 5. CALIFICAR LA APP
-    with tab_feedback:
-        st.markdown("### ⭐ Califica la Aplicación")
-        with st.form("form_rating"):
-            puntuacion = st.select_slider("¿Qué tan satisfecho estás con el sistema?", options=["1 ⭐", "2 ⭐⭐", "3 ⭐⭐⭐", "4 ⭐⭐⭐⭐", "5 ⭐⭐⭐⭐⭐"], value="5 ⭐⭐⭐⭐⭐")
-            comentario = st.text_area("Deja tu sugerencia o comentario")
-            btn_calificar = st.form_submit_button("ENVIAR CALIFICACIÓN")
-            
-            if btn_calificar:
-                nueva_calificacion = {
-                    "Fecha": datetime.now().strftime("%Y-%m-%d %H:%M"),
-                    "Puntuación": puntuacion,
-                    "Comentario": comentario if comentario else "Sin comentario"
-                }
-                st.session_state.calificaciones_db.append(nueva_calificacion)
-                guardar_datos(CALIFICACIONES_FILE, st.session_state.calificaciones_db)
-                st.success("¡Gracias por tu calificación!")
-
-        st.markdown("---")
-        st.markdown("### 💬 Opiniones Recibidas")
-        if st.session_state.calificaciones_db:
-            st.dataframe(pd.DataFrame(st.session_state.calificaciones_db), use_container_width=True)
-        else:
-            st.write("Aún no hay calificaciones registradas.")
-
-    # 6. ADMINISTRACIÓN
+    # 5. ADMINISTRACIÓN
     with tab_admin:
         st.markdown("### ⚙️ Panel de Control del Administrador")
-        st.warning("⚠️ **Atención:** La siguiente opción borrará permanentemente las citas, cortes y opiniones.")
+        st.warning("⚠️ **Atención:** La siguiente opción borrará permanentemente las citas y cortes.")
         if st.button("🔴 REINICIAR TODO EL HISTORIAL"):
             st.session_state.cortes_db = []
             st.session_state.citas_db = []
-            st.session_state.calificaciones_db = []
             guardar_datos(CORTES_FILE, [])
             guardar_datos(CITAS_FILE, [])
-            guardar_datos(CALIFICACIONES_FILE, [])
             st.success("El historial completo ha sido borrado.")
             st.rerun()
