@@ -43,13 +43,13 @@ PRECIOS_CORTES = {
 BARBEROS = ["Barbero 1", "Barbero 2", "Barbero 3"]
 METODOS_PAGO = ["EFECTIVO", "PAGO MOVIL", "BINANCE"]
 
-# ESTILOS MODERNOS Y LIMPIOS CON BOTONES DE MENÚ RENOVADOS
+# ESTILOS MODERNOS Y LIMPIOS CON BOTONES BRILLANTES Y DE NEÓN
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
 
     html, body, [class*="css"] {
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
     .stApp {
@@ -79,7 +79,7 @@ st.markdown("""
         font-weight: 800 !important;
     }
 
-    /* NUEVO DISEÑO PARA LOS BOTONES DEL MENÚ (TABS) */
+    /* MENÚ (TABS) */
     div[data-baseweb="tab-list"] {
         background: rgba(13, 27, 42, 0.8) !important;
         border: 1px solid rgba(0, 240, 255, 0.2) !important;
@@ -132,40 +132,114 @@ st.markdown("""
         width: 100%;
         padding: 14px;
         box-shadow: 0 6px 20px rgba(0, 240, 255, 0.35);
+        transition: all 0.3s ease-in-out;
+    }
+
+    .stButton > button:hover {
+        box-shadow: 0 0 25px rgba(0, 240, 255, 0.8);
+        transform: scale(1.02);
+    }
+
+    /* BOTÓN WHATSAPP CON EFECTO BRILLANTE */
+    .btn-ws-glow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+        color: white !important;
+        text-decoration: none;
+        border-radius: 14px;
+        padding: 14px 20px;
+        font-weight: 800;
+        font-size: 16px;
+        box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4), 0 0 15px rgba(37, 211, 102, 0.6);
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-ws-glow:hover {
+        box-shadow: 0 6px 30px rgba(37, 211, 102, 0.8), 0 0 25px rgba(255, 255, 255, 0.5);
+        transform: translateY(-3px) scale(1.02);
+        color: white !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# VISTA 1: LOGIN
+# VISTA 1: INICIO DE SESIÓN / CLIENTES
 # ---------------------------------------------------------
 if not st.session_state.autenticado:
-    st.markdown("<br><br>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns([1, 2, 1])
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown('''
+        <div class="header-title">
+            <div class="title-electric">BARBERÍA GOD\'S TIME</div>
+        </div>
+    ''', unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #94a3b8; font-weight: 600;'>Excelencia, estilo y precisión en cada detalle</p>", unsafe_allow_html=True)
     
-    with col2:
-        st.markdown('''
-            <div class="header-title">
-                <div class="title-electric">BARBERÍA GOD\'S TIME</div>
-            </div>
-        ''', unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: #94a3b8; font-weight: 600;'>Excelencia, estilo y precisión en cada detalle</p>", unsafe_allow_html=True)
+    tab_login, tab_cita_cliente = st.tabs(["⚡ ACCESO PERSONAL", "📅 AGENDAR CITA"])
 
-        with st.form("login_form"):
-            st.markdown("<h3 style='text-align: center; color: #ffffff;'>⚡ ACCESO AL SISTEMA</h3>", unsafe_allow_html=True)
-            usuario = st.text_input("Usuario", placeholder="Ingresa tu usuario")
-            contrasena = st.text_input("Contraseña", type="password", placeholder="••••••••")
-            submit = st.form_submit_button("ENTRAR AL SISTEMA")
+    with tab_login:
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            with st.form("login_form"):
+                st.markdown("<h3 style='text-align: center; color: #ffffff;'>ACCESO AL SISTEMA</h3>", unsafe_allow_html=True)
+                usuario = st.text_input("Usuario", placeholder="Ingresa tu usuario")
+                contrasena = st.text_input("Contraseña", type="password", placeholder="••••••••")
+                submit = st.form_submit_button("ENTRAR AL SISTEMA")
 
-        if submit:
-            if usuario == "admin" and contrasena == "1234":
-                st.session_state.autenticado = True
-                st.rerun()
-            else:
-                st.error("Credenciales incorrectas")
+            if submit:
+                if usuario == "admin" and contrasena == "admin":
+                    st.session_state.autenticado = True
+                    st.rerun()
+                else:
+                    st.error("Credenciales incorrectas")
+
+    with tab_cita_cliente:
+        col_c1, col_c2, col_c3 = st.columns([1, 2, 1])
+        with col_c2:
+            st.markdown("<h3 style='text-align: center;'>Reserva tu Cita</h3>", unsafe_allow_html=True)
+            with st.form("form_cita_login"):
+                nombre_c = st.text_input("Tu Nombre Completo")
+                telefono_c = st.text_input("Teléfono (Ej: +584120000000)")
+                barbero_c = st.selectbox("Barbero de preferencia", BARBEROS, key="barbero_cita_login")
+                fecha_c = st.date_input("Fecha de la cita", min_value=date.today(), key="fecha_cita_login")
+                hora_c = st.time_input("Hora de la cita", key="hora_cita_login")
+                servicio_c = st.selectbox("Servicio solicitado", list(PRECIOS_CORTES.keys()), key="servicio_cita_login")
+                
+                btn_agendar_login = st.form_submit_button("📅 CONCORDAR CITA")
+
+            if btn_agendar_login:
+                if nombre_c and telefono_c:
+                    cita = {
+                        "Cliente": nombre_c,
+                        "Teléfono": telefono_c,
+                        "Barbero": barbero_c,
+                        "Fecha": str(fecha_c),
+                        "Hora": str(hora_c),
+                        "Servicio": servicio_c
+                    }
+                    st.session_state.citas_db.append(cita)
+                    guardar_datos(CITAS_FILE, st.session_state.citas_db)
+                    
+                    mensaje = f"Hola {nombre_c}, confirmamos tu cita en Barbería God's Time el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c}."
+                    mensaje_encoded = urllib.parse.quote(mensaje)
+                    phone_clean = telefono_c.replace("+", "").replace(" ", "").replace("-", "")
+                    ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
+                    
+                    st.success("¡Cita agendada exitosamente!")
+                    st.markdown(f'''
+                        <a href="{ws_url}" target="_blank" class="btn-ws-glow">
+                            <i class="fab fa-whatsapp" style="font-size: 22px;"></i> Confirmar por WhatsApp
+                        </a>
+                    ''', unsafe_allow_html=True)
+                else:
+                    st.error("Por favor completa tu nombre y número de teléfono.")
 
 # ---------------------------------------------------------
-# VISTA 2: PANEL PRINCIPAL
+# VISTA 2: PANEL PRINCIPAL ADMINISTRATIVO
 # ---------------------------------------------------------
 else:
     col_t, col_l = st.columns([4, 1])
@@ -211,7 +285,7 @@ else:
         precios_df = pd.DataFrame(list(PRECIOS_CORTES.items()), columns=["Servicio / Corte", "Precio ($)"])
         st.table(precios_df)
 
-    # 2. REGISTRAR CORTE (CON MÉTODO Y REFERENCIA DE PAGO)
+    # 2. REGISTRAR CORTE
     with tab_cortes:
         st.markdown("### ✂️ Registrar Nuevo Corte")
         with st.form("form_corte"):
@@ -261,7 +335,7 @@ else:
 
     # 4. CITAS Y WHATSAPP
     with tab_citas:
-        st.markdown("### 📅 Agendar Nueva Cita")
+        st.markdown("### 📅 Agendar Nueva Cita (Interno)")
         col_f1, col_f2 = st.columns(2)
         with col_f1:
             nombre_c = st.text_input("Nombre del Cliente")
@@ -289,7 +363,11 @@ else:
                 phone_clean = telefono_c.replace("+", "").replace(" ", "").replace("-", "")
                 ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
                 st.success("¡Cita agendada exitosamente!")
-                st.markdown(f'<a href="{ws_url}" target="_blank" style="text-decoration:none;"><button style="background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color:white; border:none; padding:14px; border-radius:14px; font-weight:bold; cursor:pointer; width:100%;">📲 Enviar Confirmación por WhatsApp</button></a>', unsafe_allow_html=True)
+                st.markdown(f'''
+                    <a href="{ws_url}" target="_blank" class="btn-ws-glow">
+                        <i class="fab fa-whatsapp" style="font-size: 22px;"></i> Enviar Confirmación por WhatsApp
+                    </a>
+                ''', unsafe_allow_html=True)
 
         st.markdown("---")
         st.markdown("### 📋 Citas Registradas")
