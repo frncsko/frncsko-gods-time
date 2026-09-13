@@ -27,10 +27,18 @@ def guardar_datos(archivo, datos):
 
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
+if "usuario_actual" not in st.session_state:
+    st.session_state.usuario_actual = ""
 if "cortes_db" not in st.session_state:
     st.session_state.cortes_db = cargar_datos(CORTES_FILE, [])
 if "citas_db" not in st.session_state:
     st.session_state.citas_db = cargar_datos(CITAS_FILE, [])
+
+# CREDENCIALES Y ROLES DE USUARIOS
+USUARIOS = {
+    "admin": {"clave": "1234", "rol": "admin"},
+    "Jonder": {"clave": "barbero1", "rol": "barbero"}
+}
 
 PRECIOS_CORTES = {
     "Corte Clásico": 10.0,
@@ -43,7 +51,7 @@ PRECIOS_CORTES = {
 BARBEROS = ["Francisco", "Jonder", "Barbero 3"]
 METODOS_PAGO = ["EFECTIVO", "PAGO MOVIL", "BINANCE"]
 
-# ESTILOS MODERNOS Y LIMPIOS CON RELOJ DIGITAL DE NEÓN
+# ESTILOS MODERNOS
 st.markdown("""
     <style>
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
@@ -72,27 +80,6 @@ st.markdown("""
         text-align: center;
         letter-spacing: 1.5px;
         text-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
-    }
-
-    /* ESTILO RELOJ DIGITAL CON SEGUNDERO */
-    .clock-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: 15px 0 25px 0;
-    }
-
-    .clock-box {
-        background: rgba(10, 16, 30, 0.9);
-        border: 2px solid #00f0ff;
-        border-radius: 16px;
-        padding: 10px 24px;
-        box-shadow: 0 0 20px rgba(0, 240, 255, 0.35);
-        font-size: 28px;
-        font-weight: 800;
-        color: #00f0ff;
-        letter-spacing: 2px;
-        font-family: monospace;
     }
 
     h1, h2, h3 {
@@ -199,32 +186,7 @@ if not st.session_state.autenticado:
         </div>
     ''', unsafe_allow_html=True)
     
-    st.markdown("<p style='text-align: center; color: #00f0ff; font-weight: 700; font-size: 18px;'>🔥 ¡Eleva tu presencia! El corte perfecto en el momento exacto. ⚡</p>", unsafe_allow_html=True)
-
-    # RELOJ DIGITAL EN TIEMPO REAL (HH:MM:SS AM/PM)
-    st.markdown('''
-        <div class="clock-container">
-            <div class="clock-box" id="live-clock">00:00:00 AM</div>
-        </div>
-        <script>
-        function updateClock() {
-            const now = new Date();
-            let hours = now.getHours();
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            
-            hours = hours % 12;
-            hours = hours ? hours : 12; // Formato 12 horas (0 se convierte en 12)
-            const strHours = String(hours).padStart(2, '0');
-            
-            const timeString = strHours + ':' + minutes + ':' + seconds + ' ' + ampm;
-            document.getElementById('live-clock').textContent = timeString;
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-        </script>
-    ''', unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #00f0ff; font-weight: 700; font-size: 18px; margin-bottom: 30px;'>🔥 ¡Eleva tu presencia! El corte perfecto en el momento exacto. ⚡</p>", unsafe_allow_html=True)
 
     tab_login, tab_cita_cliente = st.tabs(["⚡ ACCESO PERSONAL", "📅 AGENDAR CITA"])
 
@@ -238,8 +200,9 @@ if not st.session_state.autenticado:
                 submit = st.form_submit_button("ENTRAR AL SISTEMA")
 
             if submit:
-                if usuario == "admin" and contrasena == "1234":
+                if usuario in USUARIOS and USUARIOS[usuario]["clave"] == contrasena:
                     st.session_state.autenticado = True
+                    st.session_state.usuario_actual = usuario
                     st.rerun()
                 else:
                     st.error("Credenciales incorrectas")
@@ -291,16 +254,21 @@ if not st.session_state.autenticado:
 # VISTA 2: PANEL PRINCIPAL ADMINISTRATIVO
 # ---------------------------------------------------------
 else:
+    user_info = USUARIOS.get(st.session_state.usuario_actual, {"rol": "invitado"})
+    es_admin = user_info["rol"] == "admin"
+
     col_t, col_l = st.columns([4, 1])
     with col_t:
-        st.markdown('''
+        st.markdown(f'''
             <div class="header-title" style="justify-content: flex-start;">
-                <div class="title-electric" style="font-size:26px;">BARBERÍA GOD\'S TIME</div>
+                <div class="title-electric" style="font-size:24px;">BARBERÍA GOD\'S TIME</div>
+                <span style="margin-left: 15px; color: #94a3b8; font-weight: 600;">(Conectado como: <b style="color:#00f0ff;">{st.session_state.usuario_actual}</b>)</span>
             </div>
         ''', unsafe_allow_html=True)
     with col_l:
         if st.button("🚪 Cerrar Sesión"):
             st.session_state.autenticado = False
+            st.session_state.usuario_actual = ""
             st.rerun()
 
     st.markdown("<br>", unsafe_allow_html=True)
@@ -340,7 +308,8 @@ else:
         with st.form("form_corte"):
             col1, col2 = st.columns(2)
             with col1:
-                barbero_sel = st.selectbox("Selecciona el Barbero", BARBEROS)
+                idx_barbero = BARBEROS.index(st.session_state.usuario_actual) if st.session_state.usuario_actual in BARBEROS else 0
+                barbero_sel = st.selectbox("Selecciona el Barbero", BARBEROS, index=idx_barbero)
                 corte_sel = st.selectbox("Tipo de Corte / Servicio", list(PRECIOS_CORTES.keys()))
                 precio_corte = st.number_input("Precio ($)", value=float(PRECIOS_CORTES[corte_sel]), step=1.0)
                 cliente_nombre = st.text_input("Nombre del Cliente (Opcional)")
@@ -370,7 +339,9 @@ else:
     # 3. REGISTRO POR BARBERO
     with tab_barberos:
         st.markdown("### 💈 Historial por Barbero")
-        barbero_filtro = st.selectbox("Selecciona un Barbero", BARBEROS, key="filtro_barbero")
+        idx_filtro = BARBEROS.index(st.session_state.usuario_actual) if st.session_state.usuario_actual in BARBEROS else 0
+        barbero_filtro = st.selectbox("Selecciona un Barbero", BARBEROS, index=idx_filtro, key="filtro_barbero")
+        
         if st.session_state.cortes_db:
             df_cortes = pd.DataFrame(st.session_state.cortes_db)
             df_filtrado = df_cortes[df_cortes["Barbero"] == barbero_filtro]
@@ -425,15 +396,19 @@ else:
         if st.session_state.citas_db:
             st.dataframe(pd.DataFrame(st.session_state.citas_db), use_container_width=True)
 
-    # 5. ADMINISTRACIÓN
+    # 5. ADMINISTRACIÓN (RESTRICCIÓN DE PERMISOS)
     with tab_admin:
         st.markdown("### ⚙️ Panel de Control del Administrador")
-        st.warning("⚠️ **Atención:** La siguiente opción borrará permanentemente las citas y cortes.")
-        if st.button("🔴 REINICIAR TODO EL HISTORIAL"):
-            st.session_state.cortes_db = []
-            st.session_state.citas_db = []
-            guardar_datos(CORTES_FILE, [])
-            guardar_datos(CITAS_FILE, [])
-            st.success("El historial completo ha sido borrado.")
-            st.rerun()
+        
+        if es_admin:
+            st.warning("⚠️ **Atención:** La siguiente opción borrará permanentemente las citas y cortes.")
+            if st.button("🔴 REINICIAR TODO EL HISTORIAL"):
+                st.session_state.cortes_db = []
+                st.session_state.citas_db = []
+                guardar_datos(CORTES_FILE, [])
+                guardar_datos(CITAS_FILE, [])
+                st.success("El historial completo ha sido borrado.")
+                st.rerun()
+        else:
+            st.error("🔒 **Acceso restringido:** Tu usuario (Jonder) no posee permisos para borrar o reiniciar el historial de la barbería.")
 
