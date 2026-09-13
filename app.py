@@ -2,17 +2,35 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, date
 import urllib.parse
+import json
+import os
 
 # Configuración de la página
-st.set_page_config(page_title="Barbería God's Time", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Barbería God's Time", layout="wide", initial_sidebar_state="collapsed")
 
-# Inicialización del estado de la aplicación
+# --- PERSISTENCIA LOCAL DE DATOS ---
+CORTES_FILE = "cortes_data.json"
+CITAS_FILE = "citas_data.json"
+
+def cargar_datos(archivo):
+    if os.path.exists(archivo):
+        try:
+            with open(archivo, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return []
+    return []
+
+def guardar_datos(archivo, datos):
+    with open(archivo, "w", encoding="utf-8") as f:
+        json.dump(datos, f, ensure_ascii=False, indent=4)
+
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 if "cortes_db" not in st.session_state:
-    st.session_state.cortes_db = []
+    st.session_state.cortes_db = cargar_datos(CORTES_FILE)
 if "citas_db" not in st.session_state:
-    st.session_state.citas_db = []
+    st.session_state.citas_db = cargar_datos(CITAS_FILE)
 
 PRECIOS_CORTES = {
     "Corte Clásico": 10.0,
@@ -24,168 +42,132 @@ PRECIOS_CORTES = {
 
 BARBEROS = ["Barbero 1", "Barbero 2", "Barbero 3"]
 
-# Estilos CSS Avanzados: Mariposas animadas, Letras Rosa Neón y Animación de Movimiento
+# ESTILOS MODERNOS 2026 - AZUL ELÉCTRICO Y NEÓN
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
 
     html, body, [class*="css"] {
-        font-family: 'Poppins', sans-serif;
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
-    /* Fondo principal con partículas/mariposas en movimiento */
+    /* Fondo Dark Tech 2026 */
     .stApp {
-        background: linear-gradient(135deg, #0a0b0e 0%, #1a0d18 100%);
-        color: #f1f1f1;
-        overflow-x: hidden;
+        background: radial-gradient(circle at 50% 10%, #0d1b2a 0%, #050811 100%);
+        color: #e2e8f0;
     }
 
-    /* Contenedor de Mariposas Flotantes */
-    .butterfly-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 0;
-        overflow: hidden;
+    /* Títulos Animados en Azul Eléctrico */
+    @keyframes electricPulse {
+        0% { text-shadow: 0 0 10px #00f0ff, 0 0 20px #00f0ff; }
+        50% { text-shadow: 0 0 20px #00f0ff, 0 0 35px #7000ff; }
+        100% { text-shadow: 0 0 10px #00f0ff, 0 0 20px #00f0ff; }
     }
 
-    .butterfly {
-        position: absolute;
-        font-size: 24px;
-        opacity: 0.6;
-        animation: floatButterfly 12s infinite ease-in-out;
-    }
-
-    /* Posiciones y tiempos distintos para las mariposas */
-    .bf1 { top: 80%; left: 10%; animation-duration: 10s; animation-delay: 0s; }
-    .bf2 { top: 90%; left: 35%; animation-duration: 14s; animation-delay: 2s; }
-    .bf3 { top: 85%; left: 65%; animation-duration: 11s; animation-delay: 4s; }
-    .bf4 { top: 75%; left: 85%; animation-duration: 13s; animation-delay: 1s; }
-
-    @keyframes floatButterfly {
-        0% {
-            transform: translateY(0) translateX(0) rotate(0deg) scale(0.8);
-            opacity: 0.2;
-        }
-        50% {
-            transform: translateY(-400px) translateX(50px) rotate(20deg) scale(1.2);
-            opacity: 0.8;
-        }
-        100% {
-            transform: translateY(-800px) translateX(-30px) rotate(-15deg) scale(0.8);
-            opacity: 0;
-        }
-    }
-
-    /* Animación con movimiento para los títulos en Rosa */
-    @keyframes pulseGlowPink {
-        0% {
-            transform: scale(1);
-            text-shadow: 0 0 10px #ff69b4, 0 0 20px #ff69b4, 0 0 30px #ff1493;
-        }
-        50% {
-            transform: scale(1.03);
-            text-shadow: 0 0 15px #ff69b4, 0 0 30px #ff1493, 0 0 45px #ff1493;
-        }
-        100% {
-            transform: scale(1);
-            text-shadow: 0 0 10px #ff69b4, 0 0 20px #ff69b4, 0 0 30px #ff1493;
-        }
-    }
-
-    /* Estilo de Letras Rosa con Movimiento */
-    .title-pink-animated {
+    .title-electric {
         font-size: 32px;
-        font-weight: 900;
-        color: #ff69b4 !important;
+        font-weight: 800;
+        color: #00f0ff !important;
         text-align: center;
-        display: block;
-        animation: pulseGlowPink 3s infinite ease-in-out;
-        margin-bottom: 10px;
+        letter-spacing: 1px;
+        animation: electricPulse 4s infinite ease-in-out;
+        margin-bottom: 5px;
     }
 
-    /* Cambiar encabezados a Rosa */
     h1, h2, h3 {
-        color: #ff69b4 !important;
+        color: #00f0ff !important;
         font-weight: 800 !important;
-        letter-spacing: 0.5px;
-        text-shadow: 0 0 10px rgba(255, 105, 180, 0.5);
     }
 
-    /* Estilización del Menú de Pestañas (Tabs) en Rosa */
+    /* Menú Estilo 2026: Floating Glass Navigation */
+    div[data-baseweb="tab-list"] {
+        background: rgba(13, 27, 42, 0.6) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(0, 240, 255, 0.2) !important;
+        border-radius: 18px !important;
+        padding: 6px !important;
+        gap: 8px !important;
+        margin-bottom: 25px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    }
+
     button[data-baseweb="tab"] {
-        background: #141017 !important;
-        border-radius: 12px 12px 0px 0px !important;
-        border: 1px solid rgba(255, 105, 180, 0.2) !important;
+        background: transparent !important;
+        border-radius: 12px !important;
+        border: none !important;
         padding: 12px 20px !important;
-        margin-right: 6px !important;
-        color: #a0a5b5 !important;
+        color: #94a3b8 !important;
         font-weight: 600 !important;
-        font-size: 15px !important;
-        transition: all 0.2s ease-in-out !important;
+        font-size: 14px !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
     button[aria-selected="true"] {
-        background: linear-gradient(180deg, #2b1424 0%, #1a0d18 100%) !important;
-        color: #ff69b4 !important;
-        font-weight: 800 !important;
-        border-bottom: 3px solid #ff69b4 !important;
-        box-shadow: 0px -4px 12px rgba(255, 105, 180, 0.3) !important;
-    }
-
-    /* Tarjetas y Formulario 3D */
-    .card-3d, [data-testid="stForm"] {
-        background: #15111a;
-        border-radius: 18px;
-        padding: 22px;
-        margin-bottom: 15px;
-        box-shadow: 8px 8px 18px rgba(0,0,0,0.8), -3px -3px 10px rgba(255,105,180,0.05);
-        border: 1px solid rgba(255, 105, 180, 0.25);
-    }
-
-    /* Botones principales en Rosa Neón */
-    .stButton > button {
-        background: linear-gradient(145deg, #ff69b4, #d81b60);
+        background: linear-gradient(135deg, #00f0ff 0%, #7000ff 100%) !important;
         color: #ffffff !important;
         font-weight: 800 !important;
-        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 240, 255, 0.4) !important;
+    }
+
+    /* Tarjetas 3D Glassmorphic */
+    .card-3d, [data-testid="stForm"] {
+        background: rgba(10, 16, 30, 0.75);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        padding: 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(0, 240, 255, 0.15);
+        border: 1px solid rgba(0, 240, 255, 0.18);
+    }
+
+    /* Entradas Neón 3D */
+    .stTextInput input, .stSelectbox div[data-baseweb="select"], .stNumberInput input {
+        background-color: #060a12 !important;
+        color: #ffffff !important;
+        border-radius: 12px !important;
+        border: 1px solid #1e293b !important;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.8) !important;
+    }
+    
+    .stTextInput input:focus, .stSelectbox div[data-baseweb="select"]:focus {
+        border-color: #00f0ff !important;
+        box-shadow: 0 0 10px rgba(0, 240, 255, 0.3) !important;
+    }
+
+    /* Botones Neón */
+    .stButton > button {
+        background: linear-gradient(135deg, #00f0ff 0%, #0072ff 100%);
+        color: #000000 !important;
+        font-weight: 800 !important;
+        border-radius: 14px;
         border: none;
         width: 100%;
-        padding: 12px 18px;
-        box-shadow: 0px 5px 0px #880e4f, 0px 8px 15px rgba(0, 0, 0, 0.5);
+        padding: 14px;
+        box-shadow: 0 6px 20px rgba(0, 240, 255, 0.35);
+        transition: all 0.2s ease;
     }
 
     .stButton > button:active {
-        transform: translateY(3px);
-        box-shadow: 0px 2px 0px #880e4f;
+        transform: scale(0.98);
+        box-shadow: 0 2px 10px rgba(0, 240, 255, 0.2);
     }
     </style>
-
-    <!-- Mariposas Flotantes HTML -->
-    <div class="butterfly-container">
-        <div class="butterfly bf1">🦋</div>
-        <div class="butterfly bf2">🦋</div>
-        <div class="butterfly bf3">🦋</div>
-        <div class="butterfly bf4">🦋</div>
-    </div>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # VISTA 1: LOGIN
 # ---------------------------------------------------------
 if not st.session_state.autenticado:
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<br><br>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
-        st.markdown('<div class="title-pink-animated">BARBERÍA GOD\'S TIME 🦋</div>', unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: #ffb6c1; font-weight: 600;'>Excelencia, estilo y precisión en cada detalle</p>", unsafe_allow_html=True)
+        st.markdown('<div class="title-electric">BARBERÍA GOD\'S TIME</div>', unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #94a3b8; font-weight: 600;'>Excelencia, estilo y precisión en cada detalle</p>", unsafe_allow_html=True)
 
         with st.form("login_form"):
-            st.markdown("<h3 style='text-align: center;'>🔑 ACCESO AL SISTEMA</h3>", unsafe_allow_html=True)
+            st.markdown("<h3 style='text-align: center; color: #ffffff;'>⚡ ACCESO AL SISTEMA</h3>", unsafe_allow_html=True)
             usuario = st.text_input("Usuario", placeholder="Ingresa tu usuario")
             contrasena = st.text_input("Contraseña", type="password", placeholder="••••••••")
             submit = st.form_submit_button("ENTRAR AL SISTEMA")
@@ -203,7 +185,7 @@ if not st.session_state.autenticado:
 else:
     col_t, col_l = st.columns([4, 1])
     with col_t:
-        st.markdown('<div class="title-pink-animated" style="text-align:left; font-size:26px;">💈 BARBERÍA GOD\'S TIME 🦋</div>', unsafe_allow_html=True)
+        st.markdown('<div class="title-electric" style="text-align:left; font-size:26px;">💈 BARBERÍA GOD\'S TIME</div>', unsafe_allow_html=True)
     with col_l:
         if st.button("🚪 Cerrar Sesión"):
             st.session_state.autenticado = False
@@ -211,17 +193,18 @@ else:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
+    # Menú 2026 Floating Tabs
     tab_inicio, tab_cortes, tab_barberos, tab_citas, tab_admin = st.tabs([
-        "🏠 MENÚ PRINCIPAL", 
+        "🏠 PANEL PRINCIPAL", 
         "✂️ REGISTRAR CORTE", 
         "💈 REGISTRO BARBEROS", 
-        "📅 CITAS Y WHATSAPP",
+        "📅 CITAS & WHATSAPP",
         "⚙️ ADMINISTRACIÓN"
     ])
 
     # 1. MENÚ PRINCIPAL
     with tab_inicio:
-        st.markdown("### 📊 Resumen de Actividad")
+        st.markdown("### 📊 Métricas Operativas")
         
         df_cortes = pd.DataFrame(st.session_state.cortes_db)
         
@@ -231,11 +214,11 @@ else:
         citas_pendientes = len(st.session_state.citas_db)
 
         with c1:
-            st.markdown(f'<div class="card-3d"><h4 style="color:#ffb6c1; margin:0;">Total Cortes</h4><h2 style="margin:5px 0 0 0;">{total_cortes}</h2></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Total Cortes</h4><h2 style="margin:5px 0 0 0;">{total_cortes}</h2></div>', unsafe_allow_html=True)
         with c2:
-            st.markdown(f'<div class="card-3d"><h4 style="color:#ffb6c1; margin:0;">Ingresos Totales</h4><h2 style="margin:5px 0 0 0;">${total_ingresos:.2f}</h2></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Ingresos Totales</h4><h2 style="margin:5px 0 0 0;">${total_ingresos:.2f}</h2></div>', unsafe_allow_html=True)
         with c3:
-            st.markdown(f'<div class="card-3d"><h4 style="color:#ffb6c1; margin:0;">Citas Agendadas</h4><h2 style="margin:5px 0 0 0;">{citas_pendientes}</h2></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Citas Agendadas</h4><h2 style="margin:5px 0 0 0;">{citas_pendientes}</h2></div>', unsafe_allow_html=True)
 
         st.markdown("### 💵 Lista de Servicios y Precios")
         precios_df = pd.DataFrame(list(PRECIOS_CORTES.items()), columns=["Servicio / Corte", "Precio ($)"])
@@ -262,7 +245,8 @@ else:
                     "Cliente": cliente_nombre if cliente_nombre else "Cliente Ocasional"
                 }
                 st.session_state.cortes_db.append(nuevo_registro)
-                st.success(f"Corte registrado a {barbero_sel} con éxito.")
+                guardar_datos(CORTES_FILE, st.session_state.cortes_db)
+                st.success(f"Corte registrado a {barbero_sel} correctamente.")
 
     # 3. REGISTRO POR BARBERO
     with tab_barberos:
@@ -306,6 +290,7 @@ else:
                     "Servicio": servicio_c
                 }
                 st.session_state.citas_db.append(cita)
+                guardar_datos(CITAS_FILE, st.session_state.citas_db)
                 
                 mensaje = f"Hola {nombre_c}, confirmamos tu cita en Barbería God's Time el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c}."
                 mensaje_encoded = urllib.parse.quote(mensaje)
@@ -313,7 +298,7 @@ else:
                 ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
                 
                 st.success("¡Cita agendada exitosamente!")
-                st.markdown(f'<a href="{ws_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:12px 20px; border-radius:10px; font-weight:bold; cursor:pointer; width:100%;">📲 Enviar Confirmación por WhatsApp</button></a>', unsafe_allow_html=True)
+                st.markdown(f'<a href="{ws_url}" target="_blank" style="text-decoration:none;"><button style="background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color:white; border:none; padding:14px; border-radius:14px; font-weight:bold; cursor:pointer; width:100%;">📲 Enviar Confirmación por WhatsApp</button></a>', unsafe_allow_html=True)
             else:
                 st.error("Completa el nombre y número de teléfono.")
 
@@ -327,11 +312,12 @@ else:
     # 5. ADMINISTRACIÓN
     with tab_admin:
         st.markdown("### ⚙️ Panel de Control del Administrador")
-        st.warning("⚠️ **Atención:** La siguiente opción borrará permanentemente las citas y cortes guardados en esta sesión.")
+        st.warning("⚠️ **Atención:** La siguiente opción borrará permanentemente las citas y cortes guardados.")
         
         if st.button("🔴 REINICIAR TODO EL HISTORIAL"):
             st.session_state.cortes_db = []
             st.session_state.citas_db = []
-            st.success("El historial completo ha sido reiniciado.")
+            guardar_datos(CORTES_FILE, [])
+            guardar_datos(CITAS_FILE, [])
+            st.success("El historial completo ha sido borrado físicamente.")
             st.rerun()
-
