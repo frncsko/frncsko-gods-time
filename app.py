@@ -6,7 +6,7 @@ import urllib.parse
 # Configuración de la página
 st.set_page_config(page_title="Barbería God's Time", layout="wide", initial_sidebar_state="expanded")
 
-# Inicialización del estado de la aplicación (Base de Datos en Sesión)
+# Inicialización del estado de la aplicación
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 if "cortes_db" not in st.session_state:
@@ -14,7 +14,6 @@ if "cortes_db" not in st.session_state:
 if "citas_db" not in st.session_state:
     st.session_state.citas_db = []
 
-# Precios base predeterminados
 PRECIOS_CORTES = {
     "Corte Clásico": 10.0,
     "Degradado / Fade": 12.0,
@@ -25,71 +24,110 @@ PRECIOS_CORTES = {
 
 BARBEROS = ["Barbero 1", "Barbero 2", "Barbero 3"]
 
-# Estilos CSS Modernos en 3D
+# Estilos CSS Avanzados: Tipografía mejorada y Navegación 3D
 st.markdown("""
     <style>
-    .stApp {
-        background: linear-gradient(135deg, #0d0e12 0%, #1a1c23 100%);
-        color: #e0e0e0;
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+
+    html, body, [class*="css"] {
+        font-family: 'Poppins', sans-serif;
     }
-    
-    /* Formulario de Login 3D */
+
+    .stApp {
+        background: linear-gradient(135deg, #0a0b0e 0%, #161821 100%);
+        color: #f1f1f1;
+    }
+
+    /* Estilización del Menú de Pestañas (Tabs) */
+    button[data-baseweb="tab"] {
+        background: #12141c !important;
+        border-radius: 12px 12px 0px 0px !important;
+        border: 1px solid rgba(212, 175, 55, 0.2) !important;
+        padding: 12px 20px !important;
+        margin-right: 6px !important;
+        color: #a0a5b5 !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
+        box-shadow: inset 0px -3px 0px rgba(0,0,0,0.5) !important;
+        transition: all 0.2s ease-in-out !important;
+    }
+
+    button[data-baseweb="tab"]:hover {
+        color: #d4af37 !important;
+        background: #1a1d28 !important;
+    }
+
+    button[aria-selected="true"] {
+        background: linear-gradient(180deg, #1f2330 0%, #14161d 100%) !important;
+        color: #d4af37 !important;
+        font-weight: 800 !important;
+        border-bottom: 3px solid #d4af37 !important;
+        box-shadow: 0px -4px 10px rgba(212, 175, 55, 0.2) !important;
+    }
+
+    /* Encabezados y Letras Destacadas */
+    h1, h2, h3 {
+        color: #d4af37 !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.5px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+    }
+
+    label {
+        color: #e0e0e0 !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+    }
+
+    /* Tarjetas 3D mejoradas */
+    .card-3d {
+        background: #14161d;
+        border-radius: 16px;
+        padding: 22px;
+        margin-bottom: 15px;
+        box-shadow: 8px 8px 18px rgba(0,0,0,0.7), -4px -4px 12px rgba(255,255,255,0.02);
+        border: 1px solid rgba(212, 175, 55, 0.25);
+    }
+
+    /* Formulario 3D */
     [data-testid="stForm"] {
         background: #14161d;
         border-radius: 20px;
-        padding: 30px 20px;
-        box-shadow: 10px 10px 25px rgba(0, 0, 0, 0.7), -5px -5px 15px rgba(255, 255, 255, 0.03), inset 0px 1px 1px rgba(212, 175, 55, 0.3);
-        border: 1px solid rgba(212, 175, 55, 0.2);
+        padding: 30px 24px;
+        box-shadow: 10px 10px 25px rgba(0, 0, 0, 0.8), -5px -5px 15px rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(212, 175, 55, 0.3);
     }
-    
-    /* Tarjetas 3D para métricas y datos */
-    .card-3d {
-        background: #14161d;
-        border-radius: 15px;
-        padding: 20px;
-        margin-bottom: 15px;
-        box-shadow: 6px 6px 12px rgba(0,0,0,0.6), -3px -3px 8px rgba(255,255,255,0.02);
-        border: 1px solid rgba(212, 175, 55, 0.15);
-    }
-    
-    /* Botones principales estilo 3D */
+
+    /* Botones 3D con mayor contraste */
     .stButton > button {
-        background: linear-gradient(145deg, #e6c247, #b89528);
-        color: #000000;
-        font-weight: 800;
+        background: linear-gradient(145deg, #f0cc52, #b89528);
+        color: #000000 !important;
+        font-weight: 800 !important;
         border-radius: 12px;
         border: none;
         width: 100%;
-        padding: 10px 15px;
-        box-shadow: 0px 5px 0px #8a6f1c, 0px 8px 12px rgba(0, 0, 0, 0.4);
-        transition: all 0.1s ease-in-out;
+        padding: 12px 18px;
+        box-shadow: 0px 5px 0px #8a6f1c, 0px 8px 15px rgba(0, 0, 0, 0.5);
+        letter-spacing: 0.5px;
     }
+
     .stButton > button:active {
         transform: translateY(3px);
         box-shadow: 0px 2px 0px #8a6f1c;
     }
 
-    /* Entradas de texto 3D */
-    .stTextInput input, .stSelectbox div[data-baseweb="select"], .stNumberInput input {
-        background-color: #0f1015 !important;
-        color: #ffffff !important;
-        border-radius: 10px !important;
-        border: 1px solid #2a2d37 !important;
-        box-shadow: inset 3px 3px 6px rgba(0,0,0,0.6) !important;
-    }
-    
     .title-3d {
-        font-size: 28px;
+        font-size: 32px;
         font-weight: 900;
         color: #d4af37;
         text-align: center;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(212, 175, 55, 0.3);
+        text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9), 0 0 15px rgba(212, 175, 55, 0.4);
     }
     </style>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# VISTA 1: LOGIN ACTUALIZADO
+# VISTA 1: LOGIN
 # ---------------------------------------------------------
 if not st.session_state.autenticado:
     st.markdown("<br>", unsafe_allow_html=True)
@@ -97,10 +135,10 @@ if not st.session_state.autenticado:
     
     with col2:
         st.markdown('<div class="title-3d">BARBERÍA GOD\'S TIME</div>', unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: #a0a5b5;'>Excelencia, estilo y precisión en cada detalle</p>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #a0a5b5; font-weight: 600;'>Excelencia, estilo y precisión en cada detalle</p>", unsafe_allow_html=True)
 
         with st.form("login_form"):
-            st.markdown("<h3 style='text-align: center; color: #ffffff;'>Acceso al Sistema</h3>", unsafe_allow_html=True)
+            st.markdown("<h3 style='text-align: center; color: #ffffff;'>🔑 ACCESO AL SISTEMA</h3>", unsafe_allow_html=True)
             usuario = st.text_input("Usuario", placeholder="Ingresa tu usuario")
             contrasena = st.text_input("Contraseña", type="password", placeholder="••••••••")
             submit = st.form_submit_button("ENTRAR AL SISTEMA")
@@ -116,29 +154,28 @@ if not st.session_state.autenticado:
 # VISTA 2: PANEL PRINCIPAL
 # ---------------------------------------------------------
 else:
-    # Encabezado principal y botón para cerrar sesión
     col_t, col_l = st.columns([4, 1])
     with col_t:
-        st.markdown('<h2 style="color: #d4af37;">BARBERÍA GOD\'S TIME</h2>', unsafe_allow_html=True)
+        st.markdown('<h2 style="color: #d4af37; margin:0;">💈 BARBERÍA GOD\'S TIME</h2>', unsafe_allow_html=True)
     with col_l:
-        if st.button("Cerrar Sesión"):
+        if st.button("🚪 Cerrar Sesión"):
             st.session_state.autenticado = False
             st.rerun()
 
-    st.markdown("---")
+    st.markdown("<br>", unsafe_allow_html=True)
 
-    # Menú principal por pestañas (Tabs)
+    # Menú Principal de Pestañas Estilizado
     tab_inicio, tab_cortes, tab_barberos, tab_citas, tab_admin = st.tabs([
-        "🏠 Menú Principal", 
-        "✂️ Registrar Corte", 
-        "💈 Registro por Barbero", 
-        "📅 Agendar Citas / WhatsApp",
-        "⚙️ Administración"
+        "🏠 MENÚ PRINCIPAL", 
+        "✂️ REGISTRAR CORTE", 
+        "💈 REGISTRO BARBEROS", 
+        "📅 CITAS Y WHATSAPP",
+        "⚙️ ADMINISTRACIÓN"
     ])
 
-    # 1. PESTAÑA: MENÚ PRINCIPAL
+    # 1. MENÚ PRINCIPAL
     with tab_inicio:
-        st.markdown("### 📊 Resumen General")
+        st.markdown("### 📊 Resumen de Actividad")
         
         df_cortes = pd.DataFrame(st.session_state.cortes_db)
         
@@ -148,17 +185,17 @@ else:
         citas_pendientes = len(st.session_state.citas_db)
 
         with c1:
-            st.markdown(f'<div class="card-3d"><h3>Total Cortes</h3><h2>{total_cortes}</h2></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-3d"><h4 style="color:#a0a5b5; margin:0;">Total Cortes</h4><h2 style="margin:5px 0 0 0;">{total_cortes}</h2></div>', unsafe_allow_html=True)
         with c2:
-            st.markdown(f'<div class="card-3d"><h3>Ingresos Totales</h3><h2>${total_ingresos:.2f}</h2></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-3d"><h4 style="color:#a0a5b5; margin:0;">Ingresos Totales</h4><h2 style="margin:5px 0 0 0;">${total_ingresos:.2f}</h2></div>', unsafe_allow_html=True)
         with c3:
-            st.markdown(f'<div class="card-3d"><h3>Citas Agendadas</h3><h2>{citas_pendientes}</h2></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-3d"><h4 style="color:#a0a5b5; margin:0;">Citas Agendadas</h4><h2 style="margin:5px 0 0 0;">{citas_pendientes}</h2></div>', unsafe_allow_html=True)
 
-        st.markdown("### 💵 Catálogo de Servicios y Precios")
+        st.markdown("### 💵 Lista de Servicios y Precios")
         precios_df = pd.DataFrame(list(PRECIOS_CORTES.items()), columns=["Servicio / Corte", "Precio ($)"])
         st.table(precios_df)
 
-    # 2. PESTAÑA: REGISTRAR CORTES
+    # 2. REGISTRAR CORTE
     with tab_cortes:
         st.markdown("### ✂️ Registrar Nuevo Corte")
         
@@ -168,7 +205,7 @@ else:
             precio_corte = st.number_input("Precio ($)", value=float(PRECIOS_CORTES[corte_sel]), step=1.0)
             cliente_nombre = st.text_input("Nombre del Cliente (Opcional)")
             
-            btn_guardar = st.form_submit_button("REGISTRAR CORTE")
+            btn_guardar = st.form_submit_button("GUARDAR CORTE")
             
             if btn_guardar:
                 nuevo_registro = {
@@ -179,12 +216,12 @@ else:
                     "Cliente": cliente_nombre if cliente_nombre else "Cliente Ocasional"
                 }
                 st.session_state.cortes_db.append(nuevo_registro)
-                st.success(f"Corte registrado a {barbero_sel} correctamente.")
+                st.success(f"Corte registrado a {barbero_sel} con éxito.")
 
-    # 3. PESTAÑA: REGISTRO POR BARBERO
+    # 3. REGISTRO POR BARBERO
     with tab_barberos:
-        st.markdown("### 💈 Historial Individual de Barberos")
-        barbero_filtro = st.selectbox("Filtrar por Barbero", BARBEROS, key="filtro_barbero")
+        st.markdown("### 💈 Historial por Barbero")
+        barbero_filtro = st.selectbox("Selecciona un Barbero", BARBEROS, key="filtro_barbero")
         
         if st.session_state.cortes_db:
             df_cortes = pd.DataFrame(st.session_state.cortes_db)
@@ -192,27 +229,27 @@ else:
             
             if not df_filtrado.empty:
                 st.dataframe(df_filtrado, use_container_width=True)
-                st.info(f"Total generado por **{barbero_filtro}**: **${df_filtrado['Precio'].sum():.2f}** ({len(df_filtrado)} cortes)")
+                st.info(f"Total acumulado por **{barbero_filtro}**: **${df_filtrado['Precio'].sum():.2f}** ({len(df_filtrado)} cortes)")
             else:
-                st.warning(f"No hay registros cargados para {barbero_filtro}.")
+                st.warning(f"No hay registros de cortes para {barbero_filtro}.")
         else:
-            st.write("No hay datos de cortes registrados en el sistema.")
+            st.write("No hay cortes registrados en la base de datos.")
 
-    # 4. PESTAÑA: AGENDAR CITAS Y WHATSAPP
+    # 4. CITAS Y WHATSAPP
     with tab_citas:
-        st.markdown("### 📅 Agendar Cita")
+        st.markdown("### 📅 Agendar Nueva Cita")
         
         col_f1, col_f2 = st.columns(2)
         with col_f1:
             nombre_c = st.text_input("Nombre del Cliente")
-            telefono_c = st.text_input("Teléfono (con código de país ej: +58...)")
+            telefono_c = st.text_input("Teléfono (Ej: +584120000000)")
             barbero_c = st.selectbox("Barbero de preferencia", BARBEROS, key="barbero_cita")
         with col_f2:
-            fecha_c = st.date_input("Fecha", min_value=date.today())
+            fecha_c = st.date_input("Fecha de la cita", min_value=date.today())
             hora_c = st.time_input("Hora de la cita")
             servicio_c = st.selectbox("Servicio solicitado", list(PRECIOS_CORTES.keys()), key="servicio_cita")
             
-        if st.button("AGENDAR Y PREPARAR WHATSAPP"):
+        if st.button("AGENDAR Y NOTIFICAR POR WHATSAPP"):
             if nombre_c and telefono_c:
                 cita = {
                     "Cliente": nombre_c,
@@ -224,33 +261,30 @@ else:
                 }
                 st.session_state.citas_db.append(cita)
                 
-                # Generación del enlace de WhatsApp
                 mensaje = f"Hola {nombre_c}, confirmamos tu cita en Barbería God's Time el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c}."
                 mensaje_encoded = urllib.parse.quote(mensaje)
                 phone_clean = telefono_c.replace("+", "").replace(" ", "").replace("-", "")
                 ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
                 
-                st.success("¡Cita agendada con éxito!")
-                st.markdown(f'<a href="{ws_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:10px 15px; border-radius:10px; font-weight:bold; cursor:pointer;">📲 Enviar Confirmación por WhatsApp</button></a>', unsafe_allow_html=True)
+                st.success("¡Cita agendada exitosamente!")
+                st.markdown(f'<a href="{ws_url}" target="_blank" style="text-decoration:none;"><button style="background-color:#25D366; color:white; border:none; padding:12px 20px; border-radius:10px; font-weight:bold; cursor:pointer; width:100%;">📲 Enviar Confirmación por WhatsApp</button></a>', unsafe_allow_html=True)
             else:
-                st.error("Por favor completa el nombre y el número telefónico.")
+                st.error("Completa el nombre y número de teléfono.")
 
         st.markdown("---")
         st.markdown("### 📋 Citas Registradas")
         if st.session_state.citas_db:
             st.dataframe(pd.DataFrame(st.session_state.citas_db), use_container_width=True)
         else:
-            st.write("No hay citas pendientes.")
+            st.write("No hay citas registradas.")
 
-    # 5. PESTAÑA: ADMINISTRACIÓN Y REINICIO DE HISTORIAL
+    # 5. ADMINISTRACIÓN
     with tab_admin:
-        st.markdown("### ⚙️ Opciones de Administrador")
-        st.warning("⚠️ **Zona de Peligro:** La siguiente acción borrará la base de datos de la sesión actual.")
+        st.markdown("### ⚙️ Panel de Control del Administrador")
+        st.warning("⚠️ **Atención:** La siguiente opción borrará permanentemente las citas y cortes guardados en esta sesión.")
         
-        # Botón para reiniciar el historial completo
         if st.button("🔴 REINICIAR TODO EL HISTORIAL"):
             st.session_state.cortes_db = []
             st.session_state.citas_db = []
-            st.success("El historial de cortes y citas se ha borrado correctamente.")
+            st.success("El historial completo ha sido reiniciado.")
             st.rerun()
-
