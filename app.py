@@ -51,7 +51,7 @@ PRECIOS_CORTES = {
 
 BARBEROS = ["Barbero 1", "Barbero 2", "Barbero 3"]
 
-# ESTILOS CON RAYOS REALISTAS, GOKU Y CRÉDITO REUBICADO
+# ESTILOS CON RAYOS REALISTAS, GOKU MEJORADO Y CRÉDITO REUBICADO
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
@@ -66,7 +66,7 @@ st.markdown("""
         overflow-x: hidden;
     }
 
-    /* EFECTO DE RAYOS ELÉCTRICOS REALISTAS (ZIGZAG) */
+    /* RAYOS ELÉCTRICOS REALISTAS */
     .lightning-container {
         position: fixed;
         top: 0;
@@ -84,7 +84,7 @@ st.markdown("""
         width: 4px;
         height: 100vh;
         background: #ffffff;
-        box-shadow: 0 0 10px #00f0ff, 0 0 25px #00f0ff, 0 0 50px #7000ff, 0 0 80px #00f0ff;
+        box-shadow: 0 0 10px #00f0ff, 0 0 25px #00f0ff, 0 0 50px #7000ff;
         opacity: 0;
         clip-path: polygon(50% 0%, 0% 20%, 70% 35%, 10% 60%, 80% 75%, 30% 100%, 60% 100%, 90% 73%, 20% 58%, 80% 33%, 20% 18%);
         animation: lightningStrike 5s infinite ease-in-out;
@@ -95,7 +95,7 @@ st.markdown("""
     .rl3 { left: 48%; animation-delay: 4.2s; }
 
     @keyframes lightningStrike {
-        0%, 94%, 100% { opacity: 0; filter: drop-shadow(0 0 0px transparent); }
+        0%, 94%, 100% { opacity: 0; }
         95% { opacity: 1; filter: drop-shadow(0 0 20px #00f0ff); }
         96% { opacity: 0.2; }
         97% { opacity: 1; filter: drop-shadow(0 0 30px #ffffff); }
@@ -115,12 +115,11 @@ st.markdown("""
         color: #00f0ff;
         font-size: 11px;
         font-weight: 800;
-        letter-spacing: 0.5px;
         box-shadow: 0 4px 15px rgba(0, 240, 255, 0.3);
         z-index: 99999;
     }
 
-    /* CONTENEDOR DE LA CABECERA CON GOKU */
+    /* CABECERA CON GOKU */
     .header-dbz {
         display: flex;
         align-items: center;
@@ -130,15 +129,16 @@ st.markdown("""
     }
 
     .goku-img {
-        width: 65px;
+        width: 75px;
         height: auto;
-        filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.6));
+        object-fit: contain;
+        filter: drop-shadow(0 0 12px rgba(0, 240, 255, 0.8));
         animation: floatGoku 3s infinite ease-in-out;
     }
 
     @keyframes floatGoku {
-        0%, 100% { transform: translateY(0px) rotate(0deg); }
-        50% { transform: translateY(-6px) rotate(-3deg); }
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-8px); }
     }
 
     .title-electric {
@@ -199,14 +199,12 @@ st.markdown("""
     }
     </style>
 
-    <!-- Rayos Eléctricos -->
     <div class="lightning-container">
         <div class="real-lightning rl1"></div>
         <div class="real-lightning rl2"></div>
         <div class="real-lightning rl3"></div>
     </div>
 
-    <!-- Marca de Desarrollador -->
     <div class="dev-badge-top">⚡ Dev: FranciscoBRB</div>
 """, unsafe_allow_html=True)
 
@@ -220,7 +218,7 @@ if not st.session_state.autenticado:
     with col2:
         st.markdown('''
             <div class="header-dbz">
-                <img src="https://pngimg.com/uploads/goku/goku_PNG38.png" class="goku-img" alt="Goku DBZ">
+                <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbnYydm5rdzBrbzFoc2lpaW13dGoxcnBscDliNnVraWVvdmsyYzFnZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/u00R4eeSj7K80/giphy.gif" class="goku-img" alt="Goku DBZ">
                 <div class="title-electric">BARBERÍA GOD\'S TIME</div>
             </div>
         ''', unsafe_allow_html=True)
@@ -247,7 +245,7 @@ else:
     with col_t:
         st.markdown('''
             <div class="header-dbz" style="justify-content: flex-start;">
-                <img src="https://pngimg.com/uploads/goku/goku_PNG38.png" class="goku-img" style="width:50px;" alt="Goku DBZ">
+                <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbnYydm5rdzBrbzFoc2lpaW13dGoxcnBscDliNnVraWVvdmsyYzFnZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/u00R4eeSj7K80/giphy.gif" class="goku-img" style="width:55px;" alt="Goku DBZ">
                 <div class="title-electric" style="font-size:24px;">BARBERÍA GOD\'S TIME</div>
             </div>
         ''', unsafe_allow_html=True)
