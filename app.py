@@ -24,7 +24,7 @@ PRECIOS_CORTES = {
 
 BARBEROS = ["Barbero 1", "Barbero 2", "Barbero 3"]
 
-# Estilos CSS Avanzados: Tipografía mejorada y Navegación 3D
+# Estilos CSS Avanzados: Mariposas animadas, Letras Rosa Neón y Animación de Movimiento
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
@@ -33,97 +33,144 @@ st.markdown("""
         font-family: 'Poppins', sans-serif;
     }
 
+    /* Fondo principal con partículas/mariposas en movimiento */
     .stApp {
-        background: linear-gradient(135deg, #0a0b0e 0%, #161821 100%);
+        background: linear-gradient(135deg, #0a0b0e 0%, #1a0d18 100%);
         color: #f1f1f1;
+        overflow-x: hidden;
     }
 
-    /* Estilización del Menú de Pestañas (Tabs) */
+    /* Contenedor de Mariposas Flotantes */
+    .butterfly-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+        overflow: hidden;
+    }
+
+    .butterfly {
+        position: absolute;
+        font-size: 24px;
+        opacity: 0.6;
+        animation: floatButterfly 12s infinite ease-in-out;
+    }
+
+    /* Posiciones y tiempos distintos para las mariposas */
+    .bf1 { top: 80%; left: 10%; animation-duration: 10s; animation-delay: 0s; }
+    .bf2 { top: 90%; left: 35%; animation-duration: 14s; animation-delay: 2s; }
+    .bf3 { top: 85%; left: 65%; animation-duration: 11s; animation-delay: 4s; }
+    .bf4 { top: 75%; left: 85%; animation-duration: 13s; animation-delay: 1s; }
+
+    @keyframes floatButterfly {
+        0% {
+            transform: translateY(0) translateX(0) rotate(0deg) scale(0.8);
+            opacity: 0.2;
+        }
+        50% {
+            transform: translateY(-400px) translateX(50px) rotate(20deg) scale(1.2);
+            opacity: 0.8;
+        }
+        100% {
+            transform: translateY(-800px) translateX(-30px) rotate(-15deg) scale(0.8);
+            opacity: 0;
+        }
+    }
+
+    /* Animación con movimiento para los títulos en Rosa */
+    @keyframes pulseGlowPink {
+        0% {
+            transform: scale(1);
+            text-shadow: 0 0 10px #ff69b4, 0 0 20px #ff69b4, 0 0 30px #ff1493;
+        }
+        50% {
+            transform: scale(1.03);
+            text-shadow: 0 0 15px #ff69b4, 0 0 30px #ff1493, 0 0 45px #ff1493;
+        }
+        100% {
+            transform: scale(1);
+            text-shadow: 0 0 10px #ff69b4, 0 0 20px #ff69b4, 0 0 30px #ff1493;
+        }
+    }
+
+    /* Estilo de Letras Rosa con Movimiento */
+    .title-pink-animated {
+        font-size: 32px;
+        font-weight: 900;
+        color: #ff69b4 !important;
+        text-align: center;
+        display: block;
+        animation: pulseGlowPink 3s infinite ease-in-out;
+        margin-bottom: 10px;
+    }
+
+    /* Cambiar encabezados a Rosa */
+    h1, h2, h3 {
+        color: #ff69b4 !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.5px;
+        text-shadow: 0 0 10px rgba(255, 105, 180, 0.5);
+    }
+
+    /* Estilización del Menú de Pestañas (Tabs) en Rosa */
     button[data-baseweb="tab"] {
-        background: #12141c !important;
+        background: #141017 !important;
         border-radius: 12px 12px 0px 0px !important;
-        border: 1px solid rgba(212, 175, 55, 0.2) !important;
+        border: 1px solid rgba(255, 105, 180, 0.2) !important;
         padding: 12px 20px !important;
         margin-right: 6px !important;
         color: #a0a5b5 !important;
         font-weight: 600 !important;
         font-size: 15px !important;
-        box-shadow: inset 0px -3px 0px rgba(0,0,0,0.5) !important;
         transition: all 0.2s ease-in-out !important;
     }
 
-    button[data-baseweb="tab"]:hover {
-        color: #d4af37 !important;
-        background: #1a1d28 !important;
-    }
-
     button[aria-selected="true"] {
-        background: linear-gradient(180deg, #1f2330 0%, #14161d 100%) !important;
-        color: #d4af37 !important;
+        background: linear-gradient(180deg, #2b1424 0%, #1a0d18 100%) !important;
+        color: #ff69b4 !important;
         font-weight: 800 !important;
-        border-bottom: 3px solid #d4af37 !important;
-        box-shadow: 0px -4px 10px rgba(212, 175, 55, 0.2) !important;
+        border-bottom: 3px solid #ff69b4 !important;
+        box-shadow: 0px -4px 12px rgba(255, 105, 180, 0.3) !important;
     }
 
-    /* Encabezados y Letras Destacadas */
-    h1, h2, h3 {
-        color: #d4af37 !important;
-        font-weight: 800 !important;
-        letter-spacing: 0.5px;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
-    }
-
-    label {
-        color: #e0e0e0 !important;
-        font-weight: 600 !important;
-        font-size: 14px !important;
-    }
-
-    /* Tarjetas 3D mejoradas */
-    .card-3d {
-        background: #14161d;
-        border-radius: 16px;
+    /* Tarjetas y Formulario 3D */
+    .card-3d, [data-testid="stForm"] {
+        background: #15111a;
+        border-radius: 18px;
         padding: 22px;
         margin-bottom: 15px;
-        box-shadow: 8px 8px 18px rgba(0,0,0,0.7), -4px -4px 12px rgba(255,255,255,0.02);
-        border: 1px solid rgba(212, 175, 55, 0.25);
+        box-shadow: 8px 8px 18px rgba(0,0,0,0.8), -3px -3px 10px rgba(255,105,180,0.05);
+        border: 1px solid rgba(255, 105, 180, 0.25);
     }
 
-    /* Formulario 3D */
-    [data-testid="stForm"] {
-        background: #14161d;
-        border-radius: 20px;
-        padding: 30px 24px;
-        box-shadow: 10px 10px 25px rgba(0, 0, 0, 0.8), -5px -5px 15px rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(212, 175, 55, 0.3);
-    }
-
-    /* Botones 3D con mayor contraste */
+    /* Botones principales en Rosa Neón */
     .stButton > button {
-        background: linear-gradient(145deg, #f0cc52, #b89528);
-        color: #000000 !important;
+        background: linear-gradient(145deg, #ff69b4, #d81b60);
+        color: #ffffff !important;
         font-weight: 800 !important;
         border-radius: 12px;
         border: none;
         width: 100%;
         padding: 12px 18px;
-        box-shadow: 0px 5px 0px #8a6f1c, 0px 8px 15px rgba(0, 0, 0, 0.5);
-        letter-spacing: 0.5px;
+        box-shadow: 0px 5px 0px #880e4f, 0px 8px 15px rgba(0, 0, 0, 0.5);
     }
 
     .stButton > button:active {
         transform: translateY(3px);
-        box-shadow: 0px 2px 0px #8a6f1c;
-    }
-
-    .title-3d {
-        font-size: 32px;
-        font-weight: 900;
-        color: #d4af37;
-        text-align: center;
-        text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9), 0 0 15px rgba(212, 175, 55, 0.4);
+        box-shadow: 0px 2px 0px #880e4f;
     }
     </style>
+
+    <!-- Mariposas Flotantes HTML -->
+    <div class="butterfly-container">
+        <div class="butterfly bf1">🦋</div>
+        <div class="butterfly bf2">🦋</div>
+        <div class="butterfly bf3">🦋</div>
+        <div class="butterfly bf4">🦋</div>
+    </div>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
@@ -134,11 +181,11 @@ if not st.session_state.autenticado:
     col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
-        st.markdown('<div class="title-3d">BARBERÍA GOD\'S TIME</div>', unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: #a0a5b5; font-weight: 600;'>Excelencia, estilo y precisión en cada detalle</p>", unsafe_allow_html=True)
+        st.markdown('<div class="title-pink-animated">BARBERÍA GOD\'S TIME 🦋</div>', unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #ffb6c1; font-weight: 600;'>Excelencia, estilo y precisión en cada detalle</p>", unsafe_allow_html=True)
 
         with st.form("login_form"):
-            st.markdown("<h3 style='text-align: center; color: #ffffff;'>🔑 ACCESO AL SISTEMA</h3>", unsafe_allow_html=True)
+            st.markdown("<h3 style='text-align: center;'>🔑 ACCESO AL SISTEMA</h3>", unsafe_allow_html=True)
             usuario = st.text_input("Usuario", placeholder="Ingresa tu usuario")
             contrasena = st.text_input("Contraseña", type="password", placeholder="••••••••")
             submit = st.form_submit_button("ENTRAR AL SISTEMA")
@@ -156,7 +203,7 @@ if not st.session_state.autenticado:
 else:
     col_t, col_l = st.columns([4, 1])
     with col_t:
-        st.markdown('<h2 style="color: #d4af37; margin:0;">💈 BARBERÍA GOD\'S TIME</h2>', unsafe_allow_html=True)
+        st.markdown('<div class="title-pink-animated" style="text-align:left; font-size:26px;">💈 BARBERÍA GOD\'S TIME 🦋</div>', unsafe_allow_html=True)
     with col_l:
         if st.button("🚪 Cerrar Sesión"):
             st.session_state.autenticado = False
@@ -164,7 +211,6 @@ else:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Menú Principal de Pestañas Estilizado
     tab_inicio, tab_cortes, tab_barberos, tab_citas, tab_admin = st.tabs([
         "🏠 MENÚ PRINCIPAL", 
         "✂️ REGISTRAR CORTE", 
@@ -185,11 +231,11 @@ else:
         citas_pendientes = len(st.session_state.citas_db)
 
         with c1:
-            st.markdown(f'<div class="card-3d"><h4 style="color:#a0a5b5; margin:0;">Total Cortes</h4><h2 style="margin:5px 0 0 0;">{total_cortes}</h2></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-3d"><h4 style="color:#ffb6c1; margin:0;">Total Cortes</h4><h2 style="margin:5px 0 0 0;">{total_cortes}</h2></div>', unsafe_allow_html=True)
         with c2:
-            st.markdown(f'<div class="card-3d"><h4 style="color:#a0a5b5; margin:0;">Ingresos Totales</h4><h2 style="margin:5px 0 0 0;">${total_ingresos:.2f}</h2></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-3d"><h4 style="color:#ffb6c1; margin:0;">Ingresos Totales</h4><h2 style="margin:5px 0 0 0;">${total_ingresos:.2f}</h2></div>', unsafe_allow_html=True)
         with c3:
-            st.markdown(f'<div class="card-3d"><h4 style="color:#a0a5b5; margin:0;">Citas Agendadas</h4><h2 style="margin:5px 0 0 0;">{citas_pendientes}</h2></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-3d"><h4 style="color:#ffb6c1; margin:0;">Citas Agendadas</h4><h2 style="margin:5px 0 0 0;">{citas_pendientes}</h2></div>', unsafe_allow_html=True)
 
         st.markdown("### 💵 Lista de Servicios y Precios")
         precios_df = pd.DataFrame(list(PRECIOS_CORTES.items()), columns=["Servicio / Corte", "Precio ($)"])
@@ -288,3 +334,4 @@ else:
             st.session_state.citas_db = []
             st.success("El historial completo ha sido reiniciado.")
             st.rerun()
+
