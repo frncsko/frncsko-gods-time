@@ -5,8 +5,12 @@ import urllib.parse
 import json
 import os
 
-# Configuración de la página
-st.set_page_config(page_title="Barbería God's Time", layout="wide", initial_sidebar_state="collapsed")
+# Configuración de la página (Menú desplegado por defecto)
+st.set_page_config(
+    page_title="Barbería God's Time", 
+    layout="wide", 
+    initial_sidebar_state="expanded"
+)
 
 # --- PERSISTENCIA LOCAL DE DATOS ---
 CORTES_FILE = "cortes_data.json"
@@ -40,8 +44,7 @@ USUARIOS = {
     "Jonder": {"clave": "barbero1", "rol": "barbero"}
 }
 
-# TASA DE CAMBIO DE REFERENCIA (BS / USD)
-TASA_BCV = 36.50  # Puedes ajustar este valor según la tasa del día
+TASA_BCV = 36.50  # Tasa de referencia en Bolívares
 
 PRECIOS_CORTES = {
     "Corte Clásico": 10.0,
@@ -61,54 +64,75 @@ OPCIONES_HORAS = [
     for m in (0, 30)
 ]
 
-# ESTILOS MODERNOS Y ANIMACIONES CSS
+# ESTILOS FUTURISTAS, FUENTES MODERNAS Y LATIDO DEL TÍTULO
 st.markdown("""
     <style>
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Space+Grotesk:wght@600;700&display=swap');
 
     html, body, [class*="css"] {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
     .stApp {
-        background: radial-gradient(circle at 50% 10%, #0d1b2a 0%, #050811 100%);
+        background: radial-gradient(circle at 50% 10%, #080f1a 0%, #03050a 100%);
         color: #e2e8f0;
     }
 
-    /* ANIMACIÓN LATIDO Y BRILLO NEÓN DEL TÍTULO */
-    @keyframes heartbeat-glow {
-        0% {
-            transform: scale(1);
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5), 0 0 20px rgba(0, 240, 255, 0.3);
-        }
-        14% {
-            transform: scale(1.05);
-            text-shadow: 0 0 25px rgba(0, 240, 255, 0.9), 0 0 40px rgba(0, 240, 255, 0.7);
-        }
-        28% {
-            transform: scale(1);
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5), 0 0 20px rgba(0, 240, 255, 0.3);
-        }
-        42% {
-            transform: scale(1.03);
-            text-shadow: 0 0 20px rgba(0, 240, 255, 0.8), 0 0 30px rgba(0, 240, 255, 0.6);
-        }
-        70% {
-            transform: scale(1);
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5), 0 0 20px rgba(0, 240, 255, 0.3);
-        }
+    /* BARRA LATERAL IZQUIERDA MODERNIZADA */
+    [data-testid="stSidebar"] {
+        background: rgba(10, 17, 30, 0.95) !important;
+        border-right: 1px solid rgba(0, 240, 255, 0.2) !important;
     }
 
-    .header-title {
+    /* ESTILO RADIO BUTTONS VERTICALES EN EL SIDEBAR */
+    [data-testid="stSidebar"] .stRadio > div {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 5px;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    [data-testid="stSidebar"] .stRadio label {
+        background: rgba(255, 255, 255, 0.03) !important;
+        border: 1px solid rgba(0, 240, 255, 0.15) !important;
+        border-radius: 14px !important;
+        padding: 12px 16px !important;
+        color: #94a3b8 !important;
+        font-weight: 700 !important;
+        font-size: 15px !important;
+        cursor: pointer;
+        transition: all 0.3s ease !important;
+        width: 100%;
+    }
+
+    [data-testid="stSidebar"] .stRadio label:hover {
+        background: rgba(0, 240, 255, 0.1) !important;
+        color: #00f0ff !important;
+        border-color: rgba(0, 240, 255, 0.4) !important;
+    }
+
+    /* SECCIÓN SELECCIONADA EN MENÚ VERTICAL */
+    [data-testid="stSidebar"] .stRadio div[aria-checked="true"] + label {
+        background: linear-gradient(135deg, #00f0ff 0%, #0072ff 100%) !important;
+        color: #000000 !important;
+        font-weight: 800 !important;
+        border: none !important;
+        box-shadow: 0 4px 20px rgba(0, 240, 255, 0.4) !important;
+    }
+
+    /* EFECTO LATIDO Y NEÓN EN EL TÍTULO */
+    @keyframes heartbeat-glow {
+        0% { transform: scale(1); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
+        14% { transform: scale(1.04); text-shadow: 0 0 25px rgba(0, 240, 255, 0.9); }
+        28% { transform: scale(1); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
+        42% { transform: scale(1.02); text-shadow: 0 0 20px rgba(0, 240, 255, 0.8); }
+        70% { transform: scale(1); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
     }
 
     .title-electric {
-        font-size: 36px;
-        font-weight: 900;
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 32px;
+        font-weight: 800;
         color: #00f0ff !important;
         text-align: center;
         letter-spacing: 2px;
@@ -116,53 +140,26 @@ st.markdown("""
         animation: heartbeat-glow 2.5s infinite ease-in-out;
     }
 
-    h1, h2, h3 {
-        color: #00f0ff !important;
-        font-weight: 800 !important;
-    }
-
-    /* MENÚ (TABS) */
-    div[data-baseweb="tab-list"] {
-        background: rgba(13, 27, 42, 0.8) !important;
-        border: 1px solid rgba(0, 240, 255, 0.2) !important;
-        border-radius: 20px !important;
-        padding: 8px !important;
-        gap: 12px !important;
-    }
-
-    button[data-baseweb="tab"] {
-        background: rgba(255, 255, 255, 0.03) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-        border-radius: 14px !important;
-        color: #94a3b8 !important;
-        font-weight: 700 !important;
-        padding: 10px 20px !important;
-        transition: all 0.3s ease !important;
-    }
-
-    button[data-baseweb="tab"]:hover {
-        background: rgba(0, 240, 255, 0.1) !important;
-        color: #00f0ff !important;
-        border-color: rgba(0, 240, 255, 0.3) !important;
-    }
-
-    button[aria-selected="true"] {
-        background: linear-gradient(135deg, #00f0ff 0%, #0072ff 100%) !important;
-        color: #000000 !important;
-        font-weight: 800 !important;
-        border: none !important;
-        box-shadow: 0 4px 20px rgba(0, 240, 255, 0.4) !important;
-        transform: translateY(-2px);
+    /* ENCABEZADOS DE SECCIONES Y MODULOS */
+    .section-header {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 22px;
+        font-weight: 700;
+        color: #00f0ff;
+        border-bottom: 2px solid rgba(0, 240, 255, 0.3);
+        padding-bottom: 8px;
+        margin-bottom: 20px;
+        letter-spacing: 0.5px;
     }
 
     /* TARJETAS Y FORMULARIOS */
     .card-3d, [data-testid="stForm"] {
-        background: rgba(10, 16, 30, 0.85);
+        background: rgba(10, 18, 32, 0.85);
         backdrop-filter: blur(14px);
         border-radius: 20px;
         padding: 24px;
         margin-bottom: 20px;
-        border: 1px solid rgba(0, 240, 255, 0.25);
+        border: 1px solid rgba(0, 240, 255, 0.2);
     }
 
     .stButton > button {
@@ -182,7 +179,7 @@ st.markdown("""
         transform: scale(1.02);
     }
 
-    /* BOTÓN WHATSAPP CON EFECTO BRILLANTE */
+    /* BOTÓN WHATSAPP BRILLANTE */
     .btn-ws-glow {
         display: flex;
         align-items: center;
@@ -194,17 +191,7 @@ st.markdown("""
         border-radius: 14px;
         padding: 14px 20px;
         font-weight: 800;
-        font-size: 16px;
-        box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4), 0 0 15px rgba(37, 211, 102, 0.6);
-        transition: all 0.3s ease;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .btn-ws-glow:hover {
-        box-shadow: 0 6px 30px rgba(37, 211, 102, 0.8), 0 0 25px rgba(255, 255, 255, 0.5);
-        transform: translateY(-3px) scale(1.02);
-        color: white !important;
+        box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
     }
     </style>
 """, unsafe_allow_html=True)
@@ -215,12 +202,12 @@ st.markdown("""
 if not st.session_state.autenticado:
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown('''
-        <div class="header-title">
+        <div style="text-align: center;">
             <div class="title-electric">BARBERÍA GOD'S TIME</div>
         </div>
     ''', unsafe_allow_html=True)
     
-    st.markdown("<p style='text-align: center; color: #00f0ff; font-weight: 700; font-size: 18px; margin-bottom: 30px;'>🔥 ¡Eleva tu presencia! El corte perfecto en el momento exacto. ⚡</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #00f0ff; font-weight: 700; font-size: 18px; margin-top: 10px; margin-bottom: 30px;'>🔥 ¡Eleva tu presencia! El corte perfecto en el momento exacto. ⚡</p>", unsafe_allow_html=True)
 
     tab_login, tab_cita_cliente = st.tabs(["ACCESO PERSONAL", "AGENDAR CITA"])
 
@@ -291,39 +278,48 @@ if not st.session_state.autenticado:
                     st.error("Por favor completa tu nombre y número de teléfono.")
 
 # ---------------------------------------------------------
-# VISTA 2: PANEL PRINCIPAL ADMINISTRATIVO
+# VISTA 2: PANEL PRINCIPAL (MENÚ LATERAL VERTICAL DE ARRIBA A ABAJO)
 # ---------------------------------------------------------
 else:
     user_info = USUARIOS.get(st.session_state.usuario_actual, {"rol": "invitado"})
     es_admin = user_info["rol"] == "admin"
 
-    col_t, col_l = st.columns([4, 1])
-    with col_t:
-        st.markdown(f'''
-            <div class="header-title" style="justify-content: flex-start;">
-                <div class="title-electric" style="font-size:26px;">BARBERÍA GOD'S TIME</div>
-                <span style="margin-left: 15px; color: #94a3b8; font-weight: 600;">(Conectado como: <b style="color:#00f0ff;">{st.session_state.usuario_actual}</b>)</span>
+    # SIDEBAR: MENÚ DE NAVEGACIÓN VERTICAL
+    with st.sidebar:
+        st.markdown('''
+            <div style="text-align: center; padding: 10px 0;">
+                <div class="title-electric" style="font-size: 22px;">GOD's TIME</div>
             </div>
         ''', unsafe_allow_html=True)
-    with col_l:
+        st.markdown(f"<p style='text-align: center; color: #94a3b8; font-size: 13px;'>Barbero: <b style='color:#00f0ff;'>{st.session_state.usuario_actual}</b></p>", unsafe_allow_html=True)
+        st.markdown("---")
+        
+        st.markdown("<p style='font-size: 12px; color: #00f0ff; font-weight: 800; letter-spacing: 1px; margin-bottom: 8px;'>MENÚ PRINCIPAL</p>", unsafe_allow_html=True)
+        
+        # OPCIONES VERTICALES SIN DESLIZAR
+        opcion_menu = st.radio(
+            label="Navegación",
+            options=[
+                "🏠 Panel General", 
+                "✂️ Registrar Corte", 
+                "💈 Historial Barberos", 
+                "📅 Citas & WhatsApp", 
+                "⚙️ Administración"
+            ],
+            label_visibility="collapsed"
+        )
+        
+        st.markdown("<br><br>", unsafe_allow_html=True)
         if st.button("🚪 Cerrar Sesión"):
             st.session_state.autenticado = False
             st.session_state.usuario_actual = ""
             st.rerun()
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    # --- CONTENIDO SEGÚN LA SECCIÓN SELECCIONADA EN EL MENÚ VERTICAL ---
 
-    tab_inicio, tab_cortes, tab_barberos, tab_citas, tab_admin = st.tabs([
-        "🏠 PANEL PRINCIPAL", 
-        "✂️ REGISTRAR CORTE", 
-        "💈 REGISTRO BARBEROS", 
-        "📅 CITAS & WHATSAPP",
-        "⚙️ ADMINISTRACIÓN"
-    ])
-
-    # 1. PANEL PRINCIPAL
-    with tab_inicio:
-        st.markdown("### 📊 Métricas Operativas")
+    # 1. PANEL GENERAL
+    if opcion_menu == "🏠 Panel General":
+        st.markdown('<div class="section-header">🏠 PANEL GENERAL DE LA BARBERÍA</div>', unsafe_allow_html=True)
         df_cortes = pd.DataFrame(st.session_state.cortes_db)
         
         c1, c2, c3 = st.columns(3)
@@ -339,7 +335,7 @@ else:
         with c3:
             st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Citas Agendadas</h4><h2 style="margin:5px 0 0 0;">{citas_pendientes}</h2></div>', unsafe_allow_html=True)
 
-        st.markdown("### 💵 Lista de Servicios y Precios")
+        st.markdown('<div class="section-header" style="margin-top: 30px;">💵 TARIFA DE SERVICIOS</div>', unsafe_allow_html=True)
         precios_tabla = [
             {"Servicio / Corte": k, "Precio ($)": f"${v:.2f}", "Precio (BS)": f"{v * TASA_BCV:.2f} BS"}
             for k, v in PRECIOS_CORTES.items()
@@ -347,8 +343,8 @@ else:
         st.table(pd.DataFrame(precios_tabla))
 
     # 2. REGISTRAR CORTE
-    with tab_cortes:
-        st.markdown("### ✂️ Registrar Nuevo Corte")
+    elif opcion_menu == "✂️ Registrar Corte":
+        st.markdown('<div class="section-header">✂️ REGISTRO DE NUEVO CORTE</div>', unsafe_allow_html=True)
         with st.form("form_corte"):
             col1, col2 = st.columns(2)
             with col1:
@@ -364,7 +360,7 @@ else:
                 metodo_pago = st.selectbox("Método de Pago", METODOS_PAGO)
                 referencia_pago = st.text_input("N° de Referencia / Transacción", placeholder="N/A para Efectivo")
 
-            btn_guardar = st.form_submit_button("GUARDAR CORTE")
+            btn_guardar = st.form_submit_button("GUARDAR CORTE Y REGISTRAR")
             
             if btn_guardar:
                 ref_final = referencia_pago.strip() if referencia_pago.strip() else ("N/A" if metodo_pago == "EFECTIVO" else "Sin ref.")
@@ -383,9 +379,9 @@ else:
                 guardar_datos(CORTES_FILE, st.session_state.cortes_db)
                 st.success(f"Corte registrado a {barbero_sel} correctamente (${precio_corte_usd:.2f} / {precio_corte_bs:.2f} BS) vía {metodo_pago}.")
 
-    # 3. REGISTRO POR BARBERO
-    with tab_barberos:
-        st.markdown("### 💈 Historial por Barbero")
+    # 3. HISTORIAL POR BARBERO
+    elif opcion_menu == "💈 Historial Barberos":
+        st.markdown('<div class="section-header">💈 REGISTRO Y RENDIMIENTO POR BARBERO</div>', unsafe_allow_html=True)
         idx_filtro = BARBEROS.index(st.session_state.usuario_actual) if st.session_state.usuario_actual in BARBEROS else 0
         barbero_filtro = st.selectbox("Selecciona un Barbero", BARBEROS, index=idx_filtro, key="filtro_barbero")
         
@@ -399,13 +395,13 @@ else:
                 total_bs = total_usd * TASA_BCV
                 st.info(f"Total acumulado por **{barbero_filtro}**: **${total_usd:.2f} USD** / **{total_bs:.2f} BS** ({len(df_filtrado)} cortes)")
             else:
-                st.warning(f"No hay registros para {barbero_filtro}.")
+                st.warning(f"No hay registros de cortes para {barbero_filtro}.")
         else:
-            st.write("No hay datos de cortes.")
+            st.write("No hay datos de cortes registrados aún.")
 
     # 4. CITAS Y WHATSAPP
-    with tab_citas:
-        st.markdown("### 📅 Agendar Nueva Cita (Interno)")
+    elif opcion_menu == "📅 Citas & WhatsApp":
+        st.markdown('<div class="section-header">📅 GESTIÓN DE CITAS Y RECORDATORIOS POR WHATSAPP</div>', unsafe_allow_html=True)
         col_f1, col_f2 = st.columns(2)
         with col_f1:
             nombre_c = st.text_input("Nombre del Cliente")
@@ -443,17 +439,16 @@ else:
                     </a>
                 ''', unsafe_allow_html=True)
 
-        st.markdown("---")
-        st.markdown("### 📋 Citas Registradas")
+        st.markdown('<div class="section-header" style="margin-top:30px;">📋 CITAS REGISTRADAS</div>', unsafe_allow_html=True)
         if st.session_state.citas_db:
             st.dataframe(pd.DataFrame(st.session_state.citas_db), use_container_width=True)
 
-    # 5. ADMINISTRACIÓN (RESTRICCIÓN DE PERMISOS)
-    with tab_admin:
-        st.markdown("### ⚙️ Panel de Control del Administrador")
+    # 5. ADMINISTRACIÓN
+    elif opcion_menu == "⚙️ Administración":
+        st.markdown('<div class="section-header">⚙️ PANEL DE ADMINISTRACIÓN</div>', unsafe_allow_html=True)
         
         if es_admin:
-            st.warning("⚠️ **Atención:** La siguiente opción borrará permanentemente las citas y cortes.")
+            st.warning("⚠️ **Atención:** La siguiente opción borrará permanentemente las citas y los registros de cortes.")
             if st.button("🔴 REINICIAR TODO EL HISTORIAL"):
                 st.session_state.cortes_db = []
                 st.session_state.citas_db = []
