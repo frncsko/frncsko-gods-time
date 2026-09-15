@@ -40,6 +40,9 @@ USUARIOS = {
     "Jonder": {"clave": "barbero1", "rol": "barbero"}
 }
 
+# TASA DE CAMBIO DE REFERENCIA (BS / USD)
+TASA_BCV = 36.50  # Puedes ajustar este valor según la tasa del día
+
 PRECIOS_CORTES = {
     "Corte Clásico": 10.0,
     "Degradado / Fade": 12.0,
@@ -51,14 +54,14 @@ PRECIOS_CORTES = {
 BARBEROS = ["Francisco", "Jonder", "Barbero 3"]
 METODOS_PAGO = ["EFECTIVO", "PAGO MOVIL", "BINANCE"]
 
-# GENERADOR DE OPICONES DE HORAS (AM / PM)
+# GENERADOR DE OPCIONES DE HORAS (AM / PM)
 OPCIONES_HORAS = [
     time(h, m).strftime("%I:%M %p") 
     for h in range(8, 20) 
     for m in (0, 30)
 ]
 
-# ESTILOS MODERNOS
+# ESTILOS MODERNOS Y ANIMACIONES CSS
 st.markdown("""
     <style>
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
@@ -72,7 +75,30 @@ st.markdown("""
         color: #e2e8f0;
     }
 
-    /* CABECERA */
+    /* ANIMACIÓN LATIDO Y BRILLO NEÓN DEL TÍTULO */
+    @keyframes heartbeat-glow {
+        0% {
+            transform: scale(1);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5), 0 0 20px rgba(0, 240, 255, 0.3);
+        }
+        14% {
+            transform: scale(1.05);
+            text-shadow: 0 0 25px rgba(0, 240, 255, 0.9), 0 0 40px rgba(0, 240, 255, 0.7);
+        }
+        28% {
+            transform: scale(1);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5), 0 0 20px rgba(0, 240, 255, 0.3);
+        }
+        42% {
+            transform: scale(1.03);
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.8), 0 0 30px rgba(0, 240, 255, 0.6);
+        }
+        70% {
+            transform: scale(1);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5), 0 0 20px rgba(0, 240, 255, 0.3);
+        }
+    }
+
     .header-title {
         display: flex;
         align-items: center;
@@ -81,12 +107,13 @@ st.markdown("""
     }
 
     .title-electric {
-        font-size: 34px;
+        font-size: 36px;
         font-weight: 900;
         color: #00f0ff !important;
         text-align: center;
-        letter-spacing: 1.5px;
-        text-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
+        letter-spacing: 2px;
+        display: inline-block;
+        animation: heartbeat-glow 2.5s infinite ease-in-out;
     }
 
     h1, h2, h3 {
@@ -189,7 +216,7 @@ if not st.session_state.autenticado:
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown('''
         <div class="header-title">
-            <div class="title-electric">BARBERÍA GOD\'S TIME</div>
+            <div class="title-electric">BARBERÍA GOD'S TIME</div>
         </div>
     ''', unsafe_allow_html=True)
     
@@ -231,7 +258,7 @@ if not st.session_state.autenticado:
 
                 servicio_c = st.selectbox("Servicio solicitado", list(PRECIOS_CORTES.keys()), key="servicio_cita_login")
                 
-                btn_agendar_login = st.form_submit_button("CONCORDAR CITA")
+                btn_agendar_login = st.form_submit_button("REGISTRAR CITA")
 
             if btn_agendar_login:
                 if nombre_c and telefono_c:
@@ -246,7 +273,10 @@ if not st.session_state.autenticado:
                     st.session_state.citas_db.append(cita)
                     guardar_datos(CITAS_FILE, st.session_state.citas_db)
                     
-                    mensaje = f"Hola {nombre_c}, confirmamos tu cita en Barbería God's Time el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c}."
+                    precio_usd = PRECIOS_CORTES[servicio_c]
+                    precio_bs = precio_usd * TASA_BCV
+                    
+                    mensaje = f"Hola {nombre_c}, confirmamos tu cita en Barbería God's Time el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c} (${precio_usd:.2f} / {precio_bs:.2f} BS)."
                     mensaje_encoded = urllib.parse.quote(mensaje)
                     phone_clean = telefono_c.replace("+", "").replace(" ", "").replace("-", "")
                     ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
@@ -271,7 +301,7 @@ else:
     with col_t:
         st.markdown(f'''
             <div class="header-title" style="justify-content: flex-start;">
-                <div class="title-electric" style="font-size:24px;">BARBERÍA GOD\'S TIME</div>
+                <div class="title-electric" style="font-size:26px;">BARBERÍA GOD'S TIME</div>
                 <span style="margin-left: 15px; color: #94a3b8; font-weight: 600;">(Conectado como: <b style="color:#00f0ff;">{st.session_state.usuario_actual}</b>)</span>
             </div>
         ''', unsafe_allow_html=True)
@@ -298,19 +328,23 @@ else:
         
         c1, c2, c3 = st.columns(3)
         total_cortes = len(df_cortes) if not df_cortes.empty else 0
-        total_ingresos = df_cortes["Precio"].sum() if not df_cortes.empty else 0.0
+        total_ingresos_usd = df_cortes["Precio ($)"].sum() if (not df_cortes.empty and "Precio ($)" in df_cortes.columns) else (df_cortes["Precio"].sum() if not df_cortes.empty else 0.0)
+        total_ingresos_bs = total_ingresos_usd * TASA_BCV
         citas_pendientes = len(st.session_state.citas_db)
 
         with c1:
             st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Total Cortes</h4><h2 style="margin:5px 0 0 0;">{total_cortes}</h2></div>', unsafe_allow_html=True)
         with c2:
-            st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Ingresos Totales</h4><h2 style="margin:5px 0 0 0;">${total_ingresos:.2f}</h2></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Ingresos Totales</h4><h2 style="margin:5px 0 0 0; font-size: 22px;">${total_ingresos_usd:.2f} <span style="color:#00f0ff; font-size:16px;">({total_ingresos_bs:.2f} BS)</span></h2></div>', unsafe_allow_html=True)
         with c3:
             st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Citas Agendadas</h4><h2 style="margin:5px 0 0 0;">{citas_pendientes}</h2></div>', unsafe_allow_html=True)
 
         st.markdown("### 💵 Lista de Servicios y Precios")
-        precios_df = pd.DataFrame(list(PRECIOS_CORTES.items()), columns=["Servicio / Corte", "Precio ($)"])
-        st.table(precios_df)
+        precios_tabla = [
+            {"Servicio / Corte": k, "Precio ($)": f"${v:.2f}", "Precio (BS)": f"{v * TASA_BCV:.2f} BS"}
+            for k, v in PRECIOS_CORTES.items()
+        ]
+        st.table(pd.DataFrame(precios_tabla))
 
     # 2. REGISTRAR CORTE
     with tab_cortes:
@@ -321,7 +355,9 @@ else:
                 idx_barbero = BARBEROS.index(st.session_state.usuario_actual) if st.session_state.usuario_actual in BARBEROS else 0
                 barbero_sel = st.selectbox("Selecciona el Barbero", BARBEROS, index=idx_barbero)
                 corte_sel = st.selectbox("Tipo de Corte / Servicio", list(PRECIOS_CORTES.keys()))
-                precio_corte = st.number_input("Precio ($)", value=float(PRECIOS_CORTES[corte_sel]), step=1.0)
+                precio_corte_usd = st.number_input("Precio ($)", value=float(PRECIOS_CORTES[corte_sel]), step=1.0)
+                precio_corte_bs = precio_corte_usd * TASA_BCV
+                st.info(f"Monto equivalente en Bolívares: **{precio_corte_bs:.2f} BS**")
                 cliente_nombre = st.text_input("Nombre del Cliente (Opcional)")
             
             with col2:
@@ -337,14 +373,15 @@ else:
                     "Fecha": datetime.now().strftime("%Y-%m-%d %I:%M:%S %p"),
                     "Barbero": barbero_sel,
                     "Servicio": corte_sel,
-                    "Precio": precio_corte,
+                    "Precio ($)": precio_corte_usd,
+                    "Precio (BS)": round(precio_corte_bs, 2),
                     "Método Pago": metodo_pago,
                     "Referencia": ref_final,
                     "Cliente": cliente_nombre if cliente_nombre else "Cliente Ocasional"
                 }
                 st.session_state.cortes_db.append(nuevo_registro)
                 guardar_datos(CORTES_FILE, st.session_state.cortes_db)
-                st.success(f"Corte registrado a {barbero_sel} correctamente vía {metodo_pago}.")
+                st.success(f"Corte registrado a {barbero_sel} correctamente (${precio_corte_usd:.2f} / {precio_corte_bs:.2f} BS) vía {metodo_pago}.")
 
     # 3. REGISTRO POR BARBERO
     with tab_barberos:
@@ -357,7 +394,10 @@ else:
             df_filtrado = df_cortes[df_cortes["Barbero"] == barbero_filtro]
             if not df_filtrado.empty:
                 st.dataframe(df_filtrado, use_container_width=True)
-                st.info(f"Total acumulado por **{barbero_filtro}**: **${df_filtrado['Precio'].sum():.2f}** ({len(df_filtrado)} cortes)")
+                col_precio = "Precio ($)" if "Precio ($)" in df_filtrado.columns else "Precio"
+                total_usd = df_filtrado[col_precio].sum()
+                total_bs = total_usd * TASA_BCV
+                st.info(f"Total acumulado por **{barbero_filtro}**: **${total_usd:.2f} USD** / **{total_bs:.2f} BS** ({len(df_filtrado)} cortes)")
             else:
                 st.warning(f"No hay registros para {barbero_filtro}.")
         else:
@@ -376,7 +416,7 @@ else:
             hora_c = st.selectbox("Hora de la cita", OPCIONES_HORAS, key="hora_cita_admin")
             servicio_c = st.selectbox("Servicio solicitado", list(PRECIOS_CORTES.keys()), key="servicio_cita")
             
-        if st.button("AGENDAR Y NOTIFICAR POR WHATSAPP"):
+        if st.button("REGISTRAR CITA Y NOTIFICAR POR WHATSAPP"):
             if nombre_c and telefono_c:
                 cita = {
                     "Cliente": nombre_c,
@@ -389,7 +429,10 @@ else:
                 st.session_state.citas_db.append(cita)
                 guardar_datos(CITAS_FILE, st.session_state.citas_db)
                 
-                mensaje = f"Hola {nombre_c}, confirmamos tu cita en Barbería God's Time el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c}."
+                precio_usd = PRECIOS_CORTES[servicio_c]
+                precio_bs = precio_usd * TASA_BCV
+                
+                mensaje = f"Hola {nombre_c}, confirmamos tu cita en Barbería God's Time el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c} (${precio_usd:.2f} / {precio_bs:.2f} BS)."
                 mensaje_encoded = urllib.parse.quote(mensaje)
                 phone_clean = telefono_c.replace("+", "").replace(" ", "").replace("-", "")
                 ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
