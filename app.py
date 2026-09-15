@@ -280,13 +280,13 @@ if not st.session_state.autenticado:
                     st.error("Por favor completa tu nombre y número de teléfono.")
 
 # ---------------------------------------------------------
-# VISTA 2: PANEL PRINCIPAL (MENÚ CON ÍCONOS MODERNOS)
+# VISTA 2: PANEL PRINCIPAL (MENÚ LATERAL)
 # ---------------------------------------------------------
 else:
     user_info = USUARIOS.get(st.session_state.usuario_actual, {"rol": "invitado"})
     es_admin = user_info["rol"] == "admin"
 
-    # SIDEBAR: MENÚ DE NAVEGACIÓN CON ÍCONOS MODERNOS
+    # SIDEBAR: MENÚ DE NAVEGACIÓN Y TASA DEL DÓLAR
     with st.sidebar:
         st.markdown('''
             <div style="text-align: center; padding: 10px 0;">
@@ -294,12 +294,9 @@ else:
             </div>
         ''', unsafe_allow_html=True)
         st.markdown(f"<p style='text-align: center; color: #94a3b8; font-size: 13px;'>Barbero: <b style='color:#00f0ff;'>{st.session_state.usuario_actual}</b></p>", unsafe_allow_html=True)
-        st.markdown(f"<p style='text-align: center; color: #00f0ff; font-weight: 700; font-size: 13px;'>Tasa del día: {st.session_state.tasa_bcv:.2f} BS</p>", unsafe_allow_html=True)
         st.markdown("---")
         
-        st.markdown("<p style='font-size: 12px; color: #00f0ff; font-weight: 800; letter-spacing: 1px; margin-bottom: 8px;'>MENÚ PRINCIPAL</p>", unsafe_allow_html=True)
-        
-        # OPCIONES CON ÍCONOS VECTORIALES MODERNOS
+        # MENÚ PRINCIPAL SIN ETIQUETA "NAVEGACIÓN"
         opciones_menu = {
             "📊  Panel General": "Panel General",
             "✂️  Registrar Corte": "Registrar Corte",
@@ -309,14 +306,25 @@ else:
         }
         
         seleccion_label = st.radio(
-            label="Navegación",
+            label="", 
             options=list(opciones_menu.keys()),
             label_visibility="collapsed"
         )
         
         opcion_menu = opciones_menu[seleccion_label]
         
-        st.markdown("<br><br>", unsafe_allow_html=True)
+        st.markdown("---")
+        
+        # SECCIÓN DE ACTUALIZACIÓN DE TASA DEL DÓLAR
+        st.markdown("<p style='font-size: 13px; color: #00f0ff; font-weight: 800; margin-bottom: 5px;'>💵 TASA DEL DÓLAR ($)</p>", unsafe_allow_html=True)
+        nueva_tasa_input = st.number_input("Tasa BS", value=float(st.session_state.tasa_bcv), step=0.10, label_visibility="collapsed")
+        if st.button("ACTUALIZAR TASA DEL DÓLAR"):
+            st.session_state.tasa_bcv = nueva_tasa_input
+            guardar_datos(CONFIG_FILE, {"tasa_bcv": nueva_tasa_input})
+            st.success(f"Tasa actualizada: {nueva_tasa_input:.2f} BS")
+            st.rerun()
+
+        st.markdown("<br>", unsafe_allow_html=True)
         if st.button("🚪 Cerrar Sesión"):
             st.session_state.autenticado = False
             st.session_state.usuario_actual = ""
@@ -468,15 +476,6 @@ else:
         st.markdown('<div class="section-header">⚙️ PANEL DE ADMINISTRACIÓN</div>', unsafe_allow_html=True)
         
         if es_admin:
-            st.markdown("### Configuración de Tasa de Cambio")
-            nueva_tasa = st.number_input("Tasa del día (BS / USD)", value=float(st.session_state.tasa_bcv), step=0.10)
-            if st.button("ACTUALIZAR TASA EN EL SISTEMA"):
-                st.session_state.tasa_bcv = nueva_tasa
-                guardar_datos(CONFIG_FILE, {"tasa_bcv": nueva_tasa})
-                st.success(f"Tasa del día actualizada a {nueva_tasa:.2f} BS")
-                st.rerun()
-
-            st.markdown("---")
             st.warning("⚠️ **Atención:** La siguiente opción borrará permanentemente las citas y los registros de cortes.")
             if st.button("REINICIAR TODO EL HISTORIAL"):
                 st.session_state.cortes_db = []
@@ -486,4 +485,4 @@ else:
                 st.success("El historial completo ha sido borrado.")
                 st.rerun()
         else:
-            st.error("🔒 **Acceso restringido:** Tu usuario (Jonder) no posee permisos para modificar la tasa o reiniciar el historial de la barbería.")
+            st.error("🔒 **Acceso restringido:** Tu usuario (Jonder) no posee permisos para reiniciar el historial de la barbería.")
