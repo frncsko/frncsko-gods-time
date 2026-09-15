@@ -1,41 +1,14 @@
-
-import streamlit as st
-import extra_streamlit_components as stx
-
-# 1. Configuración de página (SIEMPRE la primera orden)
-st.set_page_config(
-    page_title="Barbería Gods Time",
-    page_icon="✂️",
-    layout="centered"
-)
-
-# 2. Inicializar gestor de cookies
-cookie_manager = stx.CookieManager()
-
-# 3. Leer cookie guardada
-usuario_cookie = cookie_manager.get(cookie="usuario_sesion")
-
-if usuario_cookie:
-    st.session_state["autenticado"] = True
-    st.session_state["usuario"] = usuario_cookie
-
-# Importaciones adicionales
 import base64
 import os
 import urllib.parse
 import pandas as pd
-import time
-import os
-import urllib.parse
-import pandas as pd
+import streamlit as st
 
-col_vacia, col_notif = st.columns([0.85, 0.15]) # Divide la pantalla para mover la campana a la derecha
+# 1. Configuración inicial de la página (Diseño compacto tipo app)
+st.set_page_config(
+    page_title="Barbería Gods Time", page_icon="🪒", layout="centered"
+)
 
-with col_notif:
-    with st.popover("🔔", help="Ver notificaciones"):
-        st.subheader("Notificaciones")
-        st.write("📌 **Nueva Reserva:** Carlos a las 3:00 PM")
-        st.write("📌 **Recordatorio:** Revisar agenda de hoy")
 # 2. Cargar imagen de fondo local con manejo de errores
 bg_css = ""
 try:
@@ -182,14 +155,16 @@ USUARIOS_VALIDOS = {
     "jonder": "barbero2",
 }
 
-lista_barberos = ["Barbero Francisco", "Barbero Jonder"]
+lista_barberos = ["Barbero DIONIMAR", "Barbero Jonder"]
 servicios_lista = [
     "CORTE",
     "BARBA",
-    "CORTE CLASICO / BARBA",
-    "Corte + Mascarilla",
-    "Corte + Barba + Cejas + Mascarilla + Lavado(VIP)",
-   
+    "CORTE / BARBA",
+    "Corte + Cejas",
+    "Corte + Barba + Cejas (VIP)",
+    "AFEITADA DE JOYO",
+    "AFEITADA DE PENE CON DISEÑO(VIP)",
+    "MAMADA CON GARGARA(VIP)",
 ]
 
 
@@ -333,8 +308,7 @@ if not st.session_state.autenticado:
             )
 
             if submit_pub and cli_pub and tel_pub_local:
-                tel_completo = str(armar_telefono_wsp(cod_pub, tel_pub_local)).split(".")[0]
-
+                tel_completo = armar_telefono_wsp(cod_pub, tel_pub_local)
                 fecha_hora_str = f"{fecha_pub} {hora_pub.strftime('%H:%M')}"
 
                 nueva_cita = pd.DataFrame(
@@ -374,12 +348,12 @@ if not st.session_state.autenticado:
                 )
 
         st.write("")
-        if st.button("⬅️ REGRESAR AL INICIO"):
+        if st.button("⬅️ Volver al Inicio de Sesión"):
             st.session_state.ver_agendar_publico = False
             st.rerun()
 
     else:
-        st.subheader("🔑 Acceso")
+        st.subheader("🔑 Iniciar Sesión")
         with st.form("form_login"):
             usuario_input = (
                 st.text_input(
@@ -394,10 +368,10 @@ if not st.session_state.autenticado:
                 value=st.session_state.password_recordado,
             )
             recordar_credenciales = st.checkbox(
-                "Recordar usuario/contraseña",
+                "Recordar usuario y contraseña",
                 value=bool(st.session_state.usuario_recordado),
             )
-            btn_login = st.form_submit_button("Entrar al Sistema")
+            btn_login = st.form_submit_button("Ingresar al Sistema")
 
             if btn_login:
                 if (
@@ -444,25 +418,15 @@ st.markdown("---")
 
 # Barra superior de perfil y cierre de sesión compacto
 col_user_info, col_logout = st.columns([3, 1])
-
 with col_user_info:
-    st.markdown(f"👤 **Conectado como:** `{st.session_state.get('usuario', 'Admin')}`")
-
+    st.markdown(f"👤 **Conectado como:** `{st.session_state.usuario_actual}`")
 with col_logout:
-    if st.button("LOG OUT", key="btn_logout"):
-        cookie_manager.delete("usuario_sesion", key="logout_cookie")
-        st.session_state["autenticado"] = False
-        st.session_state["usuario"] = None
-        time.sleep(0.5)
+    if st.button("🚪 Salir"):
+        st.session_state.autenticado = False
+        st.session_state.usuario_actual = ""
+        st.session_state.ver_agendar_publico = False
         st.rerun()
 
-with col_logout:
-    if st.button("LOG OUT"):
-        cookie_manager.delete("usuario_sesion", key="logout_cookie")
-        st.session_state["autenticado"] = False
-        st.session_state["usuario"] = None
-        time.sleep(0.5)
-        st.rerun()
 st.markdown("")
 
 # --- NUEVO MENÚ EN TARJETAS TIPO APP ---
@@ -530,7 +494,7 @@ opcion_menu = st.session_state.menu_actual
 
 # 1. CAJA Y RESUMEN
 if opcion_menu == "📊 Caja y Resumen":
-    st.header("REGISTRO DIARIO")
+    st.header("Caja del Día y Resumen Financiero")
 
     df_servicios = st.session_state.servicios_realizados
     df_gastos = st.session_state.gastos_barberia
@@ -671,9 +635,9 @@ elif opcion_menu == "📅 Agendar Citas":
                 f"📅 {row['Fecha y Hora']} - {row['Cliente']} ({row['Barbero']}) - [{row.get('Estado', 'Pendiente')}]"
             ):
                 st.write(f"**Servicio:** {row['Servicio']}")
-                st.write(f"**Teléfono:** {str(row['Teléfono']).split('.')[0]}")
+                st.write(f"**Teléfono:** +{row['Teléfono']}")
 
-                tel_clean = "".join(filter(str.isdigit, str(row["Teléfono"]).split(".")[0]))
+                tel_clean = "".join(filter(str.isdigit, str(row["Teléfono"])))
                 if tel_clean and tel_clean != "NA":
                     msg_texto = (
                         f"Estimado/a *{row['Cliente']}*,\n\n"
