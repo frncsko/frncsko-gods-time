@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime, date
+from datetime import datetime, date, time
 import urllib.parse
 import json
 import os
@@ -50,6 +50,13 @@ PRECIOS_CORTES = {
 
 BARBEROS = ["Francisco", "Jonder", "Barbero 3"]
 METODOS_PAGO = ["EFECTIVO", "PAGO MOVIL", "BINANCE"]
+
+# GENERADOR DE OPICONES DE HORAS (AM / PM)
+OPCIONES_HORAS = [
+    time(h, m).strftime("%I:%M %p") 
+    for h in range(8, 20) 
+    for m in (0, 30)
+]
 
 # ESTILOS MODERNOS
 st.markdown("""
@@ -188,7 +195,6 @@ if not st.session_state.autenticado:
     
     st.markdown("<p style='text-align: center; color: #00f0ff; font-weight: 700; font-size: 18px; margin-bottom: 30px;'>🔥 ¡Eleva tu presencia! El corte perfecto en el momento exacto. ⚡</p>", unsafe_allow_html=True)
 
-    # Pestañas del Login sin íconos de reloj ni agenda
     tab_login, tab_cita_cliente = st.tabs(["ACCESO PERSONAL", "AGENDAR CITA"])
 
     with tab_login:
@@ -216,7 +222,13 @@ if not st.session_state.autenticado:
                 nombre_c = st.text_input("Tu Nombre Completo")
                 telefono_c = st.text_input("Teléfono (Ej: +584120000000)")
                 barbero_c = st.selectbox("Barbero de preferencia", BARBEROS, key="barbero_cita_login")
-                fecha_c = st.date_input("Fecha de la cita", min_value=date.today(), key="fecha_cita_login")
+                
+                col_f1, col_h1 = st.columns(2)
+                with col_f1:
+                    fecha_c = st.date_input("Fecha de la cita", min_value=date.today(), key="fecha_cita_login")
+                with col_h1:
+                    hora_c = st.selectbox("Hora de la cita", OPCIONES_HORAS, key="hora_cita_login")
+
                 servicio_c = st.selectbox("Servicio solicitado", list(PRECIOS_CORTES.keys()), key="servicio_cita_login")
                 
                 btn_agendar_login = st.form_submit_button("CONCORDAR CITA")
@@ -228,12 +240,13 @@ if not st.session_state.autenticado:
                         "Teléfono": telefono_c,
                         "Barbero": barbero_c,
                         "Fecha": str(fecha_c),
+                        "Hora": hora_c,
                         "Servicio": servicio_c
                     }
                     st.session_state.citas_db.append(cita)
                     guardar_datos(CITAS_FILE, st.session_state.citas_db)
                     
-                    mensaje = f"Hola {nombre_c}, confirmamos tu cita en Barbería God's Time el {fecha_c} con {barbero_c} para {servicio_c}."
+                    mensaje = f"Hola {nombre_c}, confirmamos tu cita en Barbería God's Time el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c}."
                     mensaje_encoded = urllib.parse.quote(mensaje)
                     phone_clean = telefono_c.replace("+", "").replace(" ", "").replace("-", "")
                     ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
@@ -360,6 +373,7 @@ else:
             barbero_c = st.selectbox("Barbero de preferencia", BARBEROS, key="barbero_cita")
         with col_f2:
             fecha_c = st.date_input("Fecha de la cita", min_value=date.today())
+            hora_c = st.selectbox("Hora de la cita", OPCIONES_HORAS, key="hora_cita_admin")
             servicio_c = st.selectbox("Servicio solicitado", list(PRECIOS_CORTES.keys()), key="servicio_cita")
             
         if st.button("AGENDAR Y NOTIFICAR POR WHATSAPP"):
@@ -369,11 +383,13 @@ else:
                     "Teléfono": telefono_c,
                     "Barbero": barbero_c,
                     "Fecha": str(fecha_c),
+                    "Hora": hora_c,
                     "Servicio": servicio_c
                 }
                 st.session_state.citas_db.append(cita)
                 guardar_datos(CITAS_FILE, st.session_state.citas_db)
-                mensaje = f"Hola {nombre_c}, confirmamos tu cita en Barbería God's Time el {fecha_c} con {barbero_c} para {servicio_c}."
+                
+                mensaje = f"Hola {nombre_c}, confirmamos tu cita en Barbería God's Time el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c}."
                 mensaje_encoded = urllib.parse.quote(mensaje)
                 phone_clean = telefono_c.replace("+", "").replace(" ", "").replace("-", "")
                 ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
