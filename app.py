@@ -68,7 +68,7 @@ OPCIONES_HORAS = [
     for m in (0, 30)
 ]
 
-# ESTILOS FUTURISTAS, FUENTES MODERNAS Y ANIMACIONES
+# ESTILOS FUTURISTAS, FUENTES MODERNAS Y ÍCONOS
 st.markdown("""
     <style>
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
@@ -92,26 +92,29 @@ st.markdown("""
     [data-testid="stSidebar"] .stRadio > div {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
     }
 
     [data-testid="stSidebar"] .stRadio label {
         background: rgba(255, 255, 255, 0.03) !important;
         border: 1px solid rgba(0, 240, 255, 0.15) !important;
         border-radius: 14px !important;
-        padding: 12px 16px !important;
+        padding: 14px 18px !important;
         color: #94a3b8 !important;
         font-weight: 700 !important;
         font-size: 15px !important;
         cursor: pointer;
         transition: all 0.3s ease !important;
         width: 100%;
+        display: flex;
+        align-items: center;
     }
 
     [data-testid="stSidebar"] .stRadio label:hover {
         background: rgba(0, 240, 255, 0.1) !important;
         color: #00f0ff !important;
         border-color: rgba(0, 240, 255, 0.4) !important;
+        transform: translateX(4px);
     }
 
     [data-testid="stSidebar"] .stRadio div[aria-checked="true"] + label {
@@ -277,13 +280,13 @@ if not st.session_state.autenticado:
                     st.error("Por favor completa tu nombre y número de teléfono.")
 
 # ---------------------------------------------------------
-# VISTA 2: PANEL PRINCIPAL (MENÚ SIN ÍCONOS)
+# VISTA 2: PANEL PRINCIPAL (MENÚ CON ÍCONOS MODERNOS)
 # ---------------------------------------------------------
 else:
     user_info = USUARIOS.get(st.session_state.usuario_actual, {"rol": "invitado"})
     es_admin = user_info["rol"] == "admin"
 
-    # SIDEBAR: MENÚ DE NAVEGACIÓN VERTICAL SIN ÍCONOS
+    # SIDEBAR: MENÚ DE NAVEGACIÓN CON ÍCONOS MODERNOS
     with st.sidebar:
         st.markdown('''
             <div style="text-align: center; padding: 10px 0;">
@@ -296,28 +299,32 @@ else:
         
         st.markdown("<p style='font-size: 12px; color: #00f0ff; font-weight: 800; letter-spacing: 1px; margin-bottom: 8px;'>MENÚ PRINCIPAL</p>", unsafe_allow_html=True)
         
-        # OPCIONES SIN ÍCONOS
-        opcion_menu = st.radio(
+        # OPCIONES CON ÍCONOS VECTORIALES MODERNOS
+        opciones_menu = {
+            "📊  Panel General": "Panel General",
+            "✂️  Registrar Corte": "Registrar Corte",
+            "💈  Historial Barberos": "Historial Barberos",
+            "📅  Citas y WhatsApp": "Citas y WhatsApp",
+            "⚙️  Administración": "Administración"
+        }
+        
+        seleccion_label = st.radio(
             label="Navegación",
-            options=[
-                "Panel General", 
-                "Registrar Corte", 
-                "Historial Barberos", 
-                "Citas y WhatsApp", 
-                "Administración"
-            ],
+            options=list(opciones_menu.keys()),
             label_visibility="collapsed"
         )
         
+        opcion_menu = opciones_menu[seleccion_label]
+        
         st.markdown("<br><br>", unsafe_allow_html=True)
-        if st.button("Cerrar Sesión"):
+        if st.button("🚪 Cerrar Sesión"):
             st.session_state.autenticado = False
             st.session_state.usuario_actual = ""
             st.rerun()
 
     # 1. PANEL GENERAL
     if opcion_menu == "Panel General":
-        st.markdown('<div class="section-header">PANEL GENERAL DE LA BARBERÍA</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">📊 PANEL GENERAL DE LA BARBERÍA</div>', unsafe_allow_html=True)
         df_cortes = pd.DataFrame(st.session_state.cortes_db)
         
         c1, c2, c3 = st.columns(3)
@@ -333,7 +340,7 @@ else:
         with c3:
             st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Citas Agendadas</h4><h2 style="margin:5px 0 0 0;">{citas_pendientes}</h2></div>', unsafe_allow_html=True)
 
-        st.markdown('<div class="section-header" style="margin-top: 30px;">TARIFA DE SERVICIOS</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header" style="margin-top: 30px;">💵 TARIFA DE SERVICIOS</div>', unsafe_allow_html=True)
         precios_tabla = [
             {"Servicio / Corte": k, "Precio ($)": f"${v:.2f}", "Precio (BS)": f"{v * st.session_state.tasa_bcv:.2f} BS"}
             for k, v in PRECIOS_CORTES.items()
@@ -342,7 +349,7 @@ else:
 
     # 2. REGISTRAR CORTE
     elif opcion_menu == "Registrar Corte":
-        st.markdown('<div class="section-header">REGISTRO DE NUEVO CORTE</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">✂️ REGISTRO DE NUEVO CORTE</div>', unsafe_allow_html=True)
         with st.form("form_corte"):
             col1, col2 = st.columns(2)
             with col1:
@@ -379,7 +386,7 @@ else:
 
     # 3. HISTORIAL Y REGISTRO DE CLIENTES POR BARBERO
     elif opcion_menu == "Historial Barberos":
-        st.markdown('<div class="section-header">HISTORIAL Y REGISTRO DE CLIENTES POR BARBERO</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">💈 HISTORIAL Y REGISTRO DE CLIENTES POR BARBERO</div>', unsafe_allow_html=True)
         idx_filtro = BARBEROS.index(st.session_state.usuario_actual) if st.session_state.usuario_actual in BARBEROS else 0
         barbero_filtro = st.selectbox("Selecciona un Barbero", BARBEROS, index=idx_filtro, key="filtro_barbero")
         
@@ -414,7 +421,7 @@ else:
 
     # 4. CITAS Y WHATSAPP
     elif opcion_menu == "Citas y WhatsApp":
-        st.markdown('<div class="section-header">GESTIÓN DE CITAS Y RECORDATORIOS POR WHATSAPP</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">📅 GESTIÓN DE CITAS Y RECORDATORIOS POR WHATSAPP</div>', unsafe_allow_html=True)
         col_f1, col_f2 = st.columns(2)
         with col_f1:
             nombre_c = st.text_input("Nombre del Cliente")
@@ -458,7 +465,7 @@ else:
 
     # 5. ADMINISTRACIÓN
     elif opcion_menu == "Administración":
-        st.markdown('<div class="section-header">PANEL DE ADMINISTRACIÓN</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">⚙️ PANEL DE ADMINISTRACIÓN</div>', unsafe_allow_html=True)
         
         if es_admin:
             st.markdown("### Configuración de Tasa de Cambio")
