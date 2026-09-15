@@ -5,7 +5,7 @@ import urllib.parse
 import json
 import os
 
-# Configuración de la página (Menú desplegado por defecto)
+# Configuración de la página
 st.set_page_config(
     page_title="Barbería God's Time", 
     layout="wide", 
@@ -15,8 +15,9 @@ st.set_page_config(
 # --- PERSISTENCIA LOCAL DE DATOS ---
 CORTES_FILE = "cortes_data.json"
 CITAS_FILE = "citas_data.json"
+CONFIG_FILE = "config_data.json"
 
-def cargar_datos(archivo, por_defecto=[]):
+def cargar_datos(archivo, por_defecto):
     if os.path.exists(archivo):
         try:
             with open(archivo, "r", encoding="utf-8") as f:
@@ -29,6 +30,7 @@ def guardar_datos(archivo, datos):
     with open(archivo, "w", encoding="utf-8") as f:
         json.dump(datos, f, ensure_ascii=False, indent=4)
 
+# Inicialización de Estados
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 if "usuario_actual" not in st.session_state:
@@ -38,13 +40,15 @@ if "cortes_db" not in st.session_state:
 if "citas_db" not in st.session_state:
     st.session_state.citas_db = cargar_datos(CITAS_FILE, [])
 
+config_cargada = cargar_datos(CONFIG_FILE, {"tasa_bcv": 36.50})
+if "tasa_bcv" not in st.session_state:
+    st.session_state.tasa_bcv = config_cargada.get("tasa_bcv", 36.50)
+
 # CREDENCIALES Y ROLES DE USUARIOS
 USUARIOS = {
     "admin": {"clave": "1234", "rol": "admin"},
     "Jonder": {"clave": "barbero1", "rol": "barbero"}
 }
-
-TASA_BCV = 36.50  # Tasa de referencia en Bolívares
 
 PRECIOS_CORTES = {
     "Corte Clásico": 10.0,
@@ -64,7 +68,7 @@ OPCIONES_HORAS = [
     for m in (0, 30)
 ]
 
-# ESTILOS FUTURISTAS, FUENTES MODERNAS Y LATIDO DEL TÍTULO
+# ESTILOS FUTURISTAS, FUENTES MODERNAS Y ANIMACIONES
 st.markdown("""
     <style>
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
@@ -85,7 +89,6 @@ st.markdown("""
         border-right: 1px solid rgba(0, 240, 255, 0.2) !important;
     }
 
-    /* ESTILO RADIO BUTTONS VERTICALES EN EL SIDEBAR */
     [data-testid="stSidebar"] .stRadio > div {
         display: flex;
         flex-direction: column;
@@ -111,7 +114,6 @@ st.markdown("""
         border-color: rgba(0, 240, 255, 0.4) !important;
     }
 
-    /* SECCIÓN SELECCIONADA EN MENÚ VERTICAL */
     [data-testid="stSidebar"] .stRadio div[aria-checked="true"] + label {
         background: linear-gradient(135deg, #00f0ff 0%, #0072ff 100%) !important;
         color: #000000 !important;
@@ -140,7 +142,6 @@ st.markdown("""
         animation: heartbeat-glow 2.5s infinite ease-in-out;
     }
 
-    /* ENCABEZADOS DE SECCIONES Y MODULOS */
     .section-header {
         font-family: 'Space Grotesk', sans-serif;
         font-size: 22px;
@@ -152,7 +153,6 @@ st.markdown("""
         letter-spacing: 0.5px;
     }
 
-    /* TARJETAS Y FORMULARIOS */
     .card-3d, [data-testid="stForm"] {
         background: rgba(10, 18, 32, 0.85);
         backdrop-filter: blur(14px);
@@ -179,7 +179,6 @@ st.markdown("""
         transform: scale(1.02);
     }
 
-    /* BOTÓN WHATSAPP BRILLANTE */
     .btn-ws-glow {
         display: flex;
         align-items: center;
@@ -261,7 +260,7 @@ if not st.session_state.autenticado:
                     guardar_datos(CITAS_FILE, st.session_state.citas_db)
                     
                     precio_usd = PRECIOS_CORTES[servicio_c]
-                    precio_bs = precio_usd * TASA_BCV
+                    precio_bs = precio_usd * st.session_state.tasa_bcv
                     
                     mensaje = f"Hola {nombre_c}, confirmamos tu cita en Barbería God's Time el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c} (${precio_usd:.2f} / {precio_bs:.2f} BS)."
                     mensaje_encoded = urllib.parse.quote(mensaje)
@@ -271,61 +270,60 @@ if not st.session_state.autenticado:
                     st.success("¡Cita agendada exitosamente!")
                     st.markdown(f'''
                         <a href="{ws_url}" target="_blank" class="btn-ws-glow">
-                            <i class="fab fa-whatsapp" style="font-size: 22px;"></i> Confirmar por WhatsApp
+                            Confirmar por WhatsApp
                         </a>
                     ''', unsafe_allow_html=True)
                 else:
                     st.error("Por favor completa tu nombre y número de teléfono.")
 
 # ---------------------------------------------------------
-# VISTA 2: PANEL PRINCIPAL (MENÚ LATERAL VERTICAL DE ARRIBA A ABAJO)
+# VISTA 2: PANEL PRINCIPAL (MENÚ SIN ÍCONOS)
 # ---------------------------------------------------------
 else:
     user_info = USUARIOS.get(st.session_state.usuario_actual, {"rol": "invitado"})
     es_admin = user_info["rol"] == "admin"
 
-    # SIDEBAR: MENÚ DE NAVEGACIÓN VERTICAL
+    # SIDEBAR: MENÚ DE NAVEGACIÓN VERTICAL SIN ÍCONOS
     with st.sidebar:
         st.markdown('''
             <div style="text-align: center; padding: 10px 0;">
-                <div class="title-electric" style="font-size: 22px;">GOD's TIME</div>
+                <div class="title-electric" style="font-size: 22px;">GOD'S TIME</div>
             </div>
         ''', unsafe_allow_html=True)
         st.markdown(f"<p style='text-align: center; color: #94a3b8; font-size: 13px;'>Barbero: <b style='color:#00f0ff;'>{st.session_state.usuario_actual}</b></p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='text-align: center; color: #00f0ff; font-weight: 700; font-size: 13px;'>Tasa del día: {st.session_state.tasa_bcv:.2f} BS</p>", unsafe_allow_html=True)
         st.markdown("---")
         
         st.markdown("<p style='font-size: 12px; color: #00f0ff; font-weight: 800; letter-spacing: 1px; margin-bottom: 8px;'>MENÚ PRINCIPAL</p>", unsafe_allow_html=True)
         
-        # OPCIONES VERTICALES SIN DESLIZAR
+        # OPCIONES SIN ÍCONOS
         opcion_menu = st.radio(
             label="Navegación",
             options=[
-                "🏠 Panel General", 
-                "✂️ Registrar Corte", 
-                "💈 Historial Barberos", 
-                "📅 Citas & WhatsApp", 
-                "⚙️ Administración"
+                "Panel General", 
+                "Registrar Corte", 
+                "Historial Barberos", 
+                "Citas y WhatsApp", 
+                "Administración"
             ],
             label_visibility="collapsed"
         )
         
         st.markdown("<br><br>", unsafe_allow_html=True)
-        if st.button("🚪 Cerrar Sesión"):
+        if st.button("Cerrar Sesión"):
             st.session_state.autenticado = False
             st.session_state.usuario_actual = ""
             st.rerun()
 
-    # --- CONTENIDO SEGÚN LA SECCIÓN SELECCIONADA EN EL MENÚ VERTICAL ---
-
     # 1. PANEL GENERAL
-    if opcion_menu == "🏠 Panel General":
-        st.markdown('<div class="section-header">🏠 PANEL GENERAL DE LA BARBERÍA</div>', unsafe_allow_html=True)
+    if opcion_menu == "Panel General":
+        st.markdown('<div class="section-header">PANEL GENERAL DE LA BARBERÍA</div>', unsafe_allow_html=True)
         df_cortes = pd.DataFrame(st.session_state.cortes_db)
         
         c1, c2, c3 = st.columns(3)
         total_cortes = len(df_cortes) if not df_cortes.empty else 0
         total_ingresos_usd = df_cortes["Precio ($)"].sum() if (not df_cortes.empty and "Precio ($)" in df_cortes.columns) else (df_cortes["Precio"].sum() if not df_cortes.empty else 0.0)
-        total_ingresos_bs = total_ingresos_usd * TASA_BCV
+        total_ingresos_bs = total_ingresos_usd * st.session_state.tasa_bcv
         citas_pendientes = len(st.session_state.citas_db)
 
         with c1:
@@ -335,16 +333,16 @@ else:
         with c3:
             st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Citas Agendadas</h4><h2 style="margin:5px 0 0 0;">{citas_pendientes}</h2></div>', unsafe_allow_html=True)
 
-        st.markdown('<div class="section-header" style="margin-top: 30px;">💵 TARIFA DE SERVICIOS</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header" style="margin-top: 30px;">TARIFA DE SERVICIOS</div>', unsafe_allow_html=True)
         precios_tabla = [
-            {"Servicio / Corte": k, "Precio ($)": f"${v:.2f}", "Precio (BS)": f"{v * TASA_BCV:.2f} BS"}
+            {"Servicio / Corte": k, "Precio ($)": f"${v:.2f}", "Precio (BS)": f"{v * st.session_state.tasa_bcv:.2f} BS"}
             for k, v in PRECIOS_CORTES.items()
         ]
         st.table(pd.DataFrame(precios_tabla))
 
     # 2. REGISTRAR CORTE
-    elif opcion_menu == "✂️ Registrar Corte":
-        st.markdown('<div class="section-header">✂️ REGISTRO DE NUEVO CORTE</div>', unsafe_allow_html=True)
+    elif opcion_menu == "Registrar Corte":
+        st.markdown('<div class="section-header">REGISTRO DE NUEVO CORTE</div>', unsafe_allow_html=True)
         with st.form("form_corte"):
             col1, col2 = st.columns(2)
             with col1:
@@ -352,8 +350,8 @@ else:
                 barbero_sel = st.selectbox("Selecciona el Barbero", BARBEROS, index=idx_barbero)
                 corte_sel = st.selectbox("Tipo de Corte / Servicio", list(PRECIOS_CORTES.keys()))
                 precio_corte_usd = st.number_input("Precio ($)", value=float(PRECIOS_CORTES[corte_sel]), step=1.0)
-                precio_corte_bs = precio_corte_usd * TASA_BCV
-                st.info(f"Monto equivalente en Bolívares: **{precio_corte_bs:.2f} BS**")
+                precio_corte_bs = precio_corte_usd * st.session_state.tasa_bcv
+                st.info(f"Monto equivalente en Bolívares (Tasa {st.session_state.tasa_bcv:.2f}): **{precio_corte_bs:.2f} BS**")
                 cliente_nombre = st.text_input("Nombre del Cliente (Opcional)")
             
             with col2:
@@ -373,35 +371,50 @@ else:
                     "Precio (BS)": round(precio_corte_bs, 2),
                     "Método Pago": metodo_pago,
                     "Referencia": ref_final,
-                    "Cliente": cliente_nombre if cliente_nombre else "Cliente Ocasional"
+                    "Cliente": cliente_nombre.strip() if cliente_nombre.strip() else "Cliente Ocasional"
                 }
                 st.session_state.cortes_db.append(nuevo_registro)
                 guardar_datos(CORTES_FILE, st.session_state.cortes_db)
                 st.success(f"Corte registrado a {barbero_sel} correctamente (${precio_corte_usd:.2f} / {precio_corte_bs:.2f} BS) vía {metodo_pago}.")
 
-    # 3. HISTORIAL POR BARBERO
-    elif opcion_menu == "💈 Historial Barberos":
-        st.markdown('<div class="section-header">💈 REGISTRO Y RENDIMIENTO POR BARBERO</div>', unsafe_allow_html=True)
+    # 3. HISTORIAL Y REGISTRO DE CLIENTES POR BARBERO
+    elif opcion_menu == "Historial Barberos":
+        st.markdown('<div class="section-header">HISTORIAL Y REGISTRO DE CLIENTES POR BARBERO</div>', unsafe_allow_html=True)
         idx_filtro = BARBEROS.index(st.session_state.usuario_actual) if st.session_state.usuario_actual in BARBEROS else 0
         barbero_filtro = st.selectbox("Selecciona un Barbero", BARBEROS, index=idx_filtro, key="filtro_barbero")
         
         if st.session_state.cortes_db:
             df_cortes = pd.DataFrame(st.session_state.cortes_db)
             df_filtrado = df_cortes[df_cortes["Barbero"] == barbero_filtro]
+            
             if not df_filtrado.empty:
-                st.dataframe(df_filtrado, use_container_width=True)
                 col_precio = "Precio ($)" if "Precio ($)" in df_filtrado.columns else "Precio"
                 total_usd = df_filtrado[col_precio].sum()
-                total_bs = total_usd * TASA_BCV
+                total_bs = total_usd * st.session_state.tasa_bcv
                 st.info(f"Total acumulado por **{barbero_filtro}**: **${total_usd:.2f} USD** / **{total_bs:.2f} BS** ({len(df_filtrado)} cortes)")
+
+                tab_hist, tab_cli = st.tabs(["HISTORIAL DE CORTES", "CLIENTES ATENDIDOS"])
+                
+                with tab_hist:
+                    st.dataframe(df_filtrado, use_container_width=True)
+                
+                with tab_cli:
+                    st.markdown(f"### Clientes registrados con {barbero_filtro}")
+                    df_clientes = df_filtrado.groupby("Cliente").agg(
+                        Visitas=("Servicio", "count"),
+                        Total_Gastado_USD=(col_precio, "sum"),
+                        Ultima_Visita=("Fecha", "max")
+                    ).reset_index()
+                    df_clientes["Total_Gastado_BS"] = df_clientes["Total_Gastado_USD"] * st.session_state.tasa_bcv
+                    st.dataframe(df_clientes, use_container_width=True)
             else:
                 st.warning(f"No hay registros de cortes para {barbero_filtro}.")
         else:
             st.write("No hay datos de cortes registrados aún.")
 
     # 4. CITAS Y WHATSAPP
-    elif opcion_menu == "📅 Citas & WhatsApp":
-        st.markdown('<div class="section-header">📅 GESTIÓN DE CITAS Y RECORDATORIOS POR WHATSAPP</div>', unsafe_allow_html=True)
+    elif opcion_menu == "Citas y WhatsApp":
+        st.markdown('<div class="section-header">GESTIÓN DE CITAS Y RECORDATORIOS POR WHATSAPP</div>', unsafe_allow_html=True)
         col_f1, col_f2 = st.columns(2)
         with col_f1:
             nombre_c = st.text_input("Nombre del Cliente")
@@ -426,7 +439,7 @@ else:
                 guardar_datos(CITAS_FILE, st.session_state.citas_db)
                 
                 precio_usd = PRECIOS_CORTES[servicio_c]
-                precio_bs = precio_usd * TASA_BCV
+                precio_bs = precio_usd * st.session_state.tasa_bcv
                 
                 mensaje = f"Hola {nombre_c}, confirmamos tu cita en Barbería God's Time el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c} (${precio_usd:.2f} / {precio_bs:.2f} BS)."
                 mensaje_encoded = urllib.parse.quote(mensaje)
@@ -435,21 +448,30 @@ else:
                 st.success("¡Cita agendada exitosamente!")
                 st.markdown(f'''
                     <a href="{ws_url}" target="_blank" class="btn-ws-glow">
-                        <i class="fab fa-whatsapp" style="font-size: 22px;"></i> Enviar Confirmación por WhatsApp
+                        Enviar Confirmación por WhatsApp
                     </a>
                 ''', unsafe_allow_html=True)
 
-        st.markdown('<div class="section-header" style="margin-top:30px;">📋 CITAS REGISTRADAS</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header" style="margin-top:30px;">CITAS REGISTRADAS</div>', unsafe_allow_html=True)
         if st.session_state.citas_db:
             st.dataframe(pd.DataFrame(st.session_state.citas_db), use_container_width=True)
 
     # 5. ADMINISTRACIÓN
-    elif opcion_menu == "⚙️ Administración":
-        st.markdown('<div class="section-header">⚙️ PANEL DE ADMINISTRACIÓN</div>', unsafe_allow_html=True)
+    elif opcion_menu == "Administración":
+        st.markdown('<div class="section-header">PANEL DE ADMINISTRACIÓN</div>', unsafe_allow_html=True)
         
         if es_admin:
+            st.markdown("### Configuración de Tasa de Cambio")
+            nueva_tasa = st.number_input("Tasa del día (BS / USD)", value=float(st.session_state.tasa_bcv), step=0.10)
+            if st.button("ACTUALIZAR TASA EN EL SISTEMA"):
+                st.session_state.tasa_bcv = nueva_tasa
+                guardar_datos(CONFIG_FILE, {"tasa_bcv": nueva_tasa})
+                st.success(f"Tasa del día actualizada a {nueva_tasa:.2f} BS")
+                st.rerun()
+
+            st.markdown("---")
             st.warning("⚠️ **Atención:** La siguiente opción borrará permanentemente las citas y los registros de cortes.")
-            if st.button("🔴 REINICIAR TODO EL HISTORIAL"):
+            if st.button("REINICIAR TODO EL HISTORIAL"):
                 st.session_state.cortes_db = []
                 st.session_state.citas_db = []
                 guardar_datos(CORTES_FILE, [])
@@ -457,4 +479,4 @@ else:
                 st.success("El historial completo ha sido borrado.")
                 st.rerun()
         else:
-            st.error("🔒 **Acceso restringido:** Tu usuario (Jonder) no posee permisos para borrar o reiniciar el historial de la barbería.")
+            st.error("🔒 **Acceso restringido:** Tu usuario (Jonder) no posee permisos para modificar la tasa o reiniciar el historial de la barbería.")
