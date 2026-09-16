@@ -46,15 +46,15 @@ if "tasa_bcv" not in st.session_state:
 
 # CREDENCIALES Y ROLES DE USUARIOS
 USUARIOS = {
-    "admin": {"clave": "1234", "rol": "admin"},
+    "Admin": {"clave": "1234", "rol": "admin"},
     "Jonder": {"clave": "barbero1", "rol": "barbero"}
 }
 
 PRECIOS_CORTES = {
-    "Corte Clásico": 10.0,
-    "Degradado / Fade": 12.0,
-    "Barba Completa": 8.0,
-    "Combo (Corte + Barba)": 18.0,
+    "Corte Clásico": 8.0,
+    "Corte y Barba": 12.0,
+    "Barba Completa": 5.0,
+    "Combo (Corte + Barba+ Mascarilla)": 13.0,
     "Diseño / Cejas": 5.0
 }
 
@@ -68,7 +68,7 @@ OPCIONES_HORAS = [
     for m in (0, 30)
 ]
 
-# ESTILOS FUTURISTAS, FUENTES MODERNAS Y ÍCONOS
+# ESTILOS FUTURISTAS Y BOTONES 3D BRILLANTES (GLOSSY PILL BUTTONS)
 st.markdown("""
     <style>
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
@@ -89,6 +89,7 @@ st.markdown("""
         border-right: 1px solid rgba(0, 240, 255, 0.2) !important;
     }
 
+    /* MENÚ LATERAL: ESTILO BOTONES OVALADOS 3D (Cian / Azul Neón) */
     [data-testid="stSidebar"] .stRadio > div {
         display: flex;
         flex-direction: column;
@@ -96,33 +97,100 @@ st.markdown("""
     }
 
     [data-testid="stSidebar"] .stRadio label {
-        background: rgba(255, 255, 255, 0.03) !important;
-        border: 1px solid rgba(0, 240, 255, 0.15) !important;
-        border-radius: 14px !important;
-        padding: 14px 18px !important;
-        color: #94a3b8 !important;
-        font-weight: 700 !important;
-        font-size: 15px !important;
+        position: relative;
+        background: linear-gradient(180deg, #00c6ff 0%, #0072ff 100%) !important;
+        border-radius: 50px !important;
+        padding: 12px 24px !important;
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        font-size: 14px !important;
+        letter-spacing: 1px !important;
+        text-transform: uppercase;
+        text-align: center;
         cursor: pointer;
         transition: all 0.3s ease !important;
         width: 100%;
         display: flex;
+        justify-content: center;
         align-items: center;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        box-shadow: 0 8px 15px rgba(0, 114, 255, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.7) !important;
+        overflow: hidden;
+    }
+
+    /* Reflejo de luz superior (Efecto Cristal) */
+    [data-testid="stSidebar"] .stRadio label::before {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 10%;
+        right: 10%;
+        height: 40%;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 100%);
+        border-radius: 50px 50px 20px 20px;
+        pointer-events: none;
     }
 
     [data-testid="stSidebar"] .stRadio label:hover {
-        background: rgba(0, 240, 255, 0.1) !important;
-        color: #00f0ff !important;
-        border-color: rgba(0, 240, 255, 0.4) !important;
-        transform: translateX(4px);
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 12px 20px rgba(0, 240, 255, 0.6), inset 0 2px 6px rgba(255, 255, 255, 0.9) !important;
     }
 
     [data-testid="stSidebar"] .stRadio div[aria-checked="true"] + label {
-        background: linear-gradient(135deg, #00f0ff 0%, #0072ff 100%) !important;
-        color: #000000 !important;
+        background: linear-gradient(180deg, #00f0ff 0%, #0040a0 100%) !important;
+        border: 2px solid #ffffff !important;
+        box-shadow: 0 0 25px rgba(0, 240, 255, 0.9), inset 0 2px 6px rgba(255, 255, 255, 1) !important;
+    }
+
+    /* BOTONES GENERALES STREAMLIT ESTILO 3D GLOSSY (Verde Neón / Azul) */
+    .stButton > button {
+        position: relative;
+        background: linear-gradient(180deg, #00f0ff 0%, #0066cc 100%) !important;
+        color: #ffffff !important;
         font-weight: 800 !important;
-        border: none !important;
-        box-shadow: 0 4px 20px rgba(0, 240, 255, 0.4) !important;
+        font-size: 15px !important;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        border-radius: 50px !important;
+        border: 1px solid rgba(255, 255, 255, 0.4) !important;
+        width: 100%;
+        padding: 14px 28px !important;
+        box-shadow: 0 8px 18px rgba(0, 102, 204, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.8) !important;
+        transition: all 0.3s ease-in-out;
+        overflow: hidden;
+    }
+
+    .stButton > button:hover {
+        box-shadow: 0 12px 25px rgba(0, 240, 255, 0.8), inset 0 2px 6px rgba(255, 255, 255, 1) !important;
+        transform: translateY(-2px);
+    }
+
+    /* BOTÓN WHATSAPP 3D GLOSSY (Verde Brillante) */
+    .btn-ws-glow {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        background: linear-gradient(180deg, #25D366 0%, #128C7E 100%) !important;
+        color: white !important;
+        text-decoration: none;
+        border-radius: 50px !important;
+        padding: 14px 28px;
+        font-weight: 800;
+        font-size: 15px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        box-shadow: 0 8px 18px rgba(37, 211, 102, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.8);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .btn-ws-glow:hover {
+        box-shadow: 0 12px 25px rgba(37, 211, 102, 0.8), inset 0 2px 6px rgba(255, 255, 255, 1);
+        transform: translateY(-2px);
+        color: white !important;
     }
 
     /* EFECTO LATIDO Y NEÓN EN EL TÍTULO */
@@ -163,37 +231,6 @@ st.markdown("""
         padding: 24px;
         margin-bottom: 20px;
         border: 1px solid rgba(0, 240, 255, 0.2);
-    }
-
-    .stButton > button {
-        background: linear-gradient(135deg, #00f0ff 0%, #0072ff 100%);
-        color: #000000 !important;
-        font-weight: 800 !important;
-        border-radius: 14px;
-        border: none;
-        width: 100%;
-        padding: 14px;
-        box-shadow: 0 6px 20px rgba(0, 240, 255, 0.35);
-        transition: all 0.3s ease-in-out;
-    }
-
-    .stButton > button:hover {
-        box-shadow: 0 0 25px rgba(0, 240, 255, 0.8);
-        transform: scale(1.02);
-    }
-
-    .btn-ws-glow {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
-        color: white !important;
-        text-decoration: none;
-        border-radius: 14px;
-        padding: 14px 20px;
-        font-weight: 800;
-        box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
     }
     </style>
 """, unsafe_allow_html=True)
@@ -280,13 +317,13 @@ if not st.session_state.autenticado:
                     st.error("Por favor completa tu nombre y número de teléfono.")
 
 # ---------------------------------------------------------
-# VISTA 2: PANEL PRINCIPAL (MENÚ LATERAL)
+# VISTA 2: PANEL PRINCIPAL (MENÚ CON BOTONES 3D GLOSSY)
 # ---------------------------------------------------------
 else:
     user_info = USUARIOS.get(st.session_state.usuario_actual, {"rol": "invitado"})
     es_admin = user_info["rol"] == "admin"
 
-    # SIDEBAR: MENÚ DE NAVEGACIÓN Y TASA DEL DÓLAR
+    # SIDEBAR: MENÚ CON BOTONES OVALADOS 3D CON BRILLO
     with st.sidebar:
         st.markdown('''
             <div style="text-align: center; padding: 10px 0;">
@@ -296,7 +333,8 @@ else:
         st.markdown(f"<p style='text-align: center; color: #94a3b8; font-size: 13px;'>Barbero: <b style='color:#00f0ff;'>{st.session_state.usuario_actual}</b></p>", unsafe_allow_html=True)
         st.markdown("---")
         
-        # MENÚ PRINCIPAL SIN ETIQUETA "NAVEGACIÓN"
+        st.markdown("<p style='font-size: 13px; color: #00f0ff; font-weight: 800; margin-bottom: 8px;'>MENÚ PRINCIPAL</p>", unsafe_allow_html=True)
+
         opciones_menu = {
             "📊  Panel General": "Panel General",
             "✂️  Registrar Corte": "Registrar Corte",
@@ -315,7 +353,7 @@ else:
         
         st.markdown("---")
         
-        # SECCIÓN DE ACTUALIZACIÓN DE TASA DEL DÓLAR
+        # ACTUALIZACIÓN DE TASA DEL DÓLAR
         st.markdown("<p style='font-size: 13px; color: #00f0ff; font-weight: 800; margin-bottom: 5px;'>💵 TASA DEL DÓLAR ($)</p>", unsafe_allow_html=True)
         nueva_tasa_input = st.number_input("Tasa BS", value=float(st.session_state.tasa_bcv), step=0.10, label_visibility="collapsed")
         if st.button("ACTUALIZAR TASA DEL DÓLAR"):
@@ -486,3 +524,4 @@ else:
                 st.rerun()
         else:
             st.error("🔒 **Acceso restringido:** Tu usuario (Jonder) no posee permisos para reiniciar el historial de la barbería.")
+
