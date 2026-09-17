@@ -7,7 +7,7 @@ import os
 
 # Configuración de la página
 st.set_page_config(
-    page_title="Peluqueria God's Time", 
+    page_title="Barberia God's Time", 
     layout="wide", 
     initial_sidebar_state="expanded"
 )
