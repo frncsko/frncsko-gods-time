@@ -51,7 +51,7 @@ USUARIOS = {
 }
 
 PRECIOS_CORTES = {
-    "Corte Clásico": 2000.0,
+    "Corte Clásico": 10.0,
     "Corte y Barba": 12.0,
     "Barba Completa": 5.0,
     "Combo (Corte + Barba+ Mascarilla)": 13.0,
