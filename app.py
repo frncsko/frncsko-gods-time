@@ -7,7 +7,7 @@ import os
 
 # Configuración de la página
 st.set_page_config(
-    page_title="Test Barberia", 
+    page_title="Test Barberia - Ultra 4K", 
     layout="wide", 
     initial_sidebar_state="expanded"
 )
@@ -54,7 +54,7 @@ PRECIOS_CORTES = {
     "Corte Clásico": 10.0,
     "Corte y Barba": 12.0,
     "Barba Completa": 5.0,
-    "Combo (Corte + Barba+ Mascarilla)": 13.0,
+    "Combo (Corte + Barba + Mascarilla)": 13.0,
     "Diseño / Cejas": 5.0
 }
 
@@ -68,183 +68,152 @@ OPCIONES_HORAS = [
     for m in (0, 30)
 ]
 
-# ESTILOS FUTURISTAS Y BOTONES 3D BRILLANTES (GLOSSY PILL BUTTONS)
+# ESTILOS ULTRA 4K / CYBERPUNK GLOW
 st.markdown("""
     <style>
-    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Space+Grotesk:wght@600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap');
 
-    html, body, [class*="css"] {
-        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-
+    /* Fondo Ultra 4K con gradiente espacial y animación suave */
     .stApp {
-        background: radial-gradient(circle at 50% 10%, #080f1a 0%, #03050a 100%);
-        color: #e2e8f0;
+        background: radial-gradient(circle at 50% 20%, #0d1117 0%, #05070a 60%, #000000 100%);
+        font-family: 'Rajdhani', sans-serif;
+        color: #f0f6fc;
     }
 
-    /* BARRA LATERAL IZQUIERDA MODERNIZADA */
+    /* BARRA LATERAL ESTILO GLASSMORPHISM */
     [data-testid="stSidebar"] {
-        background: rgba(10, 17, 30, 0.95) !important;
-        border-right: 1px solid rgba(0, 240, 255, 0.2) !important;
+        background: rgba(13, 17, 23, 0.75) !important;
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border-right: 1px solid rgba(0, 240, 255, 0.25) !important;
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.8);
     }
 
-    /* MENÚ LATERAL: ESTILO BOTONES OVALADOS 3D (Cian / Azul Neón) */
-    [data-testid="stSidebar"] .stRadio > div {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
+    /* MENÚ OVALADO CON EFECTO NEÓN Y GLOW 4K */
     [data-testid="stSidebar"] .stRadio label {
-        position: relative;
-        background: linear-gradient(180deg, #00c6ff 0%, #0072ff 100%) !important;
-        border-radius: 50px !important;
-        padding: 12px 24px !important;
+        background: linear-gradient(135deg, rgba(0, 240, 255, 0.1) 0%, rgba(0, 114, 255, 0.2) 100%) !important;
+        border-radius: 30px !important;
+        padding: 12px 20px !important;
         color: #ffffff !important;
-        font-weight: 800 !important;
-        font-size: 14px !important;
-        letter-spacing: 1px !important;
-        text-transform: uppercase;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.3s ease !important;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border: 1px solid rgba(255, 255, 255, 0.3) !important;
-        box-shadow: 0 8px 15px rgba(0, 114, 255, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.7) !important;
-        overflow: hidden;
-    }
-
-    /* Reflejo de luz superior (Efecto Cristal) */
-    [data-testid="stSidebar"] .stRadio label::before {
-        content: '';
-        position: absolute;
-        top: 2px;
-        left: 10%;
-        right: 10%;
-        height: 40%;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 100%);
-        border-radius: 50px 50px 20px 20px;
-        pointer-events: none;
+        font-family: 'Orbitron', sans-serif !important;
+        font-size: 13px !important;
+        letter-spacing: 1.5px !important;
+        border: 1px solid rgba(0, 240, 255, 0.3) !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0, 240, 255, 0.1) !important;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
     }
 
     [data-testid="stSidebar"] .stRadio label:hover {
         transform: translateY(-2px) scale(1.02);
-        box-shadow: 0 12px 20px rgba(0, 240, 255, 0.6), inset 0 2px 6px rgba(255, 255, 255, 0.9) !important;
+        border-color: #00f0ff !important;
+        box-shadow: 0 0 20px rgba(0, 240, 255, 0.6), inset 0 0 15px rgba(0, 240, 255, 0.3) !important;
     }
 
     [data-testid="stSidebar"] .stRadio div[aria-checked="true"] + label {
-        background: linear-gradient(180deg, #00f0ff 0%, #0040a0 100%) !important;
-        border: 2px solid #ffffff !important;
-        box-shadow: 0 0 25px rgba(0, 240, 255, 0.9), inset 0 2px 6px rgba(255, 255, 255, 1) !important;
+        background: linear-gradient(135deg, #00f0ff 0%, #0055ff 100%) !important;
+        color: #000000 !important;
+        font-weight: 900 !important;
+        border: 1px solid #ffffff !important;
+        box-shadow: 0 0 25px rgba(0, 240, 255, 0.9), 0 0 50px rgba(0, 114, 255, 0.5) !important;
     }
 
-    /* BOTONES GENERALES STREAMLIT ESTILO 3D GLOSSY (Verde Neón / Azul) */
+    /* TARJETAS VIP DE VIDRIO 4K */
+    .card-4k {
+        background: rgba(22, 27, 34, 0.6);
+        backdrop-filter: blur(16px);
+        border-radius: 20px;
+        padding: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .card-4k:hover {
+        border-color: rgba(0, 240, 255, 0.4);
+        box-shadow: 0 20px 50px rgba(0, 240, 255, 0.15);
+    }
+
+    /* BOTONES STREAMLIT ULTRA GLOW */
     .stButton > button {
-        position: relative;
-        background: linear-gradient(180deg, #00f0ff 0%, #0066cc 100%) !important;
-        color: #ffffff !important;
+        background: linear-gradient(135deg, #00f0ff 0%, #0066ff 100%) !important;
+        color: #000 !important;
+        font-family: 'Orbitron', sans-serif !important;
         font-weight: 800 !important;
-        font-size: 15px !important;
+        font-size: 14px !important;
         letter-spacing: 1px;
-        text-transform: uppercase;
         border-radius: 50px !important;
-        border: 1px solid rgba(255, 255, 255, 0.4) !important;
-        width: 100%;
-        padding: 14px 28px !important;
-        box-shadow: 0 8px 18px rgba(0, 102, 204, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.8) !important;
-        transition: all 0.3s ease-in-out;
-        overflow: hidden;
+        border: none !important;
+        padding: 12px 28px !important;
+        box-shadow: 0 0 20px rgba(0, 240, 255, 0.4) !important;
+        transition: all 0.3s ease-in-out !important;
     }
 
     .stButton > button:hover {
-        box-shadow: 0 12px 25px rgba(0, 240, 255, 0.8), inset 0 2px 6px rgba(255, 255, 255, 1) !important;
-        transform: translateY(-2px);
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 0 35px rgba(0, 240, 255, 0.8) !important;
+        color: #fff !important;
     }
 
-    /* BOTÓN WHATSAPP 3D GLOSSY (Verde Brillante) */
-    .btn-ws-glow {
-        position: relative;
+    /* BOTÓN WHATSAPP NEÓN */
+    .btn-ws-4k {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 12px;
-        background: linear-gradient(180deg, #25D366 0%, #128C7E 100%) !important;
-        color: white !important;
+        background: linear-gradient(135deg, #00ff87 0%, #60efff 100%) !important;
+        color: #000000 !important;
+        font-family: 'Orbitron', sans-serif;
         text-decoration: none;
-        border-radius: 50px !important;
+        border-radius: 50px;
         padding: 14px 28px;
-        font-weight: 800;
-        font-size: 15px;
+        font-weight: 900;
+        font-size: 14px;
         letter-spacing: 1px;
-        text-transform: uppercase;
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        box-shadow: 0 8px 18px rgba(37, 211, 102, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.8);
+        box-shadow: 0 0 25px rgba(0, 255, 135, 0.5);
         transition: all 0.3s ease;
-        overflow: hidden;
     }
 
-    .btn-ws-glow:hover {
-        box-shadow: 0 12px 25px rgba(37, 211, 102, 0.8), inset 0 2px 6px rgba(255, 255, 255, 1);
-        transform: translateY(-2px);
-        color: white !important;
+    .btn-ws-4k:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0 40px rgba(0, 255, 135, 0.9);
+        color: #000000 !important;
     }
 
-    /* EFECTO LATIDO Y NEÓN EN EL TÍTULO */
-    @keyframes heartbeat-glow {
-        0% { transform: scale(1); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
-        14% { transform: scale(1.04); text-shadow: 0 0 25px rgba(0, 240, 255, 0.9); }
-        28% { transform: scale(1); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
-        42% { transform: scale(1.02); text-shadow: 0 0 20px rgba(0, 240, 255, 0.8); }
-        70% { transform: scale(1); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
-    }
-
-    .title-electric {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 32px;
-        font-weight: 800;
-        color: #00f0ff !important;
+    /* TÍTULO HOLOGRAMA 4K */
+    .title-4k {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 42px;
+        font-weight: 900;
+        background: linear-gradient(180deg, #ffffff 0%, #00f0ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 30px rgba(0, 240, 255, 0.5);
         text-align: center;
-        letter-spacing: 2px;
-        display: inline-block;
-        animation: heartbeat-glow 2.5s infinite ease-in-out;
+        letter-spacing: 4px;
     }
 
-    .section-header {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 22px;
+    .section-header-4k {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 20px;
         font-weight: 700;
         color: #00f0ff;
+        letter-spacing: 2px;
         border-bottom: 2px solid rgba(0, 240, 255, 0.3);
         padding-bottom: 8px;
         margin-bottom: 20px;
-        letter-spacing: 0.5px;
-    }
-
-    .card-3d, [data-testid="stForm"] {
-        background: rgba(10, 18, 32, 0.85);
-        backdrop-filter: blur(14px);
-        border-radius: 20px;
-        padding: 24px;
-        margin-bottom: 20px;
-        border: 1px solid rgba(0, 240, 255, 0.2);
+        text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
     }
     </style>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# VISTA 1: INICIO CLIENTES (AGENDAR CITAS) + BOTÓN SUPERIOR DE LOGIN
+# VISTA 1: INICIO CLIENTES
 # ---------------------------------------------------------
 if not st.session_state.autenticado:
-    # Encabezado superior con botón flotante/pequeño para login
     col_header, col_login_btn = st.columns([5, 1.2])
     
     with col_login_btn:
         with st.popover("Acceso Personal 🔐", use_container_width=True):
-            st.markdown("<h4 style='text-align: center; color: #ffffff; margin-bottom: 10px;'>ACCESO PERSONAL</h4>", unsafe_allow_html=True)
+            st.markdown("<h4 style='text-align: center; color: #ffffff;'>ACCESO PERSONAL</h4>", unsafe_allow_html=True)
             with st.form("login_form_popover"):
                 usuario = st.text_input("Usuario", placeholder="Ingresa tu usuario")
                 contrasena = st.text_input("Contraseña", type="password", placeholder="••••••••")
@@ -259,34 +228,42 @@ if not st.session_state.autenticado:
                         st.error("Credenciales incorrectas")
 
     st.markdown('''
-        <div style="text-align: center; margin-top: -20px;">
-            <div class="title-electric">TEST BARBERIA</div>
+        <div style="text-align: center; margin-top: -10px;">
+            <div class="title-4k">TEST BARBERIA</div>
         </div>
     ''', unsafe_allow_html=True)
     
-    st.markdown("<p style='text-align: center; color: #00f0ff; font-weight: 700; font-size: 18px; margin-top: 10px; margin-bottom: 30px;'>🔥 ¡Eleva tu presencia! El corte perfecto en el momento exacto. ⚡</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #8b949e; font-weight: 600; font-size: 18px; margin-top: 5px; margin-bottom: 30px;'>EXPERIENCIA VIP & CORTE DE ALTA PRECISIÓN</p>", unsafe_allow_html=True)
 
-    # Vista principal directa para clientes: AGENDAR CITA
     col_c1, col_c2, col_c3 = st.columns([1, 2, 1])
     with col_c2:
-        st.markdown("<h3 style='text-align: center; color: #ffffff;'>Reserva tu Cita</h3>", unsafe_allow_html=True)
+        st.markdown('<div class="card-4k">', unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center; color: #00f0ff; font-family: Orbitron;'>RESERVA TU CITA</h3>", unsafe_allow_html=True)
         with st.form("form_cita_login"):
-            nombre_c = st.text_input("Tu Nombre Completo")
-            telefono_c = st.text_input("Teléfono (Ej: +584120000000)")
+            nombre_c = st.text_input("Nombre Completo")
+            
+            # AUTOMÁTICO +58
+            col_pref, col_tel = st.columns([1, 3])
+            with col_pref:
+                prefijo = st.text_input("Código", value="+58", disabled=True)
+            with col_tel:
+                num_tel = st.text_input("Teléfono WhatsApp", placeholder="4121234567")
+            
             barbero_c = st.selectbox("Barbero de preferencia", BARBEROS, key="barbero_cita_login")
             
             col_f1, col_h1 = st.columns(2)
             with col_f1:
-                fecha_c = st.date_input("Fecha de la cita", min_value=date.today(), key="fecha_cita_login")
+                fecha_c = st.date_input("Fecha", min_value=date.today(), key="fecha_cita_login")
             with col_h1:
-                hora_c = st.selectbox("Hora de la cita", OPCIONES_HORAS, key="hora_cita_login")
+                hora_c = st.selectbox("Hora", OPCIONES_HORAS, key="hora_cita_login")
 
-            servicio_c = st.selectbox("Servicio solicitado", list(PRECIOS_CORTES.keys()), key="servicio_cita_login")
+            servicio_c = st.selectbox("Servicio", list(PRECIOS_CORTES.keys()), key="servicio_cita_login")
             
-            btn_agendar_login = st.form_submit_button("REGISTRAR CITA")
+            btn_agendar_login = st.form_submit_button("AGENDAR CITA AHORA")
 
         if btn_agendar_login:
-            if nombre_c and telefono_c:
+            if nombre_c and num_tel:
+                telefono_c = f"+58{num_tel.strip().lstrip('0')}"
                 cita = {
                     "Cliente": nombre_c,
                     "Teléfono": telefono_c,
@@ -308,32 +285,30 @@ if not st.session_state.autenticado:
                 
                 st.success("¡Cita agendada exitosamente!")
                 st.markdown(f'''
-                    <a href="{ws_url}" target="_blank" class="btn-ws-glow">
-                        Confirmar por WhatsApp
+                    <a href="{ws_url}" target="_blank" class="btn-ws-4k">
+                        CONFIRMAR POR WHATSAPP
                     </a>
                 ''', unsafe_allow_html=True)
             else:
-                st.error("Por favor completa tu nombre y número de teléfono.")
+                st.error("Por favor ingresa tu nombre y número telefónico.")
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# VISTA 2: PANEL PRINCIPAL (MENÚ CON BOTONES 3D GLOSSY)
+# VISTA 2: PANEL PRINCIPAL
 # ---------------------------------------------------------
 else:
     user_info = USUARIOS.get(st.session_state.usuario_actual, {"rol": "invitado"})
     es_admin = user_info["rol"] == "admin"
 
-    # SIDEBAR: MENÚ CON BOTONES OVALADOS 3D CON BRILLO
     with st.sidebar:
         st.markdown('''
             <div style="text-align: center; padding: 10px 0;">
-                <div class="title-electric" style="font-size: 22px;">TEST BARBERIA</div>
+                <div class="title-4k" style="font-size: 22px;">TEST BARBERIA</div>
             </div>
         ''', unsafe_allow_html=True)
-        st.markdown(f"<p style='text-align: center; color: #94a3b8; font-size: 13px;'>Barbero: <b style='color:#00f0ff;'>{st.session_state.usuario_actual}</b></p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='text-align: center; color: #8b949e; font-size: 13px;'>Barbero: <b style='color:#00f0ff;'>{st.session_state.usuario_actual}</b></p>", unsafe_allow_html=True)
         st.markdown("---")
         
-        st.markdown("<p style='font-size: 13px; color: #00f0ff; font-weight: 800; margin-bottom: 8px;'>MENÚ PRINCIPAL</p>", unsafe_allow_html=True)
-
         opciones_menu = {
             "📊  Panel General": "Panel General",
             "✂️  Registrar Corte": "Registrar Corte",
@@ -352,10 +327,9 @@ else:
         
         st.markdown("---")
         
-        # ACTUALIZACIÓN DE TASA DEL DÓLAR
-        st.markdown("<p style='font-size: 13px; color: #00f0ff; font-weight: 800; margin-bottom: 5px;'>💵 TASA DEL DÓLAR ($)</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size: 12px; color: #00f0ff; font-family: Orbitron;'>💵 TASA BCV ($)</p>", unsafe_allow_html=True)
         nueva_tasa_input = st.number_input("Tasa BS", value=float(st.session_state.tasa_bcv), step=0.10, label_visibility="collapsed")
-        if st.button("ACTUALIZAR TASA DEL DÓLAR"):
+        if st.button("ACTUALIZAR TASA"):
             st.session_state.tasa_bcv = nueva_tasa_input
             guardar_datos(CONFIG_FILE, {"tasa_bcv": nueva_tasa_input})
             st.success(f"Tasa actualizada: {nueva_tasa_input:.2f} BS")
@@ -369,7 +343,7 @@ else:
 
     # 1. PANEL GENERAL
     if opcion_menu == "Panel General":
-        st.markdown('<div class="section-header">📊 PANEL GENERAL DE LA BARBERÍA</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header-4k">📊 PANEL GENERAL</div>', unsafe_allow_html=True)
         df_cortes = pd.DataFrame(st.session_state.cortes_db)
         
         c1, c2, c3 = st.columns(3)
@@ -379,13 +353,13 @@ else:
         citas_pendientes = len(st.session_state.citas_db)
 
         with c1:
-            st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Total Cortes</h4><h2 style="margin:5px 0 0 0;">{total_cortes}</h2></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-4k"><h4 style="color:#8b949e; margin:0; font-family:Orbitron;">TOTAL CORTES</h4><h1 style="margin:5px 0 0 0; color:#00f0ff;">{total_cortes}</h1></div>', unsafe_allow_html=True)
         with c2:
-            st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Ingresos Totales</h4><h2 style="margin:5px 0 0 0; font-size: 22px;">${total_ingresos_usd:.2f} <span style="color:#00f0ff; font-size:16px;">({total_ingresos_bs:.2f} BS)</span></h2></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-4k"><h4 style="color:#8b949e; margin:0; font-family:Orbitron;">INGRESOS TOTALES</h4><h2 style="margin:5px 0 0 0; color:#00ff87;">${total_ingresos_usd:.2f} <span style="font-size:16px; color:#ffffff;">({total_ingresos_bs:.2f} BS)</span></h2></div>', unsafe_allow_html=True)
         with c3:
-            st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Citas Agendadas</h4><h2 style="margin:5px 0 0 0;">{citas_pendientes}</h2></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-4k"><h4 style="color:#8b949e; margin:0; font-family:Orbitron;">CITAS AGENDADAS</h4><h1 style="margin:5px 0 0 0; color:#00f0ff;">{citas_pendientes}</h1></div>', unsafe_allow_html=True)
 
-        st.markdown('<div class="section-header" style="margin-top: 30px;">💵 TARIFA DE SERVICIOS</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header-4k" style="margin-top: 30px;">💵 TARIFA DE SERVICIOS</div>', unsafe_allow_html=True)
         precios_tabla = [
             {"Servicio / Corte": k, "Precio ($)": f"${v:.2f}", "Precio (BS)": f"{v * st.session_state.tasa_bcv:.2f} BS"}
             for k, v in PRECIOS_CORTES.items()
@@ -394,7 +368,7 @@ else:
 
     # 2. REGISTRAR CORTE
     elif opcion_menu == "Registrar Corte":
-        st.markdown('<div class="section-header">✂️ REGISTRO DE NUEVO CORTE</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header-4k">✂️ REGISTRO DE NUEVO CORTE</div>', unsafe_allow_html=True)
         with st.form("form_corte"):
             col1, col2 = st.columns(2)
             with col1:
@@ -403,7 +377,7 @@ else:
                 corte_sel = st.selectbox("Tipo de Corte / Servicio", list(PRECIOS_CORTES.keys()))
                 precio_corte_usd = st.number_input("Precio ($)", value=float(PRECIOS_CORTES[corte_sel]), step=1.0)
                 precio_corte_bs = precio_corte_usd * st.session_state.tasa_bcv
-                st.info(f"Monto equivalente en Bolívares (Tasa {st.session_state.tasa_bcv:.2f}): **{precio_corte_bs:.2f} BS**")
+                st.info(f"Monto en Bolívares (Tasa {st.session_state.tasa_bcv:.2f}): **{precio_corte_bs:.2f} BS**")
                 cliente_nombre = st.text_input("Nombre del Cliente (Opcional)")
             
             with col2:
@@ -427,11 +401,11 @@ else:
                 }
                 st.session_state.cortes_db.append(nuevo_registro)
                 guardar_datos(CORTES_FILE, st.session_state.cortes_db)
-                st.success(f"Corte registrado a {barbero_sel} correctamente (${precio_corte_usd:.2f} / {precio_corte_bs:.2f} BS) vía {metodo_pago}.")
+                st.success(f"Corte registrado a {barbero_sel} correctamente (${precio_corte_usd:.2f} / {precio_corte_bs:.2f} BS).")
 
-    # 3. HISTORIAL Y REGISTRO DE CLIENTES POR BARBERO
+    # 3. HISTORIAL
     elif opcion_menu == "Historial Barberos":
-        st.markdown('<div class="section-header">💈 HISTORIAL Y REGISTRO DE CLIENTES POR BARBERO</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header-4k">💈 HISTORIAL Y REGISTRO POR BARBERO</div>', unsafe_allow_html=True)
         idx_filtro = BARBEROS.index(st.session_state.usuario_actual) if st.session_state.usuario_actual in BARBEROS else 0
         barbero_filtro = st.selectbox("Selecciona un Barbero", BARBEROS, index=idx_filtro, key="filtro_barbero")
         
@@ -451,7 +425,6 @@ else:
                     st.dataframe(df_filtrado, use_container_width=True)
                 
                 with tab_cli:
-                    st.markdown(f"### Clientes registrados con {barbero_filtro}")
                     df_clientes = df_filtrado.groupby("Cliente").agg(
                         Visitas=("Servicio", "count"),
                         Total_Gastado_USD=(col_precio, "sum"),
@@ -462,23 +435,31 @@ else:
             else:
                 st.warning(f"No hay registros de cortes para {barbero_filtro}.")
         else:
-            st.write("No hay datos de cortes registrados aún.")
+            st.write("No hay datos registrados aún.")
 
     # 4. CITAS Y WHATSAPP
     elif opcion_menu == "Citas y WhatsApp":
-        st.markdown('<div class="section-header">📅 GESTIÓN DE CITAS Y RECORDATORIOS POR WHATSAPP</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header-4k">📅 GESTIÓN DE CITAS Y WHATSAPP</div>', unsafe_allow_html=True)
         col_f1, col_f2 = st.columns(2)
         with col_f1:
             nombre_c = st.text_input("Nombre del Cliente")
-            telefono_c = st.text_input("Teléfono (Ej: +584120000000)")
+            
+            # AUTOMÁTICO +58 EN PANEL DE ADMIN
+            col_pref_a, col_tel_a = st.columns([1, 3])
+            with col_pref_a:
+                st.text_input("Código", value="+58", disabled=True, key="pref_admin")
+            with col_tel_a:
+                num_tel_admin = st.text_input("Teléfono WhatsApp", placeholder="4121234567", key="tel_admin")
+
             barbero_c = st.selectbox("Barbero de preferencia", BARBEROS, key="barbero_cita")
         with col_f2:
             fecha_c = st.date_input("Fecha de la cita", min_value=date.today())
             hora_c = st.selectbox("Hora de la cita", OPCIONES_HORAS, key="hora_cita_admin")
             servicio_c = st.selectbox("Servicio solicitado", list(PRECIOS_CORTES.keys()), key="servicio_cita")
             
-        if st.button("REGISTRAR CITA Y NOTIFICAR POR WHATSAPP"):
-            if nombre_c and telefono_c:
+        if st.button("REGISTRAR CITA Y CONFIRMAR POR WHATSAPP"):
+            if nombre_c and num_tel_admin:
+                telefono_c = f"+58{num_tel_admin.strip().lstrip('0')}"
                 cita = {
                     "Cliente": nombre_c,
                     "Teléfono": telefono_c,
@@ -499,22 +480,22 @@ else:
                 ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
                 st.success("¡Cita agendada exitosamente!")
                 st.markdown(f'''
-                    <a href="{ws_url}" target="_blank" class="btn-ws-glow">
-                        Enviar Confirmación por WhatsApp
+                    <a href="{ws_url}" target="_blank" class="btn-ws-4k">
+                        ENVIAR CONFIRMACIÓN POR WHATSAPP
                     </a>
                 ''', unsafe_allow_html=True)
 
-        st.markdown('<div class="section-header" style="margin-top:30px;">CITAS REGISTRADAS</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header-4k" style="margin-top:30px;">CITAS REGISTRADAS</div>', unsafe_allow_html=True)
         if st.session_state.citas_db:
             st.dataframe(pd.DataFrame(st.session_state.citas_db), use_container_width=True)
 
     # 5. ADMINISTRACIÓN
     elif opcion_menu == "Administración":
-        st.markdown('<div class="section-header">⚙️ PANEL DE ADMINISTRACIÓN</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header-4k">⚙️ PANEL DE ADMINISTRACIÓN</div>', unsafe_allow_html=True)
         
         if es_admin:
-            st.warning("⚠️ **Atención:** La siguiente opción borrará permanentemente las citas y los registros de cortes.")
-            if st.button("REINICIAR TODO EL HISTORIAL"):
+            st.warning("⚠️ **Atención:** Borrado permanente del historial de citas y cortes.")
+            if st.button("REINICIAR HISTORIAL COMPLETO"):
                 st.session_state.cortes_db = []
                 st.session_state.citas_db = []
                 guardar_datos(CORTES_FILE, [])
@@ -522,4 +503,4 @@ else:
                 st.success("El historial completo ha sido borrado.")
                 st.rerun()
         else:
-            st.error("🔒 **Acceso restringido:** Tu usuario no posee permisos para reiniciar el historial de la barbería.")
+            st.error("🔒 **Acceso restringido:** Se requieren permisos de administrador.")
