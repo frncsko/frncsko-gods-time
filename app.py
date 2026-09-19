@@ -89,6 +89,11 @@ st.markdown("""
         color: #f1f5f9 !important;
     }
 
+    /* OCULTAR TEXTO RARO EN BOTÓN DE SIDEBAR */
+    [data-testid="stSidebarCollapseButton"] {
+        display: none !important;
+    }
+
     /* Fondo animado fluido de baja opacidad */
     .stApp {
         background: radial-gradient(circle at 20% 20%, rgba(0, 242, 254, 0.08) 0%, transparent 40%),
