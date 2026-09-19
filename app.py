@@ -1,525 +1,148 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime, date, time
-import urllib.parse
 import json
 import os
+import urllib.parse
 
-# Configuración de la página
+# 1. CONFIGURACIÓN DE PÁGINA
 st.set_page_config(
-    page_title="Test Barberia", 
-    layout="wide", 
-    initial_sidebar_state="expanded"
+    page_title="Restaurante - Menú Digital",
+    page_icon="🍔",
+    layout="wide"
 )
 
-# --- PERSISTENCIA LOCAL DE DATOS ---
-CORTES_FILE = "cortes_data.json"
-CITAS_FILE = "citas_data.json"
-CONFIG_FILE = "config_data.json"
+# Configuración de Moneda / Tasa de Cambio
+TASA_BS = 40.00  # Cambiar por la tasa del día
+TELEFONO_RESTAURANTE = "584120000000"  # Número con código de país (ej: 58 para Venezuela)
 
-def cargar_datos(archivo, por_defecto):
-    if os.path.exists(archivo):
-        try:
-            with open(archivo, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            return por_defecto
-    return por_defecto
+# 2. ARCHIVOS LOCALES (PERSISTENCIA)
+MENU_FILE = "restaurante_menu.json"
 
-def guardar_datos(archivo, datos):
-    with open(archivo, "w", encoding="utf-8") as f:
-        json.dump(datos, f, ensure_ascii=False, indent=4)
-
-# Inicialización de Estados
-if "autenticado" not in st.session_state:
-    st.session_state.autenticado = False
-if "usuario_actual" not in st.session_state:
-    st.session_state.usuario_actual = ""
-if "cortes_db" not in st.session_state:
-    st.session_state.cortes_db = cargar_datos(CORTES_FILE, [])
-if "citas_db" not in st.session_state:
-    st.session_state.citas_db = cargar_datos(CITAS_FILE, [])
-
-config_cargada = cargar_datos(CONFIG_FILE, {"tasa_bcv": 36.50})
-if "tasa_bcv" not in st.session_state:
-    st.session_state.tasa_bcv = config_cargada.get("tasa_bcv", 36.50)
-
-# CREDENCIALES Y ROLES DE USUARIOS
-USUARIOS = {
-    "Admin": {"clave": "1234", "rol": "admin"},
-    "Jonder": {"clave": "barbero1", "rol": "barbero"}
-}
-
-PRECIOS_CORTES = {
-    "Corte Clásico": 10.0,
-    "Corte y Barba": 12.0,
-    "Barba Completa": 5.0,
-    "Combo (Corte + Barba+ Mascarilla)": 13.0,
-    "Diseño / Cejas": 5.0
-}
-
-BARBEROS = ["Francisco", "Jonder", "Barbero 3"]
-METODOS_PAGO = ["EFECTIVO", "PAGO MOVIL", "BINANCE"]
-
-# GENERADOR DE OPCIONES DE HORAS (AM / PM)
-OPCIONES_HORAS = [
-    time(h, m).strftime("%I:%M %p") 
-    for h in range(8, 20) 
-    for m in (0, 30)
+MENU_POR_DEFECTO = [
+    {"id": 1, "nombre": "Hamburguesa Doble Carne", "categoria": "Platos Fuertes", "precio": 8.50, "descripcion": "Dos carnes de 150g, queso cheddar, tocineta y salsa especial.", "imagen": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500"},
+    {"id": 2, "nombre": "Papas Fritas Rústicas", "categoria": "Entradas", "precio": 3.50, "descripcion": "Papas crujientes sazonadas con especias y alioli.", "imagen": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500"},
+    {"id": 3, "nombre": "Refresco 500ml", "categoria": "Bebidas", "precio": 1.50, "descripcion": "Lata fría de sabor a elección.", "imagen": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500"},
+    {"id": 4, "nombre": "Brownie con Helado", "categoria": "Postres", "precio": 4.00, "descripcion": "Brownie tibio de chocolate servido con helado de vainilla.", "imagen": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500"}
 ]
 
-# ESTILOS FUTURISTAS Y BOTONES 3D BRILLANTES (GLOSSY PILL BUTTONS)
-st.markdown("""
-    <style>
-    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Space+Grotesk:wght@600;700&display=swap');
+def cargar_menu():
+    if os.path.exists(MENU_FILE):
+        try:
+            with open(MENU_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return MENU_POR_DEFECTO
+    return MENU_POR_DEFECTO
 
-    html, body, [class*="css"] {
-        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
+# 3. ESTADOS DE SESIÓN
+if "menu" not in st.session_state:
+    st.session_state.menu = cargar_menu()
 
-    .stApp {
-        background: radial-gradient(circle at 50% 10%, #080f1a 0%, #03050a 100%);
-        color: #e2e8f0;
-    }
+if "carrito" not in st.session_state:
+    st.session_state.carrito = {}
 
-    /* BARRA LATERAL IZQUIERDA MODERNIZADA */
-    [data-testid="stSidebar"] {
-        background: rgba(10, 17, 30, 0.95) !important;
-        border-right: 1px solid rgba(0, 240, 255, 0.2) !important;
-    }
+# 4. FUNCIONES DEL CARRITO
+def agregar_al_carrito(plato_id):
+    if plato_id in st.session_state.carrito:
+        st.session_state.carrito[plato_id] += 1
+    else:
+        st.session_state.carrito[plato_id] = 1
 
-    /* MENÚ LATERAL: ESTILO BOTONES OVALADOS 3D (Cian / Azul Neón) */
-    [data-testid="stSidebar"] .stRadio > div {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
+def remover_del_carrito(plato_id):
+    if plato_id in st.session_state.carrito:
+        if st.session_state.carrito[plato_id] > 1:
+            st.session_state.carrito[plato_id] -= 1
+        else:
+            del st.session_state.carrito[plato_id]
 
-    [data-testid="stSidebar"] .stRadio label {
-        position: relative;
-        background: linear-gradient(180deg, #00c6ff 0%, #0072ff 100%) !important;
-        border-radius: 50px !important;
-        padding: 12px 24px !important;
-        color: #ffffff !important;
-        font-weight: 800 !important;
-        font-size: 14px !important;
-        letter-spacing: 1px !important;
-        text-transform: uppercase;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.3s ease !important;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border: 1px solid rgba(255, 255, 255, 0.3) !important;
-        box-shadow: 0 8px 15px rgba(0, 114, 255, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.7) !important;
-        overflow: hidden;
-    }
+# 5. INTERFAZ PRINCIPAL
+st.title("🍔 Menú Digital & Pedidos")
+st.markdown(f"**Tasa de cambio referencial:** 1 USD = {TASA_BS:.2f} Bs.")
 
-    /* Reflejo de luz superior (Efecto Cristal) */
-    [data-testid="stSidebar"] .stRadio label::before {
-        content: '';
-        position: absolute;
-        top: 2px;
-        left: 10%;
-        right: 10%;
-        height: 40%;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 100%);
-        border-radius: 50px 50px 20px 20px;
-        pointer-events: none;
-    }
+col_menu, col_carrito = st.columns([2, 1])
 
-    [data-testid="stSidebar"] .stRadio label:hover {
-        transform: translateY(-2px) scale(1.02);
-        box-shadow: 0 12px 20px rgba(0, 240, 255, 0.6), inset 0 2px 6px rgba(255, 255, 255, 0.9) !important;
-    }
-
-    [data-testid="stSidebar"] .stRadio div[aria-checked="true"] + label {
-        background: linear-gradient(180deg, #00f0ff 0%, #0040a0 100%) !important;
-        border: 2px solid #ffffff !important;
-        box-shadow: 0 0 25px rgba(0, 240, 255, 0.9), inset 0 2px 6px rgba(255, 255, 255, 1) !important;
-    }
-
-    /* BOTONES GENERALES STREAMLIT ESTILO 3D GLOSSY (Verde Neón / Azul) */
-    .stButton > button {
-        position: relative;
-        background: linear-gradient(180deg, #00f0ff 0%, #0066cc 100%) !important;
-        color: #ffffff !important;
-        font-weight: 800 !important;
-        font-size: 15px !important;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        border-radius: 50px !important;
-        border: 1px solid rgba(255, 255, 255, 0.4) !important;
-        width: 100%;
-        padding: 14px 28px !important;
-        box-shadow: 0 8px 18px rgba(0, 102, 204, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.8) !important;
-        transition: all 0.3s ease-in-out;
-        overflow: hidden;
-    }
-
-    .stButton > button:hover {
-        box-shadow: 0 12px 25px rgba(0, 240, 255, 0.8), inset 0 2px 6px rgba(255, 255, 255, 1) !important;
-        transform: translateY(-2px);
-    }
-
-    /* BOTÓN WHATSAPP 3D GLOSSY (Verde Brillante) */
-    .btn-ws-glow {
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        background: linear-gradient(180deg, #25D366 0%, #128C7E 100%) !important;
-        color: white !important;
-        text-decoration: none;
-        border-radius: 50px !important;
-        padding: 14px 28px;
-        font-weight: 800;
-        font-size: 15px;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        box-shadow: 0 8px 18px rgba(37, 211, 102, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.8);
-        transition: all 0.3s ease;
-        overflow: hidden;
-    }
-
-    .btn-ws-glow:hover {
-        box-shadow: 0 12px 25px rgba(37, 211, 102, 0.8), inset 0 2px 6px rgba(255, 255, 255, 1);
-        transform: translateY(-2px);
-        color: white !important;
-    }
-
-    /* EFECTO LATIDO Y NEÓN EN EL TÍTULO */
-    @keyframes heartbeat-glow {
-        0% { transform: scale(1); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
-        14% { transform: scale(1.04); text-shadow: 0 0 25px rgba(0, 240, 255, 0.9); }
-        28% { transform: scale(1); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
-        42% { transform: scale(1.02); text-shadow: 0 0 20px rgba(0, 240, 255, 0.8); }
-        70% { transform: scale(1); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
-    }
-
-    .title-electric {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 32px;
-        font-weight: 800;
-        color: #00f0ff !important;
-        text-align: center;
-        letter-spacing: 2px;
-        display: inline-block;
-        animation: heartbeat-glow 2.5s infinite ease-in-out;
-    }
-
-    .section-header {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 22px;
-        font-weight: 700;
-        color: #00f0ff;
-        border-bottom: 2px solid rgba(0, 240, 255, 0.3);
-        padding-bottom: 8px;
-        margin-bottom: 20px;
-        letter-spacing: 0.5px;
-    }
-
-    .card-3d, [data-testid="stForm"] {
-        background: rgba(10, 18, 32, 0.85);
-        backdrop-filter: blur(14px);
-        border-radius: 20px;
-        padding: 24px;
-        margin-bottom: 20px;
-        border: 1px solid rgba(0, 240, 255, 0.2);
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# ---------------------------------------------------------
-# VISTA 1: INICIO CLIENTES (AGENDAR CITAS) + BOTÓN SUPERIOR DE LOGIN
-# ---------------------------------------------------------
-if not st.session_state.autenticado:
-    # Encabezado superior con botón flotante/pequeño para login
-    col_header, col_login_btn = st.columns([5, 1.2])
+# --- COLUMNA 1: CATÁLOGO DE PLATILLOS ---
+with col_menu:
+    st.header("📖 Nuestro Menú")
     
-    with col_login_btn:
-        with st.popover("Acceso Personal 🔐", use_container_width=True):
-            st.markdown("<h4 style='text-align: center; color: #ffffff; margin-bottom: 10px;'>ACCESO PERSONAL</h4>", unsafe_allow_html=True)
-            with st.form("login_form_popover"):
-                usuario = st.text_input("Usuario", placeholder="Ingresa tu usuario")
-                contrasena = st.text_input("Contraseña", type="password", placeholder="••••••••")
-                submit = st.form_submit_button("ENTRAR")
-
-                if submit:
-                    if usuario in USUARIOS and USUARIOS[usuario]["clave"] == contrasena:
-                        st.session_state.autenticado = True
-                        st.session_state.usuario_actual = usuario
-                        st.rerun()
-                    else:
-                        st.error("Credenciales incorrectas")
-
-    st.markdown('''
-        <div style="text-align: center; margin-top: -20px;">
-            <div class="title-electric">TEST BARBERIA</div>
-        </div>
-    ''', unsafe_allow_html=True)
+    categorias = ["Todos", "Entradas", "Platos Fuertes", "Bebidas", "Postres"]
+    cat_seleccionada = st.selectbox("Filtrar por categoría:", categorias)
     
-    st.markdown("<p style='text-align: center; color: #00f0ff; font-weight: 700; font-size: 18px; margin-top: 10px; margin-bottom: 30px;'>🔥 ¡Eleva tu presencia! El corte perfecto en el momento exacto. ⚡</p>", unsafe_allow_html=True)
+    for plato in st.session_state.menu:
+        if cat_seleccionada == "Todos" or plato["categoria"] == cat_seleccionada:
+            with st.container():
+                c1, c2 = st.columns([1, 2])
+                with c1:
+                    st.image(plato["imagen"], use_container_width=True)
+                with c2:
+                    st.subheader(plato["nombre"])
+                    st.caption(plato["descripcion"])
+                    precio_usd = plato["precio"]
+                    precio_bs = precio_usd * TASA_BS
+                    st.markdown(f"**${precio_usd:.2f} USD** / *{precio_bs:.2f} Bs.*")
+                    st.button(f"➕ Agregar", key=f"add_{plato['id']}", on_click=agregar_al_carrito, args=(plato['id'],))
+                st.markdown("---")
 
-    # Vista principal directa para clientes: AGENDAR CITA
-    col_c1, col_c2, col_c3 = st.columns([1, 2, 1])
-    with col_c2:
-        st.markdown("<h3 style='text-align: center; color: #ffffff;'>Reserva tu Cita</h3>", unsafe_allow_html=True)
-        with st.form("form_cita_login"):
-            nombre_c = st.text_input("Tu Nombre Completo")
-            telefono_c = st.text_input("Teléfono (Ej: +584120000000)")
-            barbero_c = st.selectbox("Barbero de preferencia", BARBEROS, key="barbero_cita_login")
-            
-            col_f1, col_h1 = st.columns(2)
-            with col_f1:
-                fecha_c = st.date_input("Fecha de la cita", min_value=date.today(), key="fecha_cita_login")
-            with col_h1:
-                hora_c = st.selectbox("Hora de la cita", OPCIONES_HORAS, key="hora_cita_login")
-
-            servicio_c = st.selectbox("Servicio solicitado", list(PRECIOS_CORTES.keys()), key="servicio_cita_login")
-            
-            btn_agendar_login = st.form_submit_button("REGISTRAR CITA")
-
-        if btn_agendar_login:
-            if nombre_c and telefono_c:
-                cita = {
-                    "Cliente": nombre_c,
-                    "Teléfono": telefono_c,
-                    "Barbero": barbero_c,
-                    "Fecha": str(fecha_c),
-                    "Hora": hora_c,
-                    "Servicio": servicio_c
-                }
-                st.session_state.citas_db.append(cita)
-                guardar_datos(CITAS_FILE, st.session_state.citas_db)
-                
-                precio_usd = PRECIOS_CORTES[servicio_c]
-                precio_bs = precio_usd * st.session_state.tasa_bcv
-                
-                mensaje = f"Hola {nombre_c}, confirmamos tu cita en Test Barberia el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c} (${precio_usd:.2f} / {precio_bs:.2f} BS)."
-                mensaje_encoded = urllib.parse.quote(mensaje)
-                phone_clean = telefono_c.replace("+", "").replace(" ", "").replace("-", "")
-                ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
-                
-                st.success("¡Cita agendada exitosamente!")
-                st.markdown(f'''
-                    <a href="{ws_url}" target="_blank" class="btn-ws-glow">
-                        Confirmar por WhatsApp
-                    </a>
-                ''', unsafe_allow_html=True)
-            else:
-                st.error("Por favor completa tu nombre y número de teléfono.")
-
-# ---------------------------------------------------------
-# VISTA 2: PANEL PRINCIPAL (MENÚ CON BOTONES 3D GLOSSY)
-# ---------------------------------------------------------
-else:
-    user_info = USUARIOS.get(st.session_state.usuario_actual, {"rol": "invitado"})
-    es_admin = user_info["rol"] == "admin"
-
-    # SIDEBAR: MENÚ CON BOTONES OVALADOS 3D CON BRILLO
-    with st.sidebar:
-        st.markdown('''
-            <div style="text-align: center; padding: 10px 0;">
-                <div class="title-electric" style="font-size: 22px;">TEST BARBERIA</div>
-            </div>
-        ''', unsafe_allow_html=True)
-        st.markdown(f"<p style='text-align: center; color: #94a3b8; font-size: 13px;'>Barbero: <b style='color:#00f0ff;'>{st.session_state.usuario_actual}</b></p>", unsafe_allow_html=True)
-        st.markdown("---")
+# --- COLUMNA 2: CARRITO Y CHECKOUT ---
+with col_carrito:
+    st.header("🛒 Tu Pedido")
+    
+    if not st.session_state.carrito:
+        st.info("El carrito está vacío. Agrega platillos para comenzar.")
+    else:
+        total_usd = 0.0
+        resumen_texto = []
         
-        st.markdown("<p style='font-size: 13px; color: #00f0ff; font-weight: 800; margin-bottom: 8px;'>MENÚ PRINCIPAL</p>", unsafe_allow_html=True)
+        for p_id, cantidad in list(st.session_state.carrito.items()):
+            plato = next((p for p in st.session_state.menu if p["id"] == p_id), None)
+            if plato:
+                subtotal = plato["precio"] * cantidad
+                total_usd += subtotal
+                
+                st.write(f"**{plato['nombre']}** x{cantidad}")
+                st.caption(f"Subtotal: ${subtotal:.2f} USD")
+                
+                col_b1, col_b2, _ = st.columns([1, 1, 2])
+                col_b1.button("➖", key=f"sub_{p_id}", on_click=remover_del_carrito, args=(p_id,))
+                col_b2.button("➕", key=f"add_cart_{p_id}", on_click=agregar_al_carrito, args=(p_id,))
+                st.markdown("---")
+                
+                resumen_texto.append(f"• {plato['nombre']} x{cantidad} - ${subtotal:.2f}")
 
-        opciones_menu = {
-            "📊  Panel General": "Panel General",
-            "✂️  Registrar Corte": "Registrar Corte",
-            "💈  Historial Barberos": "Historial Barberos",
-            "📅  Citas y WhatsApp": "Citas y WhatsApp",
-            "⚙️  Administración": "Administración"
-        }
-        
-        seleccion_label = st.radio(
-            label="", 
-            options=list(opciones_menu.keys()),
-            label_visibility="collapsed"
-        )
-        
-        opcion_menu = opciones_menu[seleccion_label]
+        total_bs = total_usd * TASA_BS
+        st.subheader(f"Total: ${total_usd:.2f} USD")
+        st.markdown(f"### **{total_bs:.2f} Bs.**")
         
         st.markdown("---")
+        st.subheader("📋 Datos del Pedido")
         
-        # ACTUALIZACIÓN DE TASA DEL DÓLAR
-        st.markdown("<p style='font-size: 13px; color: #00f0ff; font-weight: 800; margin-bottom: 5px;'>💵 TASA DEL DÓLAR ($)</p>", unsafe_allow_html=True)
-        nueva_tasa_input = st.number_input("Tasa BS", value=float(st.session_state.tasa_bcv), step=0.10, label_visibility="collapsed")
-        if st.button("ACTUALIZAR TASA DEL DÓLAR"):
-            st.session_state.tasa_bcv = nueva_tasa_input
-            guardar_datos(CONFIG_FILE, {"tasa_bcv": nueva_tasa_input})
-            st.success(f"Tasa actualizada: {nueva_tasa_input:.2f} BS")
-            st.rerun()
-
-        st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("🚪 Cerrar Sesión"):
-            st.session_state.autenticado = False
-            st.session_state.usuario_actual = ""
-            st.rerun()
-
-    # 1. PANEL GENERAL
-    if opcion_menu == "Panel General":
-        st.markdown('<div class="section-header">📊 PANEL GENERAL DE LA BARBERÍA</div>', unsafe_allow_html=True)
-        df_cortes = pd.DataFrame(st.session_state.cortes_db)
+        tipo_servicio = st.radio("Modalidad:", ["Para Llevar", "Delivery", "Mesa"])
+        nombre_cliente = st.text_input("Tu Nombre:")
+        detalle_adicional = st.text_input("Nº de Mesa / Dirección de Entrega:")
         
-        c1, c2, c3 = st.columns(3)
-        total_cortes = len(df_cortes) if not df_cortes.empty else 0
-        total_ingresos_usd = df_cortes["Precio ($)"].sum() if (not df_cortes.empty and "Precio ($)" in df_cortes.columns) else (df_cortes["Precio"].sum() if not df_cortes.empty else 0.0)
-        total_ingresos_bs = total_ingresos_usd * st.session_state.tasa_bcv
-        citas_pendientes = len(st.session_state.citas_db)
-
-        with c1:
-            st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Total Cortes</h4><h2 style="margin:5px 0 0 0;">{total_cortes}</h2></div>', unsafe_allow_html=True)
-        with c2:
-            st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Ingresos Totales</h4><h2 style="margin:5px 0 0 0; font-size: 22px;">${total_ingresos_usd:.2f} <span style="color:#00f0ff; font-size:16px;">({total_ingresos_bs:.2f} BS)</span></h2></div>', unsafe_allow_html=True)
-        with c3:
-            st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Citas Agendadas</h4><h2 style="margin:5px 0 0 0;">{citas_pendientes}</h2></div>', unsafe_allow_html=True)
-
-        st.markdown('<div class="section-header" style="margin-top: 30px;">💵 TARIFA DE SERVICIOS</div>', unsafe_allow_html=True)
-        precios_tabla = [
-            {"Servicio / Corte": k, "Precio ($)": f"${v:.2f}", "Precio (BS)": f"{v * st.session_state.tasa_bcv:.2f} BS"}
-            for k, v in PRECIOS_CORTES.items()
-        ]
-        st.table(pd.DataFrame(precios_tabla))
-
-    # 2. REGISTRAR CORTE
-    elif opcion_menu == "Registrar Corte":
-        st.markdown('<div class="section-header">✂️ REGISTRO DE NUEVO CORTE</div>', unsafe_allow_html=True)
-        with st.form("form_corte"):
-            col1, col2 = st.columns(2)
-            with col1:
-                idx_barbero = BARBEROS.index(st.session_state.usuario_actual) if st.session_state.usuario_actual in BARBEROS else 0
-                barbero_sel = st.selectbox("Selecciona el Barbero", BARBEROS, index=idx_barbero)
-                corte_sel = st.selectbox("Tipo de Corte / Servicio", list(PRECIOS_CORTES.keys()))
-                precio_corte_usd = st.number_input("Precio ($)", value=float(PRECIOS_CORTES[corte_sel]), step=1.0)
-                precio_corte_bs = precio_corte_usd * st.session_state.tasa_bcv
-                st.info(f"Monto equivalente en Bolívares (Tasa {st.session_state.tasa_bcv:.2f}): **{precio_corte_bs:.2f} BS**")
-                cliente_nombre = st.text_input("Nombre del Cliente (Opcional)")
-            
-            with col2:
-                metodo_pago = st.selectbox("Método de Pago", METODOS_PAGO)
-                referencia_pago = st.text_input("N° de Referencia / Transacción", placeholder="N/A para Efectivo")
-
-            btn_guardar = st.form_submit_button("GUARDAR CORTE Y REGISTRAR")
-            
-            if btn_guardar:
-                ref_final = referencia_pago.strip() if referencia_pago.strip() else ("N/A" if metodo_pago == "EFECTIVO" else "Sin ref.")
-                
-                nuevo_registro = {
-                    "Fecha": datetime.now().strftime("%Y-%m-%d %I:%M:%S %p"),
-                    "Barbero": barbero_sel,
-                    "Servicio": corte_sel,
-                    "Precio ($)": precio_corte_usd,
-                    "Precio (BS)": round(precio_corte_bs, 2),
-                    "Método Pago": metodo_pago,
-                    "Referencia": ref_final,
-                    "Cliente": cliente_nombre.strip() if cliente_nombre.strip() else "Cliente Ocasional"
-                }
-                st.session_state.cortes_db.append(nuevo_registro)
-                guardar_datos(CORTES_FILE, st.session_state.cortes_db)
-                st.success(f"Corte registrado a {barbero_sel} correctamente (${precio_corte_usd:.2f} / {precio_corte_bs:.2f} BS) vía {metodo_pago}.")
-
-    # 3. HISTORIAL Y REGISTRO DE CLIENTES POR BARBERO
-    elif opcion_menu == "Historial Barberos":
-        st.markdown('<div class="section-header">💈 HISTORIAL Y REGISTRO DE CLIENTES POR BARBERO</div>', unsafe_allow_html=True)
-        idx_filtro = BARBEROS.index(st.session_state.usuario_actual) if st.session_state.usuario_actual in BARBEROS else 0
-        barbero_filtro = st.selectbox("Selecciona un Barbero", BARBEROS, index=idx_filtro, key="filtro_barbero")
-        
-        if st.session_state.cortes_db:
-            df_cortes = pd.DataFrame(st.session_state.cortes_db)
-            df_filtrado = df_cortes[df_cortes["Barbero"] == barbero_filtro]
-            
-            if not df_filtrado.empty:
-                col_precio = "Precio ($)" if "Precio ($)" in df_filtrado.columns else "Precio"
-                total_usd = df_filtrado[col_precio].sum()
-                total_bs = total_usd * st.session_state.tasa_bcv
-                st.info(f"Total acumulado por **{barbero_filtro}**: **${total_usd:.2f} USD** / **{total_bs:.2f} BS** ({len(df_filtrado)} cortes)")
-
-                tab_hist, tab_cli = st.tabs(["HISTORIAL DE CORTES", "CLIENTES ATENDIDOS"])
-                
-                with tab_hist:
-                    st.dataframe(df_filtrado, use_container_width=True)
-                
-                with tab_cli:
-                    st.markdown(f"### Clientes registrados con {barbero_filtro}")
-                    df_clientes = df_filtrado.groupby("Cliente").agg(
-                        Visitas=("Servicio", "count"),
-                        Total_Gastado_USD=(col_precio, "sum"),
-                        Ultima_Visita=("Fecha", "max")
-                    ).reset_index()
-                    df_clientes["Total_Gastado_BS"] = df_clientes["Total_Gastado_USD"] * st.session_state.tasa_bcv
-                    st.dataframe(df_clientes, use_container_width=True)
+        if st.button("📲 Confirmar Pedido por WhatsApp", type="primary"):
+            if not nombre_cliente:
+                st.error("Por favor ingresa tu nombre antes de enviar.")
             else:
-                st.warning(f"No hay registros de cortes para {barbero_filtro}.")
-        else:
-            st.write("No hay datos de cortes registrados aún.")
-
-    # 4. CITAS Y WHATSAPP
-    elif opcion_menu == "Citas y WhatsApp":
-        st.markdown('<div class="section-header">📅 GESTIÓN DE CITAS Y RECORDATORIOS POR WHATSAPP</div>', unsafe_allow_html=True)
-        col_f1, col_f2 = st.columns(2)
-        with col_f1:
-            nombre_c = st.text_input("Nombre del Cliente")
-            telefono_c = st.text_input("Teléfono (Ej: +584120000000)")
-            barbero_c = st.selectbox("Barbero de preferencia", BARBEROS, key="barbero_cita")
-        with col_f2:
-            fecha_c = st.date_input("Fecha de la cita", min_value=date.today())
-            hora_c = st.selectbox("Hora de la cita", OPCIONES_HORAS, key="hora_cita_admin")
-            servicio_c = st.selectbox("Servicio solicitado", list(PRECIOS_CORTES.keys()), key="servicio_cita")
-            
-        if st.button("REGISTRAR CITA Y NOTIFICAR POR WHATSAPP"):
-            if nombre_c and telefono_c:
-                cita = {
-                    "Cliente": nombre_c,
-                    "Teléfono": telefono_c,
-                    "Barbero": barbero_c,
-                    "Fecha": str(fecha_c),
-                    "Hora": hora_c,
-                    "Servicio": servicio_c
-                }
-                st.session_state.citas_db.append(cita)
-                guardar_datos(CITAS_FILE, st.session_state.citas_db)
+                # Construcción del mensaje para WhatsApp
+                mensaje = f" *NUEVO PEDIDO - RESTAURANTE*\n"
+                mensaje += f"-----------------------------------\n"
+                mensaje += f"*Cliente:* {nombre_cliente}\n"
+                mensaje += f"*Modalidad:* {tipo_servicio}\n"
+                if detalle_adicional:
+                    mensaje += f"*Ubicación/Mesa:* {detalle_adicional}\n"
+                mensaje += f"-----------------------------------\n"
+                mensaje += "*Detalle del Pedido:*\n"
+                for item in resumen_texto:
+                    mensaje += f"{item}\n"
+                mensaje += f"-----------------------------------\n"
+                mensaje += f"*TOTAL USD:* ${total_usd:.2f}\n"
+                mensaje += f"*TOTAL BS:* {total_bs:.2f} Bs.\n\n"
+                mensaje += "¡Quedo a la espera de su confirmación!"
                 
-                precio_usd = PRECIOS_CORTES[servicio_c]
-                precio_bs = precio_usd * st.session_state.tasa_bcv
-                
-                mensaje = f"Hola {nombre_c}, confirmamos tu cita en Test Barberia el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c} (${precio_usd:.2f} / {precio_bs:.2f} BS)."
+                # Generar enlace de WhatsApp
                 mensaje_encoded = urllib.parse.quote(mensaje)
-                phone_clean = telefono_c.replace("+", "").replace(" ", "").replace("-", "")
-                ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
-                st.success("¡Cita agendada exitosamente!")
-                st.markdown(f'''
-                    <a href="{ws_url}" target="_blank" class="btn-ws-glow">
-                        Enviar Confirmación por WhatsApp
-                    </a>
-                ''', unsafe_allow_html=True)
-
-        st.markdown('<div class="section-header" style="margin-top:30px;">CITAS REGISTRADAS</div>', unsafe_allow_html=True)
-        if st.session_state.citas_db:
-            st.dataframe(pd.DataFrame(st.session_state.citas_db), use_container_width=True)
-
-    # 5. ADMINISTRACIÓN
-    elif opcion_menu == "Administración":
-        st.markdown('<div class="section-header">⚙️ PANEL DE ADMINISTRACIÓN</div>', unsafe_allow_html=True)
-        
-        if es_admin:
-            st.warning("⚠️ **Atención:** La siguiente opción borrará permanentemente las citas y los registros de cortes.")
-            if st.button("REINICIAR TODO EL HISTORIAL"):
-                st.session_state.cortes_db = []
-                st.session_state.citas_db = []
-                guardar_datos(CORTES_FILE, [])
-                guardar_datos(CITAS_FILE, [])
-                st.success("El historial completo ha sido borrado.")
-                st.rerun()
-        else:
-            st.error("🔒 **Acceso restringido:** Tu usuario no posee permisos para reiniciar el historial de la barbería.")
+                url_ws = f"https://wa.me/{TELEFONO_RESTAURANTE}?text={mensaje_encoded}"
+                
+                st.success("¡Pedido generado! Haz clic abajo para enviarlo:")
+                st.markdown(f"[👉 Abrir WhatsApp para enviar pedido]({url_ws})", unsafe_allow_html=True)
