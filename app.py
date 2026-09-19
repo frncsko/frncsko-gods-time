@@ -7,7 +7,7 @@ import os
 
 # Configuración de página
 st.set_page_config(
-    page_title="Barbería NextGen - Dark VIP", 
+    page_title="Barbería NextGen - Dynamic Dark VIP", 
     layout="wide", 
     initial_sidebar_state="expanded"
 )
@@ -67,40 +67,100 @@ OPCIONES_HORAS = [
     for m in (0, 30)
 ]
 
+# --- FONDO ANIMADO CON ELEMENTOS DE BARBERÍA EN MOVIMIENTO ---
+st.markdown("""
+    <canvas id="barberCanvas" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none;"></canvas>
+
+    <script>
+    const canvas = document.getElementById('barberCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const icons = ['✂️', '💈', '🪮', '💈', '✂️'];
+    const particles = [];
+
+    for (let i = 0; i < 25; i++) {
+        particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: Math.random() * 20 + 16,
+            icon: icons[Math.floor(Math.random() * icons.length)],
+            speedX: (Math.random() - 0.5) * 0.8,
+            speedY: (Math.random() - 0.5) * 0.8,
+            opacity: Math.random() * 0.25 + 0.05,
+            rotation: Math.random() * 360,
+            rotSpeed: (Math.random() - 0.5) * 0.02
+        });
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Gradiente oscuro de fondo
+        let grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        grad.addColorStop(0, '#04060c');
+        grad.addColorStop(0.5, '#0a0f1d');
+        grad.addColorStop(1, '#04060c');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach(p => {
+            p.x += p.speedX;
+            p.y += p.speedY;
+            p.rotation += p.rotSpeed;
+
+            if (p.x < -30) p.x = canvas.width + 30;
+            if (p.x > canvas.width + 30) p.x = -30;
+            if (p.y < -30) p.y = canvas.height + 30;
+            if (p.y > canvas.height + 30) p.y = -30;
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rotation);
+            ctx.globalAlpha = p.opacity;
+            ctx.font = `${p.size}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(p.icon, 0, 0);
+            ctx.restore();
+        });
+
+        requestAnimationFrame(animate);
+    }
+    animate();
+    </script>
+""", unsafe_allow_html=True)
+
 # --- ESTILOS INTERFAZ ULTRA MODERN / CYBERPUNK GLASSMORPHISM ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap');
 
     :root {
-        --bg-main: #050811;
-        --card-bg: rgba(13, 22, 38, 0.6);
+        --card-bg: rgba(10, 16, 28, 0.65);
         --accent-cyan: #00f2fe;
         --accent-blue: #4facfe;
         --accent-green: #00ff87;
-        --accent-purple: #7928CA;
-        --accent-pink: #FF0080;
-        --border-color: rgba(0, 242, 254, 0.18);
+        --border-color: rgba(0, 242, 254, 0.2);
     }
 
     html, body, [class*="st-"] {
         font-family: 'Outfit', sans-serif;
-        background-color: var(--bg-main) !important;
+        background-color: transparent !important;
         color: #f1f5f9 !important;
     }
 
     [data-testid="stSidebarCollapseButton"] { display: none !important; }
 
-    /* Fondo animado resplandeciente */
-    .stApp {
-        background: radial-gradient(circle at 10% 20%, rgba(121, 40, 202, 0.12) 0%, transparent 40%),
-                    radial-gradient(circle at 90% 80%, rgba(0, 242, 254, 0.12) 0%, transparent 40%),
-                    #050811 !important;
-    }
-
     /* SIDEBAR MODERNA */
     [data-testid="stSidebar"] {
-        background: rgba(8, 12, 22, 0.9) !important;
+        background: rgba(6, 10, 18, 0.85) !important;
         backdrop-filter: blur(25px) saturate(200%);
         border-right: 1px solid var(--border-color) !important;
     }
@@ -141,14 +201,14 @@ st.markdown("""
         border-radius: 20px;
         padding: 26px;
         border: 1px solid var(--border-color);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     .glass-card:hover {
         transform: translateY(-6px);
         border-color: rgba(0, 242, 254, 0.5);
-        box-shadow: 0 20px 40px rgba(0, 242, 254, 0.2);
+        box-shadow: 0 20px 40px rgba(0, 242, 254, 0.25);
     }
 
     /* EFECTOS HOVER AVANZADOS EN BOTONES GENERALES DE STREAMLIT */
@@ -165,8 +225,6 @@ st.markdown("""
         padding: 14px 28px !important;
         box-shadow: 0 8px 20px rgba(0, 242, 254, 0.25) !important;
         transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
-        position: relative;
-        overflow: hidden;
     }
 
     .stButton > button:hover {
@@ -174,10 +232,6 @@ st.markdown("""
         box-shadow: 0 15px 30px rgba(0, 242, 254, 0.5), 0 0 15px rgba(0, 242, 254, 0.8) !important;
         color: #ffffff !important;
         border-color: #ffffff !important;
-    }
-
-    .stButton > button:active {
-        transform: translateY(1px) scale(0.98) !important;
     }
 
     /* BOTÓN DE WHATSAPP CON GLOW VERDE INTERACTIVO */
@@ -229,7 +283,6 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
-    /* INPUTS Y SELECTS MODERNOS */
     div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {
         background-color: rgba(15, 23, 42, 0.8) !important;
         border: 1px solid var(--border-color) !important;
