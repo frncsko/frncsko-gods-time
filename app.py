@@ -67,7 +67,7 @@ OPCIONES_HORAS = [
     for m in (0, 30)
 ]
 
-# --- FONDO ANIMADO CON ELEMENTOS DE BARBERÍA EN MOVIMIENTO ---
+# --- FONDO ANIMADO CON FONDO OSCURO SÓLIDO ---
 st.markdown("""
     <canvas id="barberCanvas" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none;"></canvas>
 
@@ -102,12 +102,8 @@ st.markdown("""
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Gradiente oscuro de fondo
-        let grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-        grad.addColorStop(0, '#04060c');
-        grad.addColorStop(0.5, '#0a0f1d');
-        grad.addColorStop(1, '#04060c');
-        ctx.fillStyle = grad;
+        // Fondo oscuro sólido profesional (Dark Midnight / Navy)
+        ctx.fillStyle = '#0a0e17'; 
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         particles.forEach(p => {
