@@ -7,7 +7,7 @@ import os
 
 # Configuración de la página
 st.set_page_config(
-    page_title="Barberia God's Time", 
+    page_title="Test Barberia", 
     layout="wide", 
     initial_sidebar_state="expanded"
 )
@@ -236,85 +236,84 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# VISTA 1: INICIO DE SESIÓN / CLIENTES
+# VISTA 1: INICIO CLIENTES (AGENDAR CITAS) + BOTÓN SUPERIOR DE LOGIN
 # ---------------------------------------------------------
 if not st.session_state.autenticado:
-    st.markdown("<br>", unsafe_allow_html=True)
+    # Encabezado superior con botón flotante/pequeño para login
+    col_header, col_login_btn = st.columns([5, 1.2])
+    
+    with col_login_btn:
+        with st.popover("Acceso Personal 🔐", use_container_width=True):
+            st.markdown("<h4 style='text-align: center; color: #ffffff; margin-bottom: 10px;'>ACCESO PERSONAL</h4>", unsafe_allow_html=True)
+            with st.form("login_form_popover"):
+                usuario = st.text_input("Usuario", placeholder="Ingresa tu usuario")
+                contrasena = st.text_input("Contraseña", type="password", placeholder="••••••••")
+                submit = st.form_submit_button("ENTRAR")
+
+                if submit:
+                    if usuario in USUARIOS and USUARIOS[usuario]["clave"] == contrasena:
+                        st.session_state.autenticado = True
+                        st.session_state.usuario_actual = usuario
+                        st.rerun()
+                    else:
+                        st.error("Credenciales incorrectas")
+
     st.markdown('''
-        <div style="text-align: center;">
-            <div class="title-electric">BARBERÍA GOD'S TIME</div>
+        <div style="text-align: center; margin-top: -20px;">
+            <div class="title-electric">TEST BARBERIA</div>
         </div>
     ''', unsafe_allow_html=True)
     
     st.markdown("<p style='text-align: center; color: #00f0ff; font-weight: 700; font-size: 18px; margin-top: 10px; margin-bottom: 30px;'>🔥 ¡Eleva tu presencia! El corte perfecto en el momento exacto. ⚡</p>", unsafe_allow_html=True)
 
-    tab_login, tab_cita_cliente = st.tabs(["ACCESO PERSONAL", "AGENDAR CITA"])
+    # Vista principal directa para clientes: AGENDAR CITA
+    col_c1, col_c2, col_c3 = st.columns([1, 2, 1])
+    with col_c2:
+        st.markdown("<h3 style='text-align: center; color: #ffffff;'>Reserva tu Cita</h3>", unsafe_allow_html=True)
+        with st.form("form_cita_login"):
+            nombre_c = st.text_input("Tu Nombre Completo")
+            telefono_c = st.text_input("Teléfono (Ej: +584120000000)")
+            barbero_c = st.selectbox("Barbero de preferencia", BARBEROS, key="barbero_cita_login")
+            
+            col_f1, col_h1 = st.columns(2)
+            with col_f1:
+                fecha_c = st.date_input("Fecha de la cita", min_value=date.today(), key="fecha_cita_login")
+            with col_h1:
+                hora_c = st.selectbox("Hora de la cita", OPCIONES_HORAS, key="hora_cita_login")
 
-    with tab_login:
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            with st.form("login_form"):
-                st.markdown("<h3 style='text-align: center; color: #ffffff;'>ACCESO AL SISTEMA</h3>", unsafe_allow_html=True)
-                usuario = st.text_input("Usuario", placeholder="Ingresa tu usuario")
-                contrasena = st.text_input("Contraseña", type="password", placeholder="••••••••")
-                submit = st.form_submit_button("ENTRAR AL SISTEMA")
+            servicio_c = st.selectbox("Servicio solicitado", list(PRECIOS_CORTES.keys()), key="servicio_cita_login")
+            
+            btn_agendar_login = st.form_submit_button("REGISTRAR CITA")
 
-            if submit:
-                if usuario in USUARIOS and USUARIOS[usuario]["clave"] == contrasena:
-                    st.session_state.autenticado = True
-                    st.session_state.usuario_actual = usuario
-                    st.rerun()
-                else:
-                    st.error("Credenciales incorrectas")
-
-    with tab_cita_cliente:
-        col_c1, col_c2, col_c3 = st.columns([1, 2, 1])
-        with col_c2:
-            st.markdown("<h3 style='text-align: center;'>Reserva tu Cita</h3>", unsafe_allow_html=True)
-            with st.form("form_cita_login"):
-                nombre_c = st.text_input("Tu Nombre Completo")
-                telefono_c = st.text_input("Teléfono (Ej: +584120000000)")
-                barbero_c = st.selectbox("Barbero de preferencia", BARBEROS, key="barbero_cita_login")
+        if btn_agendar_login:
+            if nombre_c and telefono_c:
+                cita = {
+                    "Cliente": nombre_c,
+                    "Teléfono": telefono_c,
+                    "Barbero": barbero_c,
+                    "Fecha": str(fecha_c),
+                    "Hora": hora_c,
+                    "Servicio": servicio_c
+                }
+                st.session_state.citas_db.append(cita)
+                guardar_datos(CITAS_FILE, st.session_state.citas_db)
                 
-                col_f1, col_h1 = st.columns(2)
-                with col_f1:
-                    fecha_c = st.date_input("Fecha de la cita", min_value=date.today(), key="fecha_cita_login")
-                with col_h1:
-                    hora_c = st.selectbox("Hora de la cita", OPCIONES_HORAS, key="hora_cita_login")
-
-                servicio_c = st.selectbox("Servicio solicitado", list(PRECIOS_CORTES.keys()), key="servicio_cita_login")
+                precio_usd = PRECIOS_CORTES[servicio_c]
+                precio_bs = precio_usd * st.session_state.tasa_bcv
                 
-                btn_agendar_login = st.form_submit_button("REGISTRAR CITA")
-
-            if btn_agendar_login:
-                if nombre_c and telefono_c:
-                    cita = {
-                        "Cliente": nombre_c,
-                        "Teléfono": telefono_c,
-                        "Barbero": barbero_c,
-                        "Fecha": str(fecha_c),
-                        "Hora": hora_c,
-                        "Servicio": servicio_c
-                    }
-                    st.session_state.citas_db.append(cita)
-                    guardar_datos(CITAS_FILE, st.session_state.citas_db)
-                    
-                    precio_usd = PRECIOS_CORTES[servicio_c]
-                    precio_bs = precio_usd * st.session_state.tasa_bcv
-                    
-                    mensaje = f"Hola {nombre_c}, confirmamos tu cita en Barbería God's Time el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c} (${precio_usd:.2f} / {precio_bs:.2f} BS)."
-                    mensaje_encoded = urllib.parse.quote(mensaje)
-                    phone_clean = telefono_c.replace("+", "").replace(" ", "").replace("-", "")
-                    ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
-                    
-                    st.success("¡Cita agendada exitosamente!")
-                    st.markdown(f'''
-                        <a href="{ws_url}" target="_blank" class="btn-ws-glow">
-                            Confirmar por WhatsApp
-                        </a>
-                    ''', unsafe_allow_html=True)
-                else:
-                    st.error("Por favor completa tu nombre y número de teléfono.")
+                mensaje = f"Hola {nombre_c}, confirmamos tu cita en Test Barberia el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c} (${precio_usd:.2f} / {precio_bs:.2f} BS)."
+                mensaje_encoded = urllib.parse.quote(mensaje)
+                phone_clean = telefono_c.replace("+", "").replace(" ", "").replace("-", "")
+                ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
+                
+                st.success("¡Cita agendada exitosamente!")
+                st.markdown(f'''
+                    <a href="{ws_url}" target="_blank" class="btn-ws-glow">
+                        Confirmar por WhatsApp
+                    </a>
+                ''', unsafe_allow_html=True)
+            else:
+                st.error("Por favor completa tu nombre y número de teléfono.")
 
 # ---------------------------------------------------------
 # VISTA 2: PANEL PRINCIPAL (MENÚ CON BOTONES 3D GLOSSY)
@@ -327,7 +326,7 @@ else:
     with st.sidebar:
         st.markdown('''
             <div style="text-align: center; padding: 10px 0;">
-                <div class="title-electric" style="font-size: 22px;">GOD'S TIME</div>
+                <div class="title-electric" style="font-size: 22px;">TEST BARBERIA</div>
             </div>
         ''', unsafe_allow_html=True)
         st.markdown(f"<p style='text-align: center; color: #94a3b8; font-size: 13px;'>Barbero: <b style='color:#00f0ff;'>{st.session_state.usuario_actual}</b></p>", unsafe_allow_html=True)
@@ -494,7 +493,7 @@ else:
                 precio_usd = PRECIOS_CORTES[servicio_c]
                 precio_bs = precio_usd * st.session_state.tasa_bcv
                 
-                mensaje = f"Hola {nombre_c}, confirmamos tu cita en Barbería God's Time el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c} (${precio_usd:.2f} / {precio_bs:.2f} BS)."
+                mensaje = f"Hola {nombre_c}, confirmamos tu cita en Test Barberia el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c} (${precio_usd:.2f} / {precio_bs:.2f} BS)."
                 mensaje_encoded = urllib.parse.quote(mensaje)
                 phone_clean = telefono_c.replace("+", "").replace(" ", "").replace("-", "")
                 ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
@@ -523,5 +522,4 @@ else:
                 st.success("El historial completo ha sido borrado.")
                 st.rerun()
         else:
-            st.error("🔒 **Acceso restringido:** Tu usuario (Jonder) no posee permisos para reiniciar el historial de la barbería.")
-
+            st.error("🔒 **Acceso restringido:** Tu usuario no posee permisos para reiniciar el historial de la barbería.")
