@@ -7,41 +7,68 @@ from datetime import datetime
 
 # 1. CONFIGURACIÓN DE PÁGINA
 st.set_page_config(
-    page_title="MI SASÓN.CA - Menú & Gestión",
+    page_title="MI SASÓN.CA - Menú Oscuro",
     page_icon="🍔",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Estilo CSS Personalizado (Interfaz Moderna Gastronómica)
+# ESTILO CSS PERSONALIZADO (Dark Mode Gastronómico con Fondos HD)
 st.markdown("""
     <style>
+    /* Fondo principal oscuro con textura de comida */
     .stApp {
-        background-color: #f8f9fa;
+        background: linear-gradient(rgba(15, 15, 20, 0.88), rgba(15, 15, 20, 0.95)), 
+                    url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600') no-repeat center center fixed;
+        background-size: cover;
+        color: #f1f2f6;
     }
-    .css-1d3b10b, .css-12w0qpk {
-        background-color: #1e1e24;
+
+    /* Barra lateral oscura */
+    [data-testid="stSidebar"] {
+        background-color: #121216 !important;
+        border-right: 1px solid #2a2a35;
     }
-    .card-plato {
-        background-color: white;
+
+    /* Tarjetas de platillos en estilo Glassmorphism (Cristal Oscuro) */
+    .card-plato-dark {
+        background: rgba(26, 26, 36, 0.85);
+        backdrop-filter: blur(8px);
+        border-radius: 15px;
+        padding: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-left: 5px solid #ff4757;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        margin-bottom: 20px;
+    }
+
+    .badge-categoria-dark {
+        background-color: #ff4757;
+        color: white;
+        padding: 4px 10px;
         border-radius: 12px;
-        padding: 15px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        margin-bottom: 15px;
-        border-left: 4px solid #ff4b4b;
-    }
-    .badge-categoria {
-        background-color: #ffe8e8;
-        color: #ff4b4b;
-        padding: 3px 8px;
-        border-radius: 8px;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
-    .precio-highlight {
-        font-size: 1.2rem;
+
+    .precio-highlight-dark {
+        font-size: 1.3rem;
         font-weight: bold;
-        color: #2b2d42;
+        color: #2ed573;
+        margin-top: 8px;
+    }
+
+    /* Ajustes generales de texto e inputs */
+    h1, h2, h3, h4, label {
+        color: #ffffff !important;
+    }
+    
+    .stTextInput input, .stSelectbox div[data-baseweb="select"] {
+        background-color: #1a1a24 !important;
+        color: white !important;
+        border-radius: 8px !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -55,10 +82,10 @@ MENU_FILE = "restaurante_menu.json"
 GASTOS_FILE = "restaurante_gastos.json"
 
 MENU_POR_DEFECTO = [
-    {"id": 1, "nombre": "Hamburguesa Doble Carne", "categoria": "Platos Fuertes", "precio": 8.50, "descripcion": "Dos carnes 150g, queso cheddar, tocineta y salsa especial.", "imagen": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500"},
-    {"id": 2, "nombre": "Papas Fritas Rústicas", "categoria": "Entradas", "precio": 3.50, "descripcion": "Papas crujientes sazonadas con especias y alioli.", "imagen": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500"},
-    {"id": 3, "nombre": "Refresco 500ml", "categoria": "Bebidas", "precio": 1.50, "descripcion": "Lata fría de sabor a elección.", "imagen": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500"},
-    {"id": 4, "nombre": "Brownie con Helado", "categoria": "Postres", "precio": 4.00, "descripcion": "Brownie tibio servido con helado de vainilla.", "imagen": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500"}
+    {"id": 1, "nombre": "Empanadas Criollas (3 uds)", "categoria": "Desayunos", "precio": 3.50, "descripcion": "Empanadas de carne mechada, queso o pollo con guasacaca.", "imagen": "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=500"},
+    {"id": 2, "nombre": "Pabellón Criollo", "categoria": "Almuerzos", "precio": 9.00, "descripcion": "Carne mechada, caraotas negras, arroz blanco y tajadas de plátano frito.", "imagen": "https://images.unsplash.com/photo-1544025162-d76694265947?w=500"},
+    {"id": 3, "nombre": "Hamburguesa Especial", "categoria": "Cenas / Rápidas", "precio": 7.50, "descripcion": "Carne 180g, queso de mano, tocineta, huevo frito y papas hilo.", "imagen": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500"},
+    {"id": 4, "nombre": "Jugo Natural (500ml)", "categoria": "Bebidas", "precio": 2.00, "descripcion": "Jugo natural frito de parchita, melón o mora.", "imagen": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500"}
 ]
 
 def cargar_json(archivo, por_defecto):
@@ -111,10 +138,10 @@ seccion = st.sidebar.radio(
 # --- VISTA 1: MENÚ DIGITAL ---
 if seccion == "📖 Menú Digital":
     st.title("📖 MI SASÓN.CA - Menú Digital")
-    st.write("Explora nuestras especialidades y arma tu pedido.")
+    st.write("Desayunos, Almuerzos y las mejores especialidades.")
     
-    categorias = ["Todos", "Entradas", "Platos Fuertes", "Bebidas", "Postres"]
-    cat_sel = st.selectbox("Categoría:", categorias)
+    categorias = ["Todos", "Desayunos", "Almuerzos", "Cenas / Rápidas", "Bebidas"]
+    cat_sel = st.selectbox("Filtrar por comida:", categorias)
     
     col_izq, col_der = st.columns([2, 1])
     
@@ -122,30 +149,30 @@ if seccion == "📖 Menú Digital":
         for plato in st.session_state.menu:
             if cat_sel == "Todos" or plato["categoria"] == cat_sel:
                 st.markdown(f"""
-                <div class="card-plato">
-                    <span class="badge-categoria">{plato['categoria']}</span>
-                    <h3 style="margin-top: 5px; margin-bottom: 5px;">{plato['nombre']}</h3>
-                    <p style="color: #6c757d; font-size: 0.9rem;">{plato['descripcion']}</p>
-                    <div class="precio-highlight">${plato['precio']:.2f} USD <small style="color: #6c757d; font-size: 0.8rem;">({plato['precio']*TASA_BS:.2f} Bs.)</small></div>
+                <div class="card-plato-dark">
+                    <span class="badge-categoria-dark">{plato['categoria']}</span>
+                    <h3 style="margin-top: 10px; margin-bottom: 5px;">{plato['nombre']}</h3>
+                    <p style="color: #a4b0be; font-size: 0.9rem;">{plato['descripcion']}</p>
+                    <div class="precio-highlight-dark">${plato['precio']:.2f} USD <small style="color: #747d8c; font-size: 0.85rem;">({plato['precio']*TASA_BS:.2f} Bs.)</small></div>
                 </div>
                 """, unsafe_allow_html=True)
                 
                 c1, c2 = st.columns([1, 4])
                 with c1:
-                    st.image(plato["imagen"], width=100)
+                    st.image(plato["imagen"], width=110)
                 with c2:
                     st.button("➕ Añadir al Pedido", key=f"btn_add_{plato['id']}", on_click=agregar_al_carrito, args=(plato['id'],), type="primary")
                 st.markdown("<br>", unsafe_allow_html=True)
 
     with col_der:
-        st.info("💡 **Consejo:** Una vez agregados tus productos, dirígete a la pestaña **🛒 Carrito de Compras** en la barra lateral para finalizar tu orden.")
+        st.info("💡 **Tip:** Añade tus platos preferidos y presiona **🛒 Carrito de Compras** en el menú lateral para enviar tu orden por WhatsApp.")
 
 # --- VISTA 2: CARRITO DE COMPRAS ---
 elif seccion == "🛒 Carrito de Compras":
-    st.title("🛒 Carrito de Compras - MI SASÓN.CA")
+    st.title("🛒 Carrito de Compras")
     
     if not st.session_state.carrito:
-        st.warning("Tu carrito está vacío. Agrega platillos desde el menú.")
+        st.warning("Tu carrito está vacío. Agrega platos desde el menú.")
     else:
         total_usd = 0.0
         resumen_texto = []
@@ -168,10 +195,10 @@ elif seccion == "🛒 Carrito de Compras":
                 resumen_texto.append(f"• {plato['nombre']} x{cantidad} - ${subtotal:.2f}")
 
         total_bs = total_usd * TASA_BS
-        st.markdown(f"### Total a pagar: <span style='color:#ff4b4b;'>${total_usd:.2f} USD</span> / {total_bs:.2f} Bs.", unsafe_allow_html=True)
+        st.markdown(f"### Total a pagar: <span style='color:#2ed573;'>${total_usd:.2f} USD</span> / {total_bs:.2f} Bs.", unsafe_allow_html=True)
         
         st.markdown("---")
-        st.subheader("📋 Confirmación de Entrega")
+        st.subheader("📋 Datos para el Envío")
         
         tipo_servicio = st.radio("Modalidad:", ["Para Llevar", "Delivery", "Mesa"])
         nombre_cliente = st.text_input("Nombre del Cliente:")
@@ -193,15 +220,15 @@ elif seccion == "🛒 Carrito de Compras":
                 msg += f"*TOTAL BS:* {total_bs:.2f} Bs.\n"
                 
                 url_ws = f"https://wa.me/{TELEFONO_RESTAURANTE}?text={urllib.parse.quote(msg)}"
-                st.success("¡Orden lista!")
-                st.markdown(f"[👉 Enviar Pedido vía WhatsApp]({url_ws})", unsafe_allow_html=True)
+                st.success("¡Orden generada!")
+                st.markdown(f"[👉 Enviar Pedido por WhatsApp]({url_ws})", unsafe_allow_html=True)
 
 # --- VISTA 3: PANEL DE CONTROL, PROPINAS Y GASTOS ---
 elif seccion == "📊 Panel de Control & Gastos":
     st.title("📊 Panel Administrativo - MI SASÓN.CA")
     st.write("Control interno de propinas para el personal y egresos operativos.")
     
-    tab_propinas, tab_gastos, tab_resumen = st.tabs(["💰 Registro de Propinas", "💸 Otros Gastos", "📈 Resumen General"])
+    tab_propinas, tab_gastos, tab_resumen = st.tabs(["💰 Propinas Personal", "💸 Gastos / Egresos", "📈 Resumen"])
     
     # 1. TAB PROPINAS
     with tab_propinas:
@@ -236,7 +263,7 @@ elif seccion == "📊 Panel de Control & Gastos":
     with tab_gastos:
         st.subheader("💸 Registro de Egresos y Compras")
         with st.form("form_gastos", clear_on_submit=True):
-            concepto = st.text_input("Concepto del Gasto (ej: Compra de Insumos, Gas, Empaques):")
+            concepto = st.text_input("Concepto del Gasto (ej: Insumos de Almuerzo, Gas, Empaques):")
             c_monto, c_cat = st.columns(2)
             monto_gasto = c_monto.number_input("Monto ($ USD):", min_value=0.01, step=1.00)
             cat_gasto = c_cat.selectbox("Categoría de Gasto:", ["Insumos / Ingredientes", "Servicios (Luz/Gas/Agua)", "Mantenimiento", "Otros"])
@@ -269,7 +296,6 @@ elif seccion == "📊 Panel de Control & Gastos":
         else:
             df_gastos = pd.DataFrame(st.session_state.gastos)
             
-            # Métricas rápidas
             total_propinas = df_gastos[df_gastos["tipo"] == "Propina"]["monto_usd"].sum()
             total_egresos = df_gastos[df_gastos["tipo"] == "Gasto General"]["monto_usd"].sum()
             
