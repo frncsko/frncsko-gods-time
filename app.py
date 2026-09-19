@@ -3,50 +3,90 @@ import pandas as pd
 import json
 import os
 import urllib.parse
+from datetime import datetime
 
 # 1. CONFIGURACIÓN DE PÁGINA
 st.set_page_config(
-    page_title="Restaurante - Menú Digital",
+    page_title="MI SASÓN.CA - Menú & Gestión",
     page_icon="🍔",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# Configuración de Moneda / Tasa de Cambio
-TASA_BS = 40.00  # Cambiar por la tasa del día
-TELEFONO_RESTAURANTE = "584120000000"  # Número con código de país (ej: 58 para Venezuela)
+# Estilo CSS Personalizado (Interfaz Moderna Gastronómica)
+st.markdown("""
+    <style>
+    .stApp {
+        background-color: #f8f9fa;
+    }
+    .css-1d3b10b, .css-12w0qpk {
+        background-color: #1e1e24;
+    }
+    .card-plato {
+        background-color: white;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-bottom: 15px;
+        border-left: 4px solid #ff4b4b;
+    }
+    .badge-categoria {
+        background-color: #ffe8e8;
+        color: #ff4b4b;
+        padding: 3px 8px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+    .precio-highlight {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #2b2d42;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-# 2. ARCHIVOS LOCALES (PERSISTENCIA)
+# Configuración de Moneda y Datos
+TASA_BS = 40.00
+TELEFONO_RESTAURANTE = "584120000000"
+
+# 2. ARCHIVOS LOCALES
 MENU_FILE = "restaurante_menu.json"
+GASTOS_FILE = "restaurante_gastos.json"
 
 MENU_POR_DEFECTO = [
-    {"id": 1, "nombre": "Hamburguesa Doble Carne", "categoria": "Platos Fuertes", "precio": 8.50, "descripcion": "Dos carnes de 150g, queso cheddar, tocineta y salsa especial.", "imagen": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500"},
+    {"id": 1, "nombre": "Hamburguesa Doble Carne", "categoria": "Platos Fuertes", "precio": 8.50, "descripcion": "Dos carnes 150g, queso cheddar, tocineta y salsa especial.", "imagen": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500"},
     {"id": 2, "nombre": "Papas Fritas Rústicas", "categoria": "Entradas", "precio": 3.50, "descripcion": "Papas crujientes sazonadas con especias y alioli.", "imagen": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500"},
     {"id": 3, "nombre": "Refresco 500ml", "categoria": "Bebidas", "precio": 1.50, "descripcion": "Lata fría de sabor a elección.", "imagen": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=500"},
-    {"id": 4, "nombre": "Brownie con Helado", "categoria": "Postres", "precio": 4.00, "descripcion": "Brownie tibio de chocolate servido con helado de vainilla.", "imagen": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500"}
+    {"id": 4, "nombre": "Brownie con Helado", "categoria": "Postres", "precio": 4.00, "descripcion": "Brownie tibio servido con helado de vainilla.", "imagen": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500"}
 ]
 
-def cargar_menu():
-    if os.path.exists(MENU_FILE):
+def cargar_json(archivo, por_defecto):
+    if os.path.exists(archivo):
         try:
-            with open(MENU_FILE, "r", encoding="utf-8") as f:
+            with open(archivo, "r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception:
-            return MENU_POR_DEFECTO
-    return MENU_POR_DEFECTO
+            return por_defecto
+    return por_defecto
+
+def guardar_json(archivo, datos):
+    with open(archivo, "w", encoding="utf-8") as f:
+        json.dump(datos, f, ensure_ascii=False, indent=4)
 
 # 3. ESTADOS DE SESIÓN
 if "menu" not in st.session_state:
-    st.session_state.menu = cargar_menu()
+    st.session_state.menu = cargar_json(MENU_FILE, MENU_POR_DEFECTO)
+
+if "gastos" not in st.session_state:
+    st.session_state.gastos = cargar_json(GASTOS_FILE, [])
 
 if "carrito" not in st.session_state:
     st.session_state.carrito = {}
 
-# 4. FUNCIONES DEL CARRITO
+# Funciones de carrito
 def agregar_al_carrito(plato_id):
-    if plato_id in st.session_state.carrito:
-        st.session_state.carrito[plato_id] += 1
-    else:
-        st.session_state.carrito[plato_id] = 1
+    st.session_state.carrito[plato_id] = st.session_state.carrito.get(plato_id, 0) + 1
 
 def remover_del_carrito(plato_id):
     if plato_id in st.session_state.carrito:
@@ -55,40 +95,57 @@ def remover_del_carrito(plato_id):
         else:
             del st.session_state.carrito[plato_id]
 
-# 5. INTERFAZ PRINCIPAL
-st.title("🍔 Menú Digital & Pedidos")
-st.markdown(f"**Tasa de cambio referencial:** 1 USD = {TASA_BS:.2f} Bs.")
+# 4. BARRA LATERAL (NAVEGACIÓN MODERNA)
+st.sidebar.image("https://cdn-icons-png.flaticon.com/512/3448/3448650.png", width=70)
+st.sidebar.title("MI SASÓN.CA")
+st.sidebar.caption(f"Tasa del día: 1 USD = {TASA_BS:.2f} Bs.")
+st.sidebar.markdown("---")
 
-col_menu, col_carrito = st.columns([2, 1])
+seccion = st.sidebar.radio(
+    "Navegación",
+    ["📖 Menú Digital", "🛒 Carrito de Compras", "📊 Panel de Control & Gastos"]
+)
 
-# --- COLUMNA 1: CATÁLOGO DE PLATILLOS ---
-with col_menu:
-    st.header("📖 Nuestro Menú")
+# 5. VISTAS PRINCIPALES
+
+# --- VISTA 1: MENÚ DIGITAL ---
+if seccion == "📖 Menú Digital":
+    st.title("📖 MI SASÓN.CA - Menú Digital")
+    st.write("Explora nuestras especialidades y arma tu pedido.")
     
     categorias = ["Todos", "Entradas", "Platos Fuertes", "Bebidas", "Postres"]
-    cat_seleccionada = st.selectbox("Filtrar por categoría:", categorias)
+    cat_sel = st.selectbox("Categoría:", categorias)
     
-    for plato in st.session_state.menu:
-        if cat_seleccionada == "Todos" or plato["categoria"] == cat_seleccionada:
-            with st.container():
-                c1, c2 = st.columns([1, 2])
+    col_izq, col_der = st.columns([2, 1])
+    
+    with col_izq:
+        for plato in st.session_state.menu:
+            if cat_sel == "Todos" or plato["categoria"] == cat_sel:
+                st.markdown(f"""
+                <div class="card-plato">
+                    <span class="badge-categoria">{plato['categoria']}</span>
+                    <h3 style="margin-top: 5px; margin-bottom: 5px;">{plato['nombre']}</h3>
+                    <p style="color: #6c757d; font-size: 0.9rem;">{plato['descripcion']}</p>
+                    <div class="precio-highlight">${plato['precio']:.2f} USD <small style="color: #6c757d; font-size: 0.8rem;">({plato['precio']*TASA_BS:.2f} Bs.)</small></div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                c1, c2 = st.columns([1, 4])
                 with c1:
-                    st.image(plato["imagen"], use_container_width=True)
+                    st.image(plato["imagen"], width=100)
                 with c2:
-                    st.subheader(plato["nombre"])
-                    st.caption(plato["descripcion"])
-                    precio_usd = plato["precio"]
-                    precio_bs = precio_usd * TASA_BS
-                    st.markdown(f"**${precio_usd:.2f} USD** / *{precio_bs:.2f} Bs.*")
-                    st.button(f"➕ Agregar", key=f"add_{plato['id']}", on_click=agregar_al_carrito, args=(plato['id'],))
-                st.markdown("---")
+                    st.button("➕ Añadir al Pedido", key=f"btn_add_{plato['id']}", on_click=agregar_al_carrito, args=(plato['id'],), type="primary")
+                st.markdown("<br>", unsafe_allow_html=True)
 
-# --- COLUMNA 2: CARRITO Y CHECKOUT ---
-with col_carrito:
-    st.header("🛒 Tu Pedido")
+    with col_der:
+        st.info("💡 **Consejo:** Una vez agregados tus productos, dirígete a la pestaña **🛒 Carrito de Compras** en la barra lateral para finalizar tu orden.")
+
+# --- VISTA 2: CARRITO DE COMPRAS ---
+elif seccion == "🛒 Carrito de Compras":
+    st.title("🛒 Carrito de Compras - MI SASÓN.CA")
     
     if not st.session_state.carrito:
-        st.info("El carrito está vacío. Agrega platillos para comenzar.")
+        st.warning("Tu carrito está vacío. Agrega platillos desde el menú.")
     else:
         total_usd = 0.0
         resumen_texto = []
@@ -99,50 +156,126 @@ with col_carrito:
                 subtotal = plato["precio"] * cantidad
                 total_usd += subtotal
                 
-                st.write(f"**{plato['nombre']}** x{cantidad}")
-                st.caption(f"Subtotal: ${subtotal:.2f} USD")
+                c1, c2, c3 = st.columns([2, 1, 1])
+                c1.markdown(f"**{plato['nombre']}**\n${plato['precio']:.2f} USD c/u")
+                c2.markdown(f"**x{cantidad}** (${subtotal:.2f})")
                 
-                col_b1, col_b2, _ = st.columns([1, 1, 2])
-                col_b1.button("➖", key=f"sub_{p_id}", on_click=remover_del_carrito, args=(p_id,))
-                col_b2.button("➕", key=f"add_cart_{p_id}", on_click=agregar_al_carrito, args=(p_id,))
+                with c3:
+                    b1, b2 = st.columns(2)
+                    b1.button("➖", key=f"sub_cart_{p_id}", on_click=remover_del_carrito, args=(p_id,))
+                    b2.button("➕", key=f"add_cart_{p_id}", on_click=agregar_al_carrito, args=(p_id,))
                 st.markdown("---")
-                
                 resumen_texto.append(f"• {plato['nombre']} x{cantidad} - ${subtotal:.2f}")
 
         total_bs = total_usd * TASA_BS
-        st.subheader(f"Total: ${total_usd:.2f} USD")
-        st.markdown(f"### **{total_bs:.2f} Bs.**")
+        st.markdown(f"### Total a pagar: <span style='color:#ff4b4b;'>${total_usd:.2f} USD</span> / {total_bs:.2f} Bs.", unsafe_allow_html=True)
         
         st.markdown("---")
-        st.subheader("📋 Datos del Pedido")
+        st.subheader("📋 Confirmación de Entrega")
         
         tipo_servicio = st.radio("Modalidad:", ["Para Llevar", "Delivery", "Mesa"])
-        nombre_cliente = st.text_input("Tu Nombre:")
-        detalle_adicional = st.text_input("Nº de Mesa / Dirección de Entrega:")
+        nombre_cliente = st.text_input("Nombre del Cliente:")
+        ubicacion = st.text_input("Número de Mesa / Dirección de Delivery:")
         
-        if st.button("📲 Confirmar Pedido por WhatsApp", type="primary"):
+        if st.button("📲 Generar Orden por WhatsApp", type="primary"):
             if not nombre_cliente:
-                st.error("Por favor ingresa tu nombre antes de enviar.")
+                st.error("Por favor ingresa tu nombre.")
             else:
-                # Construcción del mensaje para WhatsApp
-                mensaje = f" *NUEVO PEDIDO - RESTAURANTE*\n"
-                mensaje += f"-----------------------------------\n"
-                mensaje += f"*Cliente:* {nombre_cliente}\n"
-                mensaje += f"*Modalidad:* {tipo_servicio}\n"
-                if detalle_adicional:
-                    mensaje += f"*Ubicación/Mesa:* {detalle_adicional}\n"
-                mensaje += f"-----------------------------------\n"
-                mensaje += "*Detalle del Pedido:*\n"
+                msg = f"*NUEVA ORDEN - MI SASÓN.CA*\n"
+                msg += f"Cliente: {nombre_cliente}\nModalidad: {tipo_servicio}\n"
+                if ubicacion:
+                    msg += f"Ubicación/Mesa: {ubicacion}\n"
+                msg += "-----------------------------------\n"
                 for item in resumen_texto:
-                    mensaje += f"{item}\n"
-                mensaje += f"-----------------------------------\n"
-                mensaje += f"*TOTAL USD:* ${total_usd:.2f}\n"
-                mensaje += f"*TOTAL BS:* {total_bs:.2f} Bs.\n\n"
-                mensaje += "¡Quedo a la espera de su confirmación!"
+                    msg += f"{item}\n"
+                msg += "-----------------------------------\n"
+                msg += f"*TOTAL USD:* ${total_usd:.2f}\n"
+                msg += f"*TOTAL BS:* {total_bs:.2f} Bs.\n"
                 
-                # Generar enlace de WhatsApp
-                mensaje_encoded = urllib.parse.quote(mensaje)
-                url_ws = f"https://wa.me/{TELEFONO_RESTAURANTE}?text={mensaje_encoded}"
-                
-                st.success("¡Pedido generado! Haz clic abajo para enviarlo:")
-                st.markdown(f"[👉 Abrir WhatsApp para enviar pedido]({url_ws})", unsafe_allow_html=True)
+                url_ws = f"https://wa.me/{TELEFONO_RESTAURANTE}?text={urllib.parse.quote(msg)}"
+                st.success("¡Orden lista!")
+                st.markdown(f"[👉 Enviar Pedido vía WhatsApp]({url_ws})", unsafe_allow_html=True)
+
+# --- VISTA 3: PANEL DE CONTROL, PROPINAS Y GASTOS ---
+elif seccion == "📊 Panel de Control & Gastos":
+    st.title("📊 Panel Administrativo - MI SASÓN.CA")
+    st.write("Control interno de propinas para el personal y egresos operativos.")
+    
+    tab_propinas, tab_gastos, tab_resumen = st.tabs(["💰 Registro de Propinas", "💸 Otros Gastos", "📈 Resumen General"])
+    
+    # 1. TAB PROPINAS
+    with tab_propinas:
+        st.subheader("💰 Distribución de Propinas")
+        with st.form("form_propinas", clear_on_submit=True):
+            col1, col2 = st.columns(2)
+            trabajador = col1.text_input("Nombre del Trabajador / Mesero:")
+            monto_propina = col2.number_input("Monto de Propina ($ USD):", min_value=0.01, step=0.50)
+            fecha_propina = col1.date_input("Fecha:", datetime.now())
+            metodo_pago = col2.selectbox("Método de Pago:", ["Efectivo", "Pago Móvil", "Binance", "Tarjeta"])
+            
+            btn_propina = st.form_submit_button("Registrar Propina")
+            
+            if btn_propina:
+                if not trabajador:
+                    st.error("Ingresa el nombre del trabajador.")
+                else:
+                    nuevo_registro = {
+                        "tipo": "Propina",
+                        "concepto": f"Propina asignada a {trabajador}",
+                        "monto_usd": monto_propina,
+                        "monto_bs": monto_propina * TASA_BS,
+                        "beneficiario": trabajador,
+                        "metodo": metodo_pago,
+                        "fecha": str(fecha_propina)
+                    }
+                    st.session_state.gastos.append(nuevo_registro)
+                    guardar_json(GASTOS_FILE, st.session_state.gastos)
+                    st.success(f"Propina de ${monto_propina:.2f} registrada para {trabajador}.")
+
+    # 2. TAB GASTOS GENERALES
+    with tab_gastos:
+        st.subheader("💸 Registro de Egresos y Compras")
+        with st.form("form_gastos", clear_on_submit=True):
+            concepto = st.text_input("Concepto del Gasto (ej: Compra de Insumos, Gas, Empaques):")
+            c_monto, c_cat = st.columns(2)
+            monto_gasto = c_monto.number_input("Monto ($ USD):", min_value=0.01, step=1.00)
+            cat_gasto = c_cat.selectbox("Categoría de Gasto:", ["Insumos / Ingredientes", "Servicios (Luz/Gas/Agua)", "Mantenimiento", "Otros"])
+            fecha_gasto = st.date_input("Fecha del Gasto:", datetime.now())
+            
+            btn_gasto = st.form_submit_button("Registrar Gasto")
+            
+            if btn_gasto:
+                if not concepto:
+                    st.error("Ingresa el concepto del gasto.")
+                else:
+                    nuevo_gasto = {
+                        "tipo": "Gasto General",
+                        "concepto": f"[{cat_gasto}] {concepto}",
+                        "monto_usd": monto_gasto,
+                        "monto_bs": monto_gasto * TASA_BS,
+                        "beneficiario": "Proveedor/Servicio",
+                        "metodo": "Caja Chica",
+                        "fecha": str(fecha_gasto)
+                    }
+                    st.session_state.gastos.append(nuevo_gasto)
+                    guardar_json(GASTOS_FILE, st.session_state.gastos)
+                    st.success(f"Gasto de ${monto_gasto:.2f} registrado exitosamente.")
+
+    # 3. TAB RESUMEN HISTÓRICO
+    with tab_resumen:
+        st.subheader("📜 Historial de Registros")
+        if not st.session_state.gastos:
+            st.info("No hay gastos ni propinas registradas aún.")
+        else:
+            df_gastos = pd.DataFrame(st.session_state.gastos)
+            
+            # Métricas rápidas
+            total_propinas = df_gastos[df_gastos["tipo"] == "Propina"]["monto_usd"].sum()
+            total_egresos = df_gastos[df_gastos["tipo"] == "Gasto General"]["monto_usd"].sum()
+            
+            m1, m2 = st.columns(2)
+            m1.metric("Total Propinas Repartidas", f"${total_propinas:.2f} USD", f"{total_propinas*TASA_BS:.2f} Bs.")
+            m2.metric("Total Egresos Operativos", f"${total_egresos:.2f} USD", f"{total_egresos*TASA_BS:.2f} Bs.")
+            
+            st.markdown("---")
+            st.dataframe(df_gastos, use_container_width=True)
