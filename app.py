@@ -5,6 +5,7 @@ from datetime import datetime, date, time
 import urllib.parse
 import json
 import os
+import requests
 
 # Configuración de la página
 st.set_page_config(
@@ -31,6 +32,18 @@ def guardar_datos(archivo, datos):
     with open(archivo, "w", encoding="utf-8") as f:
         json.dump(datos, f, ensure_ascii=False, indent=4)
 
+# --- FUNCIÓN PARA OBTENER TASA BCV AUTOMÁTICA ---
+def obtener_tasa_bcv_auto():
+    try:
+        # Consulta a API pública de tasas oficiales en Venezuela
+        response = requests.get("https://rates.dolarvzla.com/bcv/latest.json", timeout=4)
+        if response.status_code == 200:
+            data = response.json()
+            return float(data.get("usd", 36.50))
+    except Exception:
+        pass
+    return None
+
 def limpiar_telefono(telefono):
     tel_limpio = telefono.strip().replace(" ", "").replace("-", "")
     if not tel_limpio.startswith("+"):
@@ -50,8 +63,13 @@ if "cortes_db" not in st.session_state:
 if "citas_db" not in st.session_state:
     st.session_state.citas_db = cargar_datos(CITAS_FILE, [])
 
+# Sincronización automática de la Tasa BCV
 config_cargada = cargar_datos(CONFIG_FILE, {"tasa_bcv": 36.50})
-if "tasa_bcv" not in st.session_state:
+tasa_en_red = obtener_tasa_bcv_auto()
+
+if tasa_en_red:
+    st.session_state.tasa_bcv = tasa_en_red
+else:
     st.session_state.tasa_bcv = config_cargada.get("tasa_bcv", 36.50)
 
 # CREDENCIALES Y ROLES DE USUARIOS
@@ -71,7 +89,6 @@ PRECIOS_CORTES = {
 BARBEROS = ["Francisco", "Jonder", "Barbero 3"]
 METODOS_PAGO = ["EFECTIVO", "PAGO MOVIL", "BINANCE"]
 
-# GENERADOR DE OPCIONES DE HORAS (AM / PM)
 OPCIONES_HORAS = [
     time(h, m).strftime("%I:%M %p") 
     for h in range(8, 20) 
@@ -88,13 +105,11 @@ st.markdown("""
         font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
     }
 
-    /* Fondo Holográfico Pro de Alta Resolución */
     .stApp {
         background: radial-gradient(circle at 50% -20%, #0c1a36 0%, #030712 60%, #010308 100%);
         color: #f8fafc;
     }
 
-    /* Badge VIP Flotante */
     .vip-badge {
         display: inline-flex;
         align-items: center;
@@ -127,7 +142,6 @@ st.markdown("""
         100% { transform: scale(0.95); opacity: 0.7; }
     }
 
-    /* Títulos Eléctricos 4K */
     .hero-title {
         font-family: 'Outfit', sans-serif;
         font-size: 48px;
@@ -147,21 +161,8 @@ st.markdown("""
         font-size: 16px;
         font-weight: 500;
         margin-bottom: 35px;
-        letter-spacing: 0.5px;
     }
 
-    /* Tarjetas de Vidrio Esmerilado (Glassmorphism Cards) */
-    .card-landing, [data-testid="stForm"] {
-        background: rgba(10, 18, 35, 0.75) !important;
-        backdrop-filter: blur(25px) !important;
-        -webkit-backdrop-filter: blur(25px) !important;
-        border-radius: 24px !important;
-        padding: 32px !important;
-        border: 1px solid rgba(0, 240, 255, 0.2) !important;
-        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1) !important;
-    }
-
-    /* Resumen de Tarifa VIP incorporado */
     .price-preview-card {
         background: linear-gradient(135deg, rgba(0, 240, 255, 0.08) 0%, rgba(0, 114, 255, 0.12) 100%);
         border: 1px dashed rgba(0, 240, 255, 0.4);
@@ -172,7 +173,6 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
-    /* Botones Neón Estilo Cyberpunk */
     .stButton > button {
         background: linear-gradient(135deg, #00f0ff 0%, #0066cc 100%) !important;
         color: #030712 !important;
@@ -185,16 +185,14 @@ st.markdown("""
         width: 100%;
         padding: 16px 28px !important;
         box-shadow: 0 12px 30px rgba(0, 240, 255, 0.35);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.3s ease;
     }
 
     .stButton > button:hover {
         box-shadow: 0 18px 40px rgba(0, 240, 255, 0.6);
         transform: translateY(-3px);
-        background: linear-gradient(135deg, #33f3ff 0%, #1a75ff 100%) !important;
     }
 
-    /* Botón WhatsApp */
     .btn-ws-glow {
         display: flex;
         align-items: center;
@@ -207,18 +205,9 @@ st.markdown("""
         padding: 16px 28px;
         font-weight: 800;
         font-size: 15px;
-        letter-spacing: 1px;
         box-shadow: 0 12px 30px rgba(16, 185, 129, 0.4);
-        transition: all 0.3s ease;
     }
 
-    .btn-ws-glow:hover {
-        box-shadow: 0 18px 40px rgba(16, 185, 129, 0.6);
-        transform: translateY(-3px);
-        color: white !important;
-    }
-
-    /* Barra Lateral */
     [data-testid="stSidebar"] {
         background: rgba(4, 9, 20, 0.85) !important;
         backdrop-filter: blur(20px);
@@ -231,9 +220,6 @@ st.markdown("""
         padding: 14px 18px !important;
         color: #cbd5e1 !important;
         font-weight: 600 !important;
-        font-size: 14px !important;
-        cursor: pointer;
-        transition: all 0.3s ease !important;
         border: 1px solid rgba(255, 255, 255, 0.05) !important;
     }
 
@@ -241,7 +227,6 @@ st.markdown("""
         background: linear-gradient(135deg, rgba(0, 240, 255, 0.2) 0%, rgba(0, 114, 255, 0.3) 100%) !important;
         color: #00f0ff !important;
         border: 1px solid rgba(0, 240, 255, 0.6) !important;
-        box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
     }
 
     .section-header {
@@ -263,7 +248,6 @@ st.markdown("""
 # VISTA 1: INICIO CLIENTES 4K VIP LANDING + ACCESO PERSONAL
 # ---------------------------------------------------------
 if not st.session_state.autenticado:
-    # Barra Superior de Control
     col_nav_left, col_nav_right = st.columns([4, 1.3])
     
     with col_nav_right:
@@ -282,18 +266,16 @@ if not st.session_state.autenticado:
                     else:
                         st.error("Credenciales de acceso incorrectas")
 
-    # Header Principal VIP
-    st.markdown('''
+    st.markdown(f'''
         <div style="text-align: center; padding: 10px 0 0 0;">
             <div class="vip-badge">
-                <span class="vip-badge-dot"></span> SISTEMA DE AGENDAMIENTO EN LÍNEA
+                <span class="vip-badge-dot"></span> TASA BCV AUTOMÁTICA: {st.session_state.tasa_bcv:.2f} BS
             </div>
             <div class="hero-title">GOD'S TIME BARBERIA</div>
             <div class="hero-subtitle">⚡ El corte perfecto en el momento exacto. Agenda tu turno sin esperas. ⚡</div>
         </div>
     ''', unsafe_allow_html=True)
 
-    # Formulario Central Glassmorphic
     col_c1, col_c2, col_c3 = st.columns([1, 2.4, 1])
     with col_c2:
         with st.form("form_cita_login"):
@@ -311,7 +293,6 @@ if not st.session_state.autenticado:
 
             servicio_c = st.selectbox("Servicio Solicitado", list(PRECIOS_CORTES.keys()), key="servicio_cita_login")
             
-            # Vista previa dinámica del precio
             precio_est_usd = PRECIOS_CORTES[servicio_c]
             precio_est_bs = precio_est_usd * st.session_state.tasa_bcv
             
@@ -389,12 +370,12 @@ else:
         
         st.markdown("---")
         
-        st.markdown("<p style='font-size: 12px; color: #00f0ff; font-weight: 800; letter-spacing: 1px; margin-bottom: 8px;'>💵 TASA BCV ($)</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='font-size: 12px; color: #00f0ff; font-weight: 800; letter-spacing: 1px; margin-bottom: 8px;'>💵 TASA BCV (Auto): <b>{st.session_state.tasa_bcv:.2f} BS</b></p>", unsafe_allow_html=True)
         nueva_tasa_input = st.number_input("Tasa BS", value=float(st.session_state.tasa_bcv), step=0.10, label_visibility="collapsed")
-        if st.button("ACTUALIZAR TASA"):
+        if st.button("FORZAR O CAMBIAR TASA"):
             st.session_state.tasa_bcv = nueva_tasa_input
             guardar_datos(CONFIG_FILE, {"tasa_bcv": nueva_tasa_input})
-            st.success(f"Tasa actualizada: {nueva_tasa_input:.2f} BS")
+            st.success(f"Tasa fijada manualmente: {nueva_tasa_input:.2f} BS")
             st.rerun()
 
         st.markdown("<br>", unsafe_allow_html=True)
