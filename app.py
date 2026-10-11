@@ -9,13 +9,12 @@ import requests
 
 # Configuración de la página
 st.set_page_config(
-    page_title="GOD'S TIME BARBERIA | 4K VIP Experience", 
+    page_title="GOD'S TIME BARBERIA | Terror Edition", 
     layout="wide", 
     initial_sidebar_state="expanded"
 )
 
 # --- CONFIGURACIÓN DE TU NÚMERO DE WHATSAPP ---
-# Reemplaza '584121234567' con tu número personal real (ej: código de país 58 + tu número sin el 0 inicial)
 MI_NUMERO_WHATSAPP = "584125205165"
 
 # --- PERSISTENCIA LOCAL DE DATOS ---
@@ -78,6 +77,7 @@ else:
 USUARIOS = {
     "Admin": {"clave": "1234", "rol": "admin"},
     "Jonder": {"clave": "barbero1", "rol": "barbero"}
+    "fran": {"clave": "1234", "rol": "admin"},
 }
 
 PRECIOS_CORTES = {
@@ -97,37 +97,38 @@ OPCIONES_HORAS = [
     for m in (0, 30)
 ]
 
-# --- ESTILOS 4K ULTRA MODERNOS & EFECTO BRILLANTE EN BOTÓN ---
+# --- ESTILOS DE TERROR / HALLOWEEN CYBERPUNK ---
 st.markdown("""
     <style>
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=Outfit:wght@300;400;600;800&display=swap');
 
     html, body, [class*="css"] {
-        font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+        font-family: 'Outfit', sans-serif;
     }
 
+    /* Fondo tenebroso con niebla nocturna y destellos verde tóxico / sangre */
     .stApp {
-        background: radial-gradient(circle at 50% -20%, #0c1a36 0%, #030712 60%, #010308 100%);
-        color: #f8fafc;
+        background: radial-gradient(circle at 50% -20%, #1a0205 0%, #050103 50%, #000000 100%);
+        color: #f3f4f6;
     }
 
     input, select, textarea {
-        background-color: rgba(15, 23, 42, 0.9) !important;
-        color: #ffffff !important;
-        border: 1px solid rgba(0, 240, 255, 0.3) !important;
+        background-color: rgba(20, 5, 8, 0.95) !important;
+        color: #ff5555 !important;
+        border: 1px solid rgba(255, 0, 85, 0.4) !important;
         border-radius: 12px !important;
     }
 
     div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {
-        background-color: rgba(15, 23, 42, 0.9) !important;
-        color: #ffffff !important;
-        border: 1px solid rgba(0, 240, 255, 0.3) !important;
+        background-color: rgba(20, 5, 8, 0.95) !important;
+        color: #ff5555 !important;
+        border: 1px solid rgba(255, 0, 85, 0.4) !important;
         border-radius: 12px !important;
     }
 
     .stTextInput label, .stSelectbox label, .stDateInput label {
-        color: #cbd5e1 !important;
+        color: #fca5a5 !important;
         font-weight: 600 !important;
     }
 
@@ -135,58 +136,56 @@ st.markdown("""
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: rgba(0, 240, 255, 0.08);
-        border: 1px solid rgba(0, 240, 255, 0.3);
+        background: rgba(255, 0, 85, 0.1);
+        border: 1px solid rgba(255, 0, 85, 0.4);
         padding: 6px 18px;
         border-radius: 50px;
         font-size: 13px;
         font-weight: 700;
-        color: #00f0ff;
+        color: #ff3366;
         letter-spacing: 1.5px;
         text-transform: uppercase;
-        box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+        box-shadow: 0 0 20px rgba(255, 0, 85, 0.3);
         margin-bottom: 12px;
     }
 
     .vip-badge-dot {
         width: 8px;
         height: 8px;
-        background-color: #00f0ff;
+        background-color: #ff0055;
         border-radius: 50%;
-        box-shadow: 0 0 10px #00f0ff;
-        animation: pulse 1.8s infinite ease-in-out;
+        box-shadow: 0 0 10px #ff0055;
+        animation: pulse 1.5s infinite ease-in-out;
     }
 
     @keyframes pulse {
-        0% { transform: scale(0.95); opacity: 0.7; }
-        50% { transform: scale(1.3); opacity: 1; }
-        100% { transform: scale(0.95); opacity: 0.7; }
+        0% { transform: scale(0.9); opacity: 0.6; }
+        50% { transform: scale(1.4); opacity: 1; filter: drop-shadow(0 0 8px #ff0055); }
+        100% { transform: scale(0.9); opacity: 0.6; }
     }
 
     .hero-title {
-        font-family: 'Outfit', sans-serif;
-        font-size: 42px;
-        font-weight: 900;
-        background: linear-gradient(135deg, #ffffff 20%, #80f5ff 60%, #0072ff 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        font-family: 'Creepster', cursive;
+        font-size: 54px;
+        color: #ff1a40;
         text-align: center;
-        letter-spacing: 2px;
+        letter-spacing: 4px;
+        text-shadow: 0 0 15px rgba(255, 0, 64, 0.8), 0 0 30px rgba(255, 0, 64, 0.4);
         margin-bottom: 5px;
-        text-transform: uppercase;
     }
 
     .hero-subtitle {
         text-align: center;
-        color: #94a3b8;
+        color: #cbd5e1;
         font-size: 15px;
         font-weight: 500;
         margin-bottom: 25px;
+        letter-spacing: 1px;
     }
 
     .price-preview-card {
-        background: linear-gradient(135deg, rgba(0, 240, 255, 0.08) 0%, rgba(0, 114, 255, 0.12) 100%);
-        border: 1px dashed rgba(0, 240, 255, 0.4);
+        background: linear-gradient(135deg, rgba(255, 0, 64, 0.08) 0%, rgba(20, 5, 8, 0.9) 100%);
+        border: 1px dashed rgba(255, 0, 64, 0.5);
         border-radius: 16px;
         padding: 16px;
         text-align: center;
@@ -194,20 +193,22 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
+    /* Botón Terror / Sangre Neón con animación brillante */
     .stButton > button {
         position: relative !important;
-        background: linear-gradient(135deg, #00f0ff 0%, #0072ff 50%, #7928ca 100%) !important;
+        background: linear-gradient(135deg, #cc0033 0%, #800020 50%, #330011 100%) !important;
         color: #ffffff !important;
+        font-family: 'Outfit', sans-serif;
         font-weight: 800 !important;
         font-size: 16px !important;
-        letter-spacing: 1.2px;
+        letter-spacing: 1.5px;
         text-transform: uppercase;
         border-radius: 16px !important;
-        border: 1px solid rgba(255, 255, 255, 0.4) !important;
+        border: 1px solid rgba(255, 0, 85, 0.6) !important;
         width: 100%;
         padding: 16px 28px !important;
-        box-shadow: 0 10px 30px rgba(0, 240, 255, 0.4), inset 0 2px 6px rgba(255, 255, 255, 0.6) !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 0 10px 30px rgba(204, 0, 51, 0.5), inset 0 2px 6px rgba(255, 100, 100, 0.6) !important;
+        transition: all 0.3s ease !important;
         overflow: hidden !important;
     }
 
@@ -218,7 +219,7 @@ st.markdown("""
         left: -60%;
         width: 50%;
         height: 200%;
-        background: rgba(255, 255, 255, 0.35);
+        background: rgba(255, 255, 255, 0.25);
         transform: rotate(30deg);
         animation: shine 3s infinite linear;
     }
@@ -230,8 +231,9 @@ st.markdown("""
     }
 
     .stButton > button:hover {
-        box-shadow: 0 15px 40px rgba(0, 240, 255, 0.7), inset 0 2px 10px rgba(255, 255, 255, 0.9) !important;
+        box-shadow: 0 15px 40px rgba(255, 0, 85, 0.8), inset 0 2px 10px rgba(255, 255, 255, 0.9) !important;
         transform: translateY(-3px) scale(1.01) !important;
+        background: linear-gradient(135deg, #ff0040 0%, #990026 50%, #4d001a 100%) !important;
     }
 
     .btn-ws-glow {
@@ -250,54 +252,55 @@ st.markdown("""
     }
 
     [data-testid="stSidebar"] {
-        background: rgba(4, 9, 20, 0.85) !important;
+        background: rgba(8, 2, 4, 0.95) !important;
         backdrop-filter: blur(20px);
-        border-right: 1px solid rgba(0, 240, 255, 0.15) !important;
+        border-right: 1px solid rgba(255, 0, 85, 0.2) !important;
     }
 
     [data-testid="stSidebar"] .stRadio label {
-        background: rgba(15, 23, 42, 0.6) !important;
+        background: rgba(20, 5, 8, 0.7) !important;
         border-radius: 14px !important;
         padding: 14px 18px !important;
-        color: #cbd5e1 !important;
+        color: #fca5a5 !important;
         font-weight: 600 !important;
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 0, 85, 0.1) !important;
     }
 
     [data-testid="stSidebar"] .stRadio div[aria-checked="true"] + label {
-        background: linear-gradient(135deg, rgba(0, 240, 255, 0.2) 0%, rgba(0, 114, 255, 0.3) 100%) !important;
-        color: #00f0ff !important;
-        border: 1px solid rgba(0, 240, 255, 0.6) !important;
+        background: linear-gradient(135deg, rgba(255, 0, 85, 0.3) 0%, rgba(128, 0, 32, 0.5) 100%) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 0, 85, 0.8) !important;
+        box-shadow: 0 0 15px rgba(255, 0, 85, 0.4);
     }
 
     .section-header {
-        font-family: 'Outfit', sans-serif;
-        font-size: 22px;
-        font-weight: 700;
-        color: #f1f5f9;
+        font-family: 'Creepster', cursive;
+        font-size: 28px;
+        color: #ff3366;
         display: flex;
         align-items: center;
-        gap: 10px;
-        border-bottom: 2px solid rgba(0, 240, 255, 0.2);
+        gap: 12px;
+        border-bottom: 2px solid rgba(255, 0, 85, 0.3);
         padding-bottom: 12px;
         margin-bottom: 24px;
+        letter-spacing: 1.5px;
     }
     </style>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# VISTA 1: INICIO CLIENTES 4K VIP LANDING + ACCESO PERSONAL
+# VISTA 1: INICIO CLIENTES HALLOWEEN / TERROR + ACCESO PERSONAL
 # ---------------------------------------------------------
 if not st.session_state.autenticado:
     col_nav_left, col_nav_right = st.columns([4, 1.3])
     
     with col_nav_right:
         with st.popover("🔑 Acceso Personal / Barberos", use_container_width=True):
-            st.markdown("<h4 style='text-align: center; color: #ffffff; margin-bottom: 12px; font-size: 18px;'>PORTAL ADMINISTRATIVO</h4>", unsafe_allow_html=True)
+            st.markdown("<h4 style='text-align: center; color: #ff3366; margin-bottom: 12px; font-size: 18px;'>PORTAL OSCURO</h4>", unsafe_allow_html=True)
             with st.form("login_form_popover"):
                 usuario = st.text_input("Usuario", placeholder="Tu usuario asignado")
                 contrasena = st.text_input("Contraseña", type="password", placeholder="••••••••")
-                submit = st.form_submit_button("INICIAR SESIÓN")
+                submit = st.form_submit_button("ENTRAR AL ABISMO")
 
                 if submit:
                     if usuario in USUARIOS and USUARIOS[usuario]["clave"] == contrasena:
@@ -305,22 +308,22 @@ if not st.session_state.autenticado:
                         st.session_state.usuario_actual = usuario
                         st.rerun()
                     else:
-                        st.error("Credenciales de acceso incorrectas")
+                        st.error("Credenciales incorrectas")
 
     st.markdown(f'''
         <div style="text-align: center; padding: 10px 0 0 0;">
             <div class="vip-badge">
-                <span class="vip-badge-dot"></span> TASA BCV ACTUAL: {st.session_state.tasa_bcv:.2f} BS
+                <span class="vip-badge-dot"></span> TASA BCV OSCURA: {st.session_state.tasa_bcv:.2f} BS
             </div>
             <div class="hero-title">GOD'S TIME BARBERIA</div>
-            <div class="hero-subtitle">⚡ El corte perfecto en el momento exacto. Agenda tu turno sin esperas. ⚡</div>
+            <div class="hero-subtitle">🦇 El corte que desafía a la muerte. Reserva tu turno antes de que sea tarde... 🦇</div>
         </div>
     ''', unsafe_allow_html=True)
 
     col_c1, col_c2, col_c3 = st.columns([0.5, 3, 0.5])
     with col_c2:
         with st.form("form_cita_login"):
-            st.markdown("<h3 style='text-align: center; color: #ffffff; margin-bottom: 20px; font-weight: 700;'><i class='fa-regular fa-calendar-check' style='color:#00f0ff;'></i> Reserva Tu Cita Online</h3>", unsafe_allow_html=True)
+            st.markdown("<h3 style='text-align: center; color: #ff3366; margin-bottom: 20px; font-weight: 700; font-family: Creepster; font-size: 32px;'>💀 Reserva Tu Cita Tétrica 💀</h3>", unsafe_allow_html=True)
             
             nombre_c = st.text_input("Nombre Completo", placeholder="Ej: Francisco Hurtado")
             telefono_c = st.text_input("Número de Teléfono WhatsApp", placeholder="Ej: 04121234567")
@@ -338,8 +341,8 @@ if not st.session_state.autenticado:
             
             st.markdown(f'''
                 <div class="price-preview-card">
-                    <span style="color: #94a3b8; font-size: 13px; font-weight: 600;">VALOR DEL SERVICIO:</span><br>
-                    <b style="color: #00f0ff; font-size: 26px;">${precio_est_usd:.2f} USD</b>
+                    <span style="color: #fca5a5; font-size: 13px; font-weight: 600;">VALOR DEL SERVICIO:</span><br>
+                    <b style="color: #ff3366; font-size: 26px;">${precio_est_usd:.2f} USD</b>
                 </div>
             ''', unsafe_allow_html=True)
 
@@ -359,14 +362,12 @@ if not st.session_state.autenticado:
                 st.session_state.citas_db.append(cita)
                 guardar_datos(CITAS_FILE, st.session_state.citas_db)
                 
-                # Mensaje detallado para tu WhatsApp personal
-                mensaje = f"🔥 NUEVA CITA RESERVADA EN GOD'S TIME BARBERIA\n\n👤 Cliente: {nombre_c}\n📞 Teléfono: {tel_final}\n💈 Barbero: {barbero_c}\n📅 Fecha: {fecha_c}\n⏰ Hora: {hora_c}\n✂️ Servicio: {servicio_c} (${precio_est_usd:.2f})"
+                mensaje = f"🦇 NUEVA CITA TÉTRICA EN GOD'S TIME BARBERIA\n\n👤 Cliente: {nombre_c}\n📞 Teléfono: {tel_final}\n💈 Barbero: {barbero_c}\n📅 Fecha: {fecha_c}\n⏰ Hora: {hora_c}\n✂️ Servicio: {servicio_c} (${precio_est_usd:.2f})"
                 mensaje_encoded = urllib.parse.quote(mensaje)
                 
-                # El mensaje se envía a tu número configurado en MI_NUMERO_WHATSAPP
                 ws_url = f"https://wa.me/{MI_NUMERO_WHATSAPP}?text={mensaje_encoded}"
                 
-                st.success("¡Cita reservada con éxito!")
+                st.success("¡Cita reservada en la oscuridad con éxito!")
                 st.markdown(f'''
                     <a href="{ws_url}" target="_blank" class="btn-ws-glow" style="margin-top: 15px;">
                         <i class="fa-brands fa-whatsapp" style="font-size: 20px;"></i> Enviar Cita a mi WhatsApp
@@ -376,7 +377,7 @@ if not st.session_state.autenticado:
                 st.error("Por favor completa tu nombre y número de teléfono.")
 
 # ---------------------------------------------------------
-# VISTA 2: DASHBOARD PRINCIPAL 4K
+# VISTA 2: DASHBOARD PRINCIPAL TERROR
 # ---------------------------------------------------------
 else:
     user_info = USUARIOS.get(st.session_state.usuario_actual, {"rol": "invitado"})
@@ -385,13 +386,13 @@ else:
     with st.sidebar:
         st.markdown('''
             <div style="text-align: center; padding: 15px 0;">
-                <div style="font-family: 'Outfit'; font-size: 22px; font-weight: 900; color: #00f0ff;">GOD'S TIME</div>
-                <p style='color: #94a3b8; font-size: 12px; margin-top: 4px;'>Panel de Control 4K</p>
+                <div style="font-family: 'Creepster'; font-size: 26px; color: #ff3366; letter-spacing: 2px;">GOD'S TIME</div>
+                <p style='color: #94a3b8; font-size: 12px; margin-top: 4px;'>Panel de Control Tétrico</p>
             </div>
         ''', unsafe_allow_html=True)
-        st.markdown(f"<div style='background: rgba(0,240,255,0.08); padding: 10px; border-radius: 10px; text-align: center; border: 1px solid rgba(0,240,255,0.2); margin-bottom: 15px;'><span style='font-size: 13px; color: #cbd5e1;'>Barbero Activo:</span><br><b style='color:#00f0ff; font-size: 15px;'>{st.session_state.usuario_actual}</b></div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='background: rgba(255,0,85,0.08); padding: 10px; border-radius: 10px; text-align: center; border: 1px solid rgba(255,0,85,0.3); margin-bottom: 15px;'><span style='font-size: 13px; color: #cbd5e1;'>Barbero Activo:</span><br><b style='color:#ff3366; font-size: 15px;'>{st.session_state.usuario_actual}</b></div>", unsafe_allow_html=True)
         
-        st.markdown("<p style='font-size: 12px; color: #00f0ff; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px;'>MENÚ DE NAVEGACIÓN</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size: 12px; color: #ff3366; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px;'>MENÚ OSCURO</p>", unsafe_allow_html=True)
 
         opciones_menu = {
             "📊 Panel General": "Panel General",
@@ -411,12 +412,12 @@ else:
         
         st.markdown("---")
         
-        st.markdown(f"<p style='font-size: 12px; color: #00f0ff; font-weight: 800; letter-spacing: 1px; margin-bottom: 8px;'>💵 TASA BCV (Auto): <b>{st.session_state.tasa_bcv:.2f} BS</b></p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='font-size: 12px; color: #ff3366; font-weight: 800; letter-spacing: 1px; margin-bottom: 8px;'>💵 TASA BCV: <b>{st.session_state.tasa_bcv:.2f} BS</b></p>", unsafe_allow_html=True)
         nueva_tasa_input = st.number_input("Tasa BS", value=float(st.session_state.tasa_bcv), step=0.10, label_visibility="collapsed")
-        if st.button("FORZAR O CAMBIAR TASA"):
+        if st.button("MODIFICAR TASA"):
             st.session_state.tasa_bcv = nueva_tasa_input
             guardar_datos(CONFIG_FILE, {"tasa_bcv": nueva_tasa_input})
-            st.success(f"Tasa fijada manualmente: {nueva_tasa_input:.2f} BS")
+            st.success(f"Tasa actualizada: {nueva_tasa_input:.2f} BS")
             st.rerun()
 
         st.markdown("<br>", unsafe_allow_html=True)
@@ -427,7 +428,7 @@ else:
 
     # 1. PANEL GENERAL
     if opcion_menu == "Panel General":
-        st.markdown('<div class="section-header"><i class="fa-solid fa-chart-pie" style="color: #00f0ff;"></i> PANEL GENERAL - DASHBOARD 4K</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">🦇 PANEL GENERAL - DASHBOARD TERROR 🦇</div>', unsafe_allow_html=True)
         df_cortes = pd.DataFrame(st.session_state.cortes_db)
         
         c1, c2, c3 = st.columns(3)
@@ -437,28 +438,28 @@ else:
 
         with c1:
             st.markdown(f'''
-                <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; text-align: center; padding: 20px;">
+                <div style="background: rgba(20, 5, 8, 0.85); border: 1px solid rgba(255,0,85,0.3); border-radius: 20px; text-align: center; padding: 20px;">
                     <div style="color: #94a3b8; font-size: 14px; font-weight: 600; text-transform: uppercase;">Total Cortes Realizados</div>
-                    <div style="font-size: 36px; font-weight: 800; color: #00f0ff; margin-top: 8px;">{total_cortes}</div>
+                    <div style="font-size: 36px; font-weight: 800; color: #ff3366; margin-top: 8px;">{total_cortes}</div>
                 </div>
             ''', unsafe_allow_html=True)
         with c2:
             st.markdown(f'''
-                <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; text-align: center; padding: 20px;">
+                <div style="background: rgba(20, 5, 8, 0.85); border: 1px solid rgba(255,0,85,0.3); border-radius: 20px; text-align: center; padding: 20px;">
                     <div style="color: #94a3b8; font-size: 14px; font-weight: 600; text-transform: uppercase;">Ingresos Totales</div>
                     <div style="font-size: 32px; font-weight: 800; color: #10b981; margin-top: 8px;">${total_ingresos_usd:.2f}</div>
                 </div>
             ''', unsafe_allow_html=True)
         with c3:
             st.markdown(f'''
-                <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; text-align: center; padding: 20px;">
+                <div style="background: rgba(20, 5, 8, 0.85); border: 1px solid rgba(255,0,85,0.3); border-radius: 20px; text-align: center; padding: 20px;">
                     <div style="color: #94a3b8; font-size: 14px; font-weight: 600; text-transform: uppercase;">Citas Agendadas</div>
                     <div style="font-size: 36px; font-weight: 800; color: #f59e0b; margin-top: 8px;">{citas_pendientes}</div>
                 </div>
             ''', unsafe_allow_html=True)
 
         if not df_cortes.empty:
-            st.markdown('<div class="section-header" style="margin-top: 35px;"><i class="fa-solid fa-bolt" style="color: #00f0ff;"></i> ANALÍTICA DE RENDIMIENTO EN TIEMPO REAL</div>', unsafe_allow_html=True)
+            st.markdown('<div class="section-header" style="margin-top: 35px;">🩸 ANALÍTICA DE RENDIMIENTO EN LA OSCURIDAD</div>', unsafe_allow_html=True)
             col_g1, col_g2 = st.columns(2)
 
             with col_g1:
@@ -467,7 +468,7 @@ else:
                 fig_barb = px.bar(
                     df_barberos, x="Barbero", y="Precio ($)", 
                     text_auto='.2f', color="Barbero",
-                    color_discrete_sequence=['#00f0ff', '#3b82f6', '#8b5cf6', '#ec4899']
+                    color_discrete_sequence=['#ff3366', '#ff6600', '#990033', '#cc0066']
                 )
                 fig_barb.update_layout(
                     paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
@@ -481,7 +482,7 @@ else:
                 df_pagos = df_cortes.groupby("Método Pago")["Precio ($)"].sum().reset_index()
                 fig_pagos = px.pie(
                     df_pagos, names="Método Pago", values="Precio ($)", 
-                    hole=0.45, color_discrete_sequence=['#10b981', '#3b82f6', '#f59e0b', '#ec4899']
+                    hole=0.45, color_discrete_sequence=['#10b981', '#ff3366', '#f59e0b', '#990033']
                 )
                 fig_pagos.update_layout(
                     paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
@@ -489,21 +490,7 @@ else:
                 )
                 st.plotly_chart(fig_pagos, use_container_width=True)
 
-            st.markdown("##### Ingresos por Tipo de Servicio ($)")
-            df_servicios = df_cortes.groupby("Servicio")["Precio ($)"].sum().reset_index()
-            fig_serv = px.bar(
-                df_servicios, x="Servicio", y="Precio ($)", 
-                text_auto='.2f', color="Servicio",
-                color_discrete_sequence=['#00f0ff', '#10b981', '#f59e0b', '#8b5cf6']
-            )
-            fig_serv.update_layout(
-                paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-                font_color='#f8fafc', showlegend=False, margin=dict(t=20, b=20, l=20, r=20),
-                xaxis=dict(showgrid=False), yaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)')
-            )
-            st.plotly_chart(fig_serv, use_container_width=True)
-
-        st.markdown('<div class="section-header" style="margin-top: 35px;"><i class="fa-solid fa-tags" style="color: #00f0ff;"></i> TARIFA OFICIAL DE SERVICIOS</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header" style="margin-top: 35px;">🕸️ TARIFA OFICIAL DE SERVICIOS</div>', unsafe_allow_html=True)
         precios_tabla = [
             {"Servicio / Corte": k, "Precio ($)": f"${v:.2f}"}
             for k, v in PRECIOS_CORTES.items()
@@ -512,7 +499,7 @@ else:
 
     # 2. REGISTRAR CORTE
     elif opcion_menu == "Registrar Corte":
-        st.markdown('<div class="section-header"><i class="fa-solid fa-scissors" style="color: #00f0ff;"></i> REGISTRO DE NUEVO CORTE</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">💀 REGISTRO DE NUEVO CORTE</div>', unsafe_allow_html=True)
         with st.form("form_corte"):
             col1, col2 = st.columns(2)
             with col1:
@@ -526,7 +513,7 @@ else:
                 metodo_pago = st.selectbox("Método de Pago", METODOS_PAGO)
                 referencia_pago = st.text_input("N° de Referencia / Transacción", placeholder="N/A para Efectivo")
 
-            btn_guardar = st.form_submit_button("GUARDAR CORTE Y REGISTRAR EN SISTEMA")
+            btn_guardar = st.form_submit_button("GUARDAR CORTE Y REGISTRAR")
             
             if btn_guardar:
                 ref_final = referencia_pago.strip() if referencia_pago.strip() else ("N/A" if metodo_pago == "EFECTIVO" else "Sin ref.")
@@ -542,11 +529,11 @@ else:
                 }
                 st.session_state.cortes_db.append(nuevo_registro)
                 guardar_datos(CORTES_FILE, st.session_state.cortes_db)
-                st.success(f"¡Corte registrado exitosamente a {barbero_sel} (${precio_corte_usd:.2f}) vía {metodo_pago}!")
+                st.success(f"¡Corte registrado con éxito en la cripta a {barbero_sel} (${precio_corte_usd:.2f})!")
 
     # 3. HISTORIAL Y REGISTRO DE CLIENTES POR BARBERO
     elif opcion_menu == "Historial Barberos":
-        st.markdown('<div class="section-header"><i class="fa-solid fa-users-viewfinder" style="color: #00f0ff;"></i> HISTORIAL Y GESTIÓN DE CLIENTES</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">🕯️ HISTORIAL Y GESTIÓN DE VÍCTIMAS (CLIENTES)</div>', unsafe_allow_html=True)
         idx_filtro = BARBEROS.index(st.session_state.usuario_actual) if st.session_state.usuario_actual in BARBEROS else 0
         barbero_filtro = st.selectbox("Selecciona un Barbero", BARBEROS, index=idx_filtro, key="filtro_barbero")
         
@@ -557,15 +544,15 @@ else:
             if not df_filtrado.empty:
                 col_precio = "Precio ($)" if "Precio ($)" in df_filtrado.columns else "Precio"
                 total_usd = df_filtrado[col_precio].sum()
-                st.info(f"Rendimiento de **{barbero_filtro}**: **${total_usd:.2f} USD** ({len(df_filtrado)} servicios prestados)")
+                st.info(f"Cosecha de **{barbero_filtro}**: **${total_usd:.2f} USD** ({len(df_filtrado)} servicios prestados)")
 
-                tab_hist, tab_cli = st.tabs(["📋 HISTORIAL DE CORTES", "👥 CLIENTES ATENDIDOS"])
+                tab_hist, tab_cli = st.tabs(["📋 HISTORIAL", "👥 CLIENTES"])
                 
                 with tab_hist:
                     st.dataframe(df_filtrado, use_container_width=True)
                 
                 with tab_cli:
-                    st.markdown(f"### Base de Datos de Clientes - {barbero_filtro}")
+                    st.markdown(f"### Base de Clientes de {barbero_filtro}")
                     df_clientes = df_filtrado.groupby("Cliente").agg(
                         Visitas=("Servicio", "count"),
                         Total_Gastado_USD=(col_precio, "sum"),
@@ -573,13 +560,13 @@ else:
                     ).reset_index()
                     st.dataframe(df_clientes, use_container_width=True)
             else:
-                st.warning(f"No hay registros de cortes para {barbero_filtro} todavía.")
+                st.warning(f"No hay registros tenebrosos para {barbero_filtro} aún.")
         else:
-            st.write("No hay datos de cortes registrados en la base de datos.")
+            st.write("No hay registros en el archivo todavía.")
 
     # 4. CITAS Y WHATSAPP
     elif opcion_menu == "Citas y WhatsApp":
-        st.markdown('<div class="section-header"><i class="fa-regular fa-calendar-days" style="color: #00f0ff;"></i> GESTIÓN DE CITAS Y WHATSAPP</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">🌙 GESTIÓN DE CITAS Y WHATSAPP</div>', unsafe_allow_html=True)
         col_f1, col_f2 = st.columns(2)
         with col_f1:
             nombre_c = st.text_input("Nombre del Cliente")
@@ -590,7 +577,7 @@ else:
             hora_c = st.selectbox("Hora de la Cita", OPCIONES_HORAS, key="hora_cita_admin")
             servicio_c = st.selectbox("Servicio Solicitado", list(PRECIOS_CORTES.keys()), key="servicio_cita")
             
-        if st.button("REGISTRAR CITA Y ENVIAR RECORDATORIO"):
+        if st.button("REGISTRAR CITA Y ENVIAR AL WHATSAPP"):
             if nombre_c and telefono_c:
                 tel_final = limpiar_telefono(telefono_c)
                 cita = {
@@ -606,7 +593,7 @@ else:
                 
                 precio_usd = PRECIOS_CORTES[servicio_c]
                 
-                mensaje = f"🔥 NUEVA CITA REGISTRADA EN AGENDA\n\n👤 Cliente: {nombre_c}\n📞 Teléfono: {tel_final}\n💈 Barbero: {barbero_c}\n📅 Fecha: {fecha_c}\n⏰ Hora: {hora_c}\n✂️ Servicio: {servicio_c} (${precio_usd:.2f})"
+                mensaje = f"🦇 NUEVA CITA REGISTRADA EN AGENDA TÉTRICA\n\n👤 Cliente: {nombre_c}\n📞 Teléfono: {tel_final}\n💈 Barbero: {barbero_c}\n📅 Fecha: {fecha_c}\n⏰ Hora: {hora_c}\n✂️ Servicio: {servicio_c} (${precio_usd:.2f})"
                 mensaje_encoded = urllib.parse.quote(mensaje)
                 
                 ws_url = f"https://wa.me/{MI_NUMERO_WHATSAPP}?text={mensaje_encoded}"
@@ -617,22 +604,22 @@ else:
                     </a>
                 ''', unsafe_allow_html=True)
 
-        st.markdown('<div class="section-header" style="margin-top:35px;">CITAS PROGRAMADAS EN AGENDA</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header" style="margin-top:35px;">AGENDAS EN LA CRIPTA</div>', unsafe_allow_html=True)
         if st.session_state.citas_db:
             st.dataframe(pd.DataFrame(st.session_state.citas_db), use_container_width=True)
 
     # 5. ADMINISTRACIÓN
     elif opcion_menu == "Administración":
-        st.markdown('<div class="section-header"><i class="fa-solid fa-shield-halved" style="color: #00f0ff;"></i> PANEL DE ADMINISTRACIÓN</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">⚰️ PANEL DE ADMINISTRACIÓN OSCURA</div>', unsafe_allow_html=True)
         
         if es_admin:
-            st.warning("⚠️ **Zona de Peligro:** La siguiente acción eliminará permanentemente todos los registros de cortes y citas guardadas en el sistema.")
-            if st.button("REINICIAR TODO EL HISTORIAL DE LA BARBERÍA"):
+            st.warning("⚠️ **Zona Prohibida:** La siguiente acción borrará para siempre todo el historial y las citas de la cripta.")
+            if st.button("REINICIAR TODA LA CRIPTA"):
                 st.session_state.cortes_db = []
                 st.session_state.citas_db = []
                 guardar_datos(CORTES_FILE, [])
                 guardar_datos(CITAS_FILE, [])
-                st.success("El historial completo ha sido reiniciado con éxito.")
+                st.success("Toda la cripta ha sido purgada con éxito.")
                 st.rerun()
         else:
-            st.error("🔒 **Acceso Restringido:** Esta sección requiere permisos de Administrador.")
+            st.error("🔒 **Acceso Denegado:** Solo el amo de la cripta (Administrador) puede entrar aquí.")
