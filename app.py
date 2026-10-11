@@ -93,7 +93,7 @@ OPCIONES_HORAS = [
     for m in (0, 30)
 ]
 
-# --- ESTILOS 4K ULTRA MODERNOS & LANDING VIP ---
+# --- ESTILOS 4K ULTRA MODERNOS & CORRECCIÓN DE CAMPOS MÓVILES ---
 st.markdown("""
     <style>
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
@@ -106,6 +106,27 @@ st.markdown("""
     .stApp {
         background: radial-gradient(circle at 50% -20%, #0c1a36 0%, #030712 60%, #010308 100%);
         color: #f8fafc;
+    }
+
+    /* FORZAR INPUTS Y SELECTORES OSCUROS EN MÓVILES Y ESCRITORIO */
+    input, select, textarea {
+        background-color: rgba(15, 23, 42, 0.9) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(0, 240, 255, 0.3) !important;
+        border-radius: 12px !important;
+    }
+
+    div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {
+        background-color: rgba(15, 23, 42, 0.9) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(0, 240, 255, 0.3) !important;
+        border-radius: 12px !important;
+    }
+
+    /* Etiquetas de los inputs visibles y claras */
+    .stTextInput label, .stSelectbox label, .stDateInput label {
+        color: #cbd5e1 !important;
+        font-weight: 600 !important;
     }
 
     .vip-badge {
@@ -142,7 +163,7 @@ st.markdown("""
 
     .hero-title {
         font-family: 'Outfit', sans-serif;
-        font-size: 48px;
+        font-size: 42px;
         font-weight: 900;
         background: linear-gradient(135deg, #ffffff 20%, #80f5ff 60%, #0072ff 100%);
         -webkit-background-clip: text;
@@ -156,9 +177,9 @@ st.markdown("""
     .hero-subtitle {
         text-align: center;
         color: #94a3b8;
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 500;
-        margin-bottom: 35px;
+        margin-bottom: 25px;
     }
 
     .price-preview-card {
@@ -274,7 +295,7 @@ if not st.session_state.autenticado:
         </div>
     ''', unsafe_allow_html=True)
 
-    col_c1, col_c2, col_c3 = st.columns([1, 2.4, 1])
+    col_c1, col_c2, col_c3 = st.columns([0.5, 3, 0.5])
     with col_c2:
         with st.form("form_cita_login"):
             st.markdown("<h3 style='text-align: center; color: #ffffff; margin-bottom: 20px; font-weight: 700;'><i class='fa-regular fa-calendar-check' style='color:#00f0ff;'></i> Reserva Tu Cita Online</h3>", unsafe_allow_html=True)
