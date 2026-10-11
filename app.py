@@ -7,7 +7,7 @@ import os
 
 # Configuración de la página
 st.set_page_config(
-    page_title="Test Barberia", 
+    page_title="God's Time Barbería", 
     layout="wide", 
     initial_sidebar_state="expanded"
 )
@@ -15,6 +15,8 @@ st.set_page_config(
 # --- PERSISTENCIA LOCAL DE DATOS ---
 CORTES_FILE = "cortes_data.json"
 CITAS_FILE = "citas_data.json"
+GASTOS_FILE = "gastos_data.json"
+INVENTARIO_FILE = "inventario_data.json"
 CONFIG_FILE = "config_data.json"
 
 def cargar_datos(archivo, por_defecto):
@@ -39,6 +41,14 @@ if "cortes_db" not in st.session_state:
     st.session_state.cortes_db = cargar_datos(CORTES_FILE, [])
 if "citas_db" not in st.session_state:
     st.session_state.citas_db = cargar_datos(CITAS_FILE, [])
+if "gastos_db" not in st.session_state:
+    st.session_state.gastos_db = cargar_datos(GASTOS_FILE, [])
+if "inventario_db" not in st.session_state:
+    st.session_state.inventario_db = cargar_datos(INVENTARIO_FILE, [
+        {"Producto": "Cera para Cabello", "Stock": 10, "Precio ($)": 8.0},
+        {"Producto": "Aceite para Barba", "Stock": 6, "Precio ($)": 6.0},
+        {"Producto": "Minoxidil", "Stock": 4, "Precio ($)": 15.0}
+    ])
 
 config_cargada = cargar_datos(CONFIG_FILE, {"tasa_bcv": 36.50})
 if "tasa_bcv" not in st.session_state:
@@ -46,7 +56,7 @@ if "tasa_bcv" not in st.session_state:
 
 # CREDENCIALES Y ROLES DE USUARIOS
 USUARIOS = {
-    "Admin": {"clave": "1234", "rol": "admin"},
+    "Francisco": {"clave": "admin123", "rol": "admin"},
     "Jonder": {"clave": "barbero1", "rol": "barbero"}
 }
 
@@ -54,14 +64,13 @@ PRECIOS_CORTES = {
     "Corte Clásico": 10.0,
     "Corte y Barba": 12.0,
     "Barba Completa": 5.0,
-    "Combo (Corte + Barba+ Mascarilla)": 13.0,
+    "Combo (Corte + Barba + Mascarilla)": 13.0,
     "Diseño / Cejas": 5.0
 }
 
 BARBEROS = ["Francisco", "Jonder", "Barbero 3"]
 METODOS_PAGO = ["EFECTIVO", "PAGO MOVIL", "BINANCE"]
 
-# GENERADOR DE OPCIONES DE HORAS (AM / PM)
 OPCIONES_HORAS = [
     time(h, m).strftime("%I:%M %p") 
     for h in range(8, 20) 
@@ -83,13 +92,11 @@ st.markdown("""
         color: #e2e8f0;
     }
 
-    /* BARRA LATERAL IZQUIERDA MODERNIZADA */
     [data-testid="stSidebar"] {
         background: rgba(10, 17, 30, 0.95) !important;
         border-right: 1px solid rgba(0, 240, 255, 0.2) !important;
     }
 
-    /* MENÚ LATERAL: ESTILO BOTONES OVALADOS 3D (Cian / Azul Neón) */
     [data-testid="stSidebar"] .stRadio > div {
         display: flex;
         flex-direction: column;
@@ -118,7 +125,6 @@ st.markdown("""
         overflow: hidden;
     }
 
-    /* Reflejo de luz superior (Efecto Cristal) */
     [data-testid="stSidebar"] .stRadio label::before {
         content: '';
         position: absolute;
@@ -142,7 +148,6 @@ st.markdown("""
         box-shadow: 0 0 25px rgba(0, 240, 255, 0.9), inset 0 2px 6px rgba(255, 255, 255, 1) !important;
     }
 
-    /* BOTONES GENERALES STREAMLIT ESTILO 3D GLOSSY (Verde Neón / Azul) */
     .stButton > button {
         position: relative;
         background: linear-gradient(180deg, #00f0ff 0%, #0066cc 100%) !important;
@@ -165,7 +170,6 @@ st.markdown("""
         transform: translateY(-2px);
     }
 
-    /* BOTÓN WHATSAPP 3D GLOSSY (Verde Brillante) */
     .btn-ws-glow {
         position: relative;
         display: flex;
@@ -193,7 +197,6 @@ st.markdown("""
         color: white !important;
     }
 
-    /* EFECTO LATIDO Y NEÓN EN EL TÍTULO */
     @keyframes heartbeat-glow {
         0% { transform: scale(1); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
         14% { transform: scale(1.04); text-shadow: 0 0 25px rgba(0, 240, 255, 0.9); }
@@ -236,10 +239,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# VISTA 1: INICIO CLIENTES (AGENDAR CITAS) + BOTÓN SUPERIOR DE LOGIN
+# VISTA 1: INICIO CLIENTES (AGENDAR CITAS)
 # ---------------------------------------------------------
 if not st.session_state.autenticado:
-    # Encabezado superior con botón flotante/pequeño para login
     col_header, col_login_btn = st.columns([5, 1.2])
     
     with col_login_btn:
@@ -260,19 +262,25 @@ if not st.session_state.autenticado:
 
     st.markdown('''
         <div style="text-align: center; margin-top: -20px;">
-            <div class="title-electric">TEST BARBERIA</div>
+            <div class="title-electric">GOD'S TIME BARBERÍA</div>
         </div>
     ''', unsafe_allow_html=True)
     
     st.markdown("<p style='text-align: center; color: #00f0ff; font-weight: 700; font-size: 18px; margin-top: 10px; margin-bottom: 30px;'>🔥 ¡Eleva tu presencia! El corte perfecto en el momento exacto. ⚡</p>", unsafe_allow_html=True)
 
-    # Vista principal directa para clientes: AGENDAR CITA
     col_c1, col_c2, col_c3 = st.columns([1, 2, 1])
     with col_c2:
         st.markdown("<h3 style='text-align: center; color: #ffffff;'>Reserva tu Cita</h3>", unsafe_allow_html=True)
         with st.form("form_cita_login"):
             nombre_c = st.text_input("Tu Nombre Completo")
-            telefono_c = st.text_input("Teléfono (Ej: +584120000000)")
+            
+            # --- CAMPO DE TELÉFONO CON CÓDIGO +58 AUTOMÁTICO ---
+            col_cod, col_num = st.columns([1, 3])
+            with col_cod:
+                st.text_input("Código", value="+58", disabled=True, key="cod_ve_login")
+            with col_num:
+                num_local_c = st.text_input("Teléfono (Ej: 4120000000)", key="num_local_login")
+
             barbero_c = st.selectbox("Barbero de preferencia", BARBEROS, key="barbero_cita_login")
             
             col_f1, col_h1 = st.columns(2)
@@ -282,11 +290,14 @@ if not st.session_state.autenticado:
                 hora_c = st.selectbox("Hora de la cita", OPCIONES_HORAS, key="hora_cita_login")
 
             servicio_c = st.selectbox("Servicio solicitado", list(PRECIOS_CORTES.keys()), key="servicio_cita_login")
-            
             btn_agendar_login = st.form_submit_button("REGISTRAR CITA")
 
         if btn_agendar_login:
-            if nombre_c and telefono_c:
+            num_limpio = num_local_c.replace(" ", "").replace("-", "").strip()
+            if nombre_c and num_limpio:
+                # Se fuerza el código +58 por delante
+                telefono_c = f"+58{num_limpio.lstrip('0')}"
+                
                 cita = {
                     "Cliente": nombre_c,
                     "Teléfono": telefono_c,
@@ -301,9 +312,9 @@ if not st.session_state.autenticado:
                 precio_usd = PRECIOS_CORTES[servicio_c]
                 precio_bs = precio_usd * st.session_state.tasa_bcv
                 
-                mensaje = f"Hola {nombre_c}, confirmamos tu cita en Test Barberia el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c} (${precio_usd:.2f} / {precio_bs:.2f} BS)."
+                mensaje = f"Hola {nombre_c}, confirmamos tu cita en God's Time Barbería el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c} (${precio_usd:.2f} / {precio_bs:.2f} BS)."
                 mensaje_encoded = urllib.parse.quote(mensaje)
-                phone_clean = telefono_c.replace("+", "").replace(" ", "").replace("-", "")
+                phone_clean = telefono_c.replace("+", "")
                 ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
                 
                 st.success("¡Cita agendada exitosamente!")
@@ -316,30 +327,31 @@ if not st.session_state.autenticado:
                 st.error("Por favor completa tu nombre y número de teléfono.")
 
 # ---------------------------------------------------------
-# VISTA 2: PANEL PRINCIPAL (MENÚ CON BOTONES 3D GLOSSY)
+# VISTA 2: PANEL PRINCIPAL (ADMIN Y BARBEROS)
 # ---------------------------------------------------------
 else:
     user_info = USUARIOS.get(st.session_state.usuario_actual, {"rol": "invitado"})
     es_admin = user_info["rol"] == "admin"
 
-    # SIDEBAR: MENÚ CON BOTONES OVALADOS 3D CON BRILLO
     with st.sidebar:
         st.markdown('''
             <div style="text-align: center; padding: 10px 0;">
-                <div class="title-electric" style="font-size: 22px;">TEST BARBERIA</div>
+                <div class="title-electric" style="font-size: 20px;">GOD'S TIME BARBERÍA</div>
             </div>
         ''', unsafe_allow_html=True)
-        st.markdown(f"<p style='text-align: center; color: #94a3b8; font-size: 13px;'>Barbero: <b style='color:#00f0ff;'>{st.session_state.usuario_actual}</b></p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='text-align: center; color: #94a3b8; font-size: 13px;'>Usuario: <b style='color:#00f0ff;'>{st.session_state.usuario_actual}</b></p>", unsafe_allow_html=True)
         st.markdown("---")
         
         st.markdown("<p style='font-size: 13px; color: #00f0ff; font-weight: 800; margin-bottom: 8px;'>MENÚ PRINCIPAL</p>", unsafe_allow_html=True)
 
         opciones_menu = {
-            "📊  Panel General": "Panel General",
-            "✂️  Registrar Corte": "Registrar Corte",
-            "💈  Historial Barberos": "Historial Barberos",
-            "📅  Citas y WhatsApp": "Citas y WhatsApp",
-            "⚙️  Administración": "Administración"
+            "📊 Panel General": "Panel General",
+            "✂️ Registrar Corte": "Registrar Corte",
+            "💈 Historial Barberos": "Historial Barberos",
+            "📅 Citas y WhatsApp": "Citas y WhatsApp",
+            "💸 Gastos / Caja Chica": "Gastos",
+            "📦 Inventario Productos": "Inventario",
+            "⚙️ Administración": "Administración"
         }
         
         seleccion_label = st.radio(
@@ -351,11 +363,9 @@ else:
         opcion_menu = opciones_menu[seleccion_label]
         
         st.markdown("---")
-        
-        # ACTUALIZACIÓN DE TASA DEL DÓLAR
         st.markdown("<p style='font-size: 13px; color: #00f0ff; font-weight: 800; margin-bottom: 5px;'>💵 TASA DEL DÓLAR ($)</p>", unsafe_allow_html=True)
         nueva_tasa_input = st.number_input("Tasa BS", value=float(st.session_state.tasa_bcv), step=0.10, label_visibility="collapsed")
-        if st.button("ACTUALIZAR TASA DEL DÓLAR"):
+        if st.button("ACTUALIZAR TASA"):
             st.session_state.tasa_bcv = nueva_tasa_input
             guardar_datos(CONFIG_FILE, {"tasa_bcv": nueva_tasa_input})
             st.success(f"Tasa actualizada: {nueva_tasa_input:.2f} BS")
@@ -369,23 +379,28 @@ else:
 
     # 1. PANEL GENERAL
     if opcion_menu == "Panel General":
-        st.markdown('<div class="section-header">📊 PANEL GENERAL DE LA BARBERÍA</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">📊 PANEL GENERAL - GOD\'S TIME BARBERÍA</div>', unsafe_allow_html=True)
         df_cortes = pd.DataFrame(st.session_state.cortes_db)
+        df_gastos = pd.DataFrame(st.session_state.gastos_db)
         
-        c1, c2, c3 = st.columns(3)
         total_cortes = len(df_cortes) if not df_cortes.empty else 0
-        total_ingresos_usd = df_cortes["Precio ($)"].sum() if (not df_cortes.empty and "Precio ($)" in df_cortes.columns) else (df_cortes["Precio"].sum() if not df_cortes.empty else 0.0)
+        total_ingresos_usd = df_cortes["Precio ($)"].sum() if (not df_cortes.empty and "Precio ($)" in df_cortes.columns) else 0.0
+        total_gastos_usd = df_gastos["Monto ($)"].sum() if (not df_gastos.empty and "Monto ($)" in df_gastos.columns) else 0.0
+        
         total_ingresos_bs = total_ingresos_usd * st.session_state.tasa_bcv
         citas_pendientes = len(st.session_state.citas_db)
 
+        c1, c2, c3, c4 = st.columns(4)
         with c1:
-            st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Total Cortes</h4><h2 style="margin:5px 0 0 0;">{total_cortes}</h2></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0; font-size:14px;">Total Cortes</h4><h2 style="margin:5px 0 0 0;">{total_cortes}</h2></div>', unsafe_allow_html=True)
         with c2:
-            st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Ingresos Totales</h4><h2 style="margin:5px 0 0 0; font-size: 22px;">${total_ingresos_usd:.2f} <span style="color:#00f0ff; font-size:16px;">({total_ingresos_bs:.2f} BS)</span></h2></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0; font-size:14px;">Ingresos Brutos</h4><h2 style="margin:5px 0 0 0; font-size: 20px;">${total_ingresos_usd:.2f}</h2></div>', unsafe_allow_html=True)
         with c3:
-            st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Citas Agendadas</h4><h2 style="margin:5px 0 0 0;">{citas_pendientes}</h2></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0; font-size:14px;">Gastos Locales</h4><h2 style="margin:5px 0 0 0; font-size: 20px; color:#ff4d4d;">${total_gastos_usd:.2f}</h2></div>', unsafe_allow_html=True)
+        with c4:
+            st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0; font-size:14px;">Citas Activas</h4><h2 style="margin:5px 0 0 0;">{citas_pendientes}</h2></div>', unsafe_allow_html=True)
 
-        st.markdown('<div class="section-header" style="margin-top: 30px;">💵 TARIFA DE SERVICIOS</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header" style="margin-top: 30px;">💵 TARIFA DE SERVICIOS OFICIALES</div>', unsafe_allow_html=True)
         precios_tabla = [
             {"Servicio / Corte": k, "Precio ($)": f"${v:.2f}", "Precio (BS)": f"{v * st.session_state.tasa_bcv:.2f} BS"}
             for k, v in PRECIOS_CORTES.items()
@@ -403,7 +418,7 @@ else:
                 corte_sel = st.selectbox("Tipo de Corte / Servicio", list(PRECIOS_CORTES.keys()))
                 precio_corte_usd = st.number_input("Precio ($)", value=float(PRECIOS_CORTES[corte_sel]), step=1.0)
                 precio_corte_bs = precio_corte_usd * st.session_state.tasa_bcv
-                st.info(f"Monto equivalente en Bolívares (Tasa {st.session_state.tasa_bcv:.2f}): **{precio_corte_bs:.2f} BS**")
+                st.info(f"Monto en Bolívares (Tasa {st.session_state.tasa_bcv:.2f}): **{precio_corte_bs:.2f} BS**")
                 cliente_nombre = st.text_input("Nombre del Cliente (Opcional)")
             
             with col2:
@@ -427,11 +442,11 @@ else:
                 }
                 st.session_state.cortes_db.append(nuevo_registro)
                 guardar_datos(CORTES_FILE, st.session_state.cortes_db)
-                st.success(f"Corte registrado a {barbero_sel} correctamente (${precio_corte_usd:.2f} / {precio_corte_bs:.2f} BS) vía {metodo_pago}.")
+                st.success(f"Corte registrado a {barbero_sel} correctamente (${precio_corte_usd:.2f} / {precio_corte_bs:.2f} BS).")
 
-    # 3. HISTORIAL Y REGISTRO DE CLIENTES POR BARBERO
+    # 3. HISTORIAL Y COMISIONES POR BARBERO
     elif opcion_menu == "Historial Barberos":
-        st.markdown('<div class="section-header">💈 HISTORIAL Y REGISTRO DE CLIENTES POR BARBERO</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">💈 HISTORIAL Y COMISIONES POR BARBERO</div>', unsafe_allow_html=True)
         idx_filtro = BARBEROS.index(st.session_state.usuario_actual) if st.session_state.usuario_actual in BARBEROS else 0
         barbero_filtro = st.selectbox("Selecciona un Barbero", BARBEROS, index=idx_filtro, key="filtro_barbero")
         
@@ -442,8 +457,10 @@ else:
             if not df_filtrado.empty:
                 col_precio = "Precio ($)" if "Precio ($)" in df_filtrado.columns else "Precio"
                 total_usd = df_filtrado[col_precio].sum()
+                comision_barbero = total_usd * 0.50 # 50% de comisión
                 total_bs = total_usd * st.session_state.tasa_bcv
-                st.info(f"Total acumulado por **{barbero_filtro}**: **${total_usd:.2f} USD** / **{total_bs:.2f} BS** ({len(df_filtrado)} cortes)")
+                
+                st.info(f"Total recaudado por **{barbero_filtro}**: **${total_usd:.2f} USD** ({len(df_filtrado)} cortes) | Comisión estimada (50%): **${comision_barbero:.2f}**")
 
                 tab_hist, tab_cli = st.tabs(["HISTORIAL DE CORTES", "CLIENTES ATENDIDOS"])
                 
@@ -451,7 +468,6 @@ else:
                     st.dataframe(df_filtrado, use_container_width=True)
                 
                 with tab_cli:
-                    st.markdown(f"### Clientes registrados con {barbero_filtro}")
                     df_clientes = df_filtrado.groupby("Cliente").agg(
                         Visitas=("Servicio", "count"),
                         Total_Gastado_USD=(col_precio, "sum"),
@@ -466,19 +482,29 @@ else:
 
     # 4. CITAS Y WHATSAPP
     elif opcion_menu == "Citas y WhatsApp":
-        st.markdown('<div class="section-header">📅 GESTIÓN DE CITAS Y RECORDATORIOS POR WHATSAPP</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">📅 GESTIÓN DE CITAS Y WHATSAPP</div>', unsafe_allow_html=True)
         col_f1, col_f2 = st.columns(2)
         with col_f1:
             nombre_c = st.text_input("Nombre del Cliente")
-            telefono_c = st.text_input("Teléfono (Ej: +584120000000)")
+            
+            # --- CÓDIGO +58 AUTOMÁTICO EN PANEL ADMIN ---
+            col_cod_adm, col_num_adm = st.columns([1, 3])
+            with col_cod_adm:
+                st.text_input("Código", value="+58", disabled=True, key="cod_ve_admin")
+            with col_num_adm:
+                num_local_adm = st.text_input("Teléfono (Ej: 4120000000)", key="num_local_admin")
+
             barbero_c = st.selectbox("Barbero de preferencia", BARBEROS, key="barbero_cita")
         with col_f2:
             fecha_c = st.date_input("Fecha de la cita", min_value=date.today())
             hora_c = st.selectbox("Hora de la cita", OPCIONES_HORAS, key="hora_cita_admin")
             servicio_c = st.selectbox("Servicio solicitado", list(PRECIOS_CORTES.keys()), key="servicio_cita")
             
-        if st.button("REGISTRAR CITA Y NOTIFICAR POR WHATSAPP"):
-            if nombre_c and telefono_c:
+        if st.button("REGISTRAR CITA Y NOTIFICAR"):
+            num_limpio_adm = num_local_adm.replace(" ", "").replace("-", "").strip()
+            if nombre_c and num_limpio_adm:
+                telefono_c = f"+58{num_limpio_adm.lstrip('0')}"
+                
                 cita = {
                     "Cliente": nombre_c,
                     "Teléfono": telefono_c,
@@ -493,9 +519,9 @@ else:
                 precio_usd = PRECIOS_CORTES[servicio_c]
                 precio_bs = precio_usd * st.session_state.tasa_bcv
                 
-                mensaje = f"Hola {nombre_c}, confirmamos tu cita en Test Barberia el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c} (${precio_usd:.2f} / {precio_bs:.2f} BS)."
+                mensaje = f"Hola {nombre_c}, confirmamos tu cita en God's Time Barbería el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c} (${precio_usd:.2f} / {precio_bs:.2f} BS)."
                 mensaje_encoded = urllib.parse.quote(mensaje)
-                phone_clean = telefono_c.replace("+", "").replace(" ", "").replace("-", "")
+                phone_clean = telefono_c.replace("+", "")
                 ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
                 st.success("¡Cita agendada exitosamente!")
                 st.markdown(f'''
@@ -503,23 +529,96 @@ else:
                         Enviar Confirmación por WhatsApp
                     </a>
                 ''', unsafe_allow_html=True)
+            else:
+                st.error("Por favor ingresa el nombre y el teléfono.")
 
         st.markdown('<div class="section-header" style="margin-top:30px;">CITAS REGISTRADAS</div>', unsafe_allow_html=True)
         if st.session_state.citas_db:
             st.dataframe(pd.DataFrame(st.session_state.citas_db), use_container_width=True)
 
-    # 5. ADMINISTRACIÓN
+    # 5. GASTOS / CAJA CHICA
+    elif opcion_menu == "Gastos":
+        st.markdown('<div class="section-header">💸 CONTROL DE GASTOS Y CAJA CHICA</div>', unsafe_allow_html=True)
+        with st.form("form_gastos"):
+            c_g1, c_g2 = st.columns(2)
+            with c_g1:
+                concepto_gasto = st.text_input("Concepto del Gasto (Ej: Compra de Cuchillas, Insumos, Limpieza)")
+                monto_gasto_usd = st.number_input("Monto en ($)", min_value=0.0, step=1.0)
+            with c_g2:
+                categoria_gasto = st.selectbox("Categoría", ["Insumos", "Servicios Básicos", "Mantenimiento", "Otros"])
+                responsable_gasto = st.selectbox("Registrado por", BARBEROS)
+
+            btn_reg_gasto = st.form_submit_button("REGISTRAR GASTO")
+            if btn_reg_gasto:
+                if concepto_gasto and monto_gasto_usd > 0:
+                    gasto_item = {
+                        "Fecha": datetime.now().strftime("%Y-%m-%d %I:%M:%S %p"),
+                        "Concepto": concepto_gasto,
+                        "Categoría": categoria_gasto,
+                        "Monto ($)": monto_gasto_usd,
+                        "Responsable": responsable_gasto
+                    }
+                    st.session_state.gastos_db.append(gasto_item)
+                    guardar_datos(GASTOS_FILE, st.session_state.gastos_db)
+                    st.success(f"Gasto registrado: ${monto_gasto_usd:.2f} en {concepto_gasto}")
+                else:
+                    st.error("Por favor ingresa un concepto válido y un monto mayor a 0.")
+
+        st.markdown("### Historial de Gastos")
+        if st.session_state.gastos_db:
+            st.dataframe(pd.DataFrame(st.session_state.gastos_db), use_container_width=True)
+        else:
+            st.info("No hay gastos registrados.")
+
+    # 6. INVENTARIO DE PRODUCTOS
+    elif opcion_menu == "Inventario":
+        st.markdown('<div class="section-header">📦 INVENTARIO DE PRODUCTOS</div>', unsafe_allow_html=True)
+        df_inv = pd.DataFrame(st.session_state.inventario_db)
+        st.dataframe(df_inv, use_container_width=True)
+
+        with st.form("form_nuevo_prod"):
+            st.markdown("#### Agregar o Actualizar Stock")
+            np1, np2, np3 = st.columns(3)
+            with np1:
+                p_nombre = st.text_input("Nombre del Producto")
+            with np2:
+                p_stock = st.number_input("Cantidad en Stock", min_value=0, step=1)
+            with np3:
+                p_precio = st.number_input("Precio de Venta ($)", min_value=0.0, step=0.5)
+
+            btn_add_prod = st.form_submit_button("GUARDAR / ACTUALIZAR PRODUCTO")
+            if btn_add_prod and p_nombre:
+                encontrado = False
+                for item in st.session_state.inventario_db:
+                    if item["Producto"].lower() == p_nombre.lower():
+                        item["Stock"] = p_stock
+                        item["Precio ($)"] = p_precio
+                        encontrado = True
+                        break
+                if not encontrado:
+                    st.session_state.inventario_db.append({
+                        "Producto": p_nombre,
+                        "Stock": p_stock,
+                        "Precio ($)": p_precio
+                    })
+                guardar_datos(INVENTARIO_FILE, st.session_state.inventario_db)
+                st.success(f"Producto '{p_nombre}' actualizado correctamente.")
+                st.rerun()
+
+    # 7. ADMINISTRACIÓN
     elif opcion_menu == "Administración":
         st.markdown('<div class="section-header">⚙️ PANEL DE ADMINISTRACIÓN</div>', unsafe_allow_html=True)
         
         if es_admin:
-            st.warning("⚠️ **Atención:** La siguiente opción borrará permanentemente las citas y los registros de cortes.")
-            if st.button("REINICIAR TODO EL HISTORIAL"):
+            st.warning("⚠️ **Atención:** Las opciones a continuación modifican datos críticos del negocio.")
+            if st.button("REINICIAR TODO EL HISTORIAL DE CORTES Y CITAS"):
                 st.session_state.cortes_db = []
                 st.session_state.citas_db = []
+                st.session_state.gastos_db = []
                 guardar_datos(CORTES_FILE, [])
                 guardar_datos(CITAS_FILE, [])
-                st.success("El historial completo ha sido borrado.")
+                guardar_datos(GASTOS_FILE, [])
+                st.success("Historial reiniciado exitosamente.")
                 st.rerun()
         else:
-            st.error("🔒 **Acceso restringido:** Tu usuario no posee permisos para reiniciar el historial de la barbería.")
+            st.error("🔒 **Acceso restringido:** Tu usuario no posee permisos de administrador.")
