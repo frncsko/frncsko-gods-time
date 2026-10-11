@@ -8,7 +8,7 @@ import os
 
 # Configuración de la página
 st.set_page_config(
-    page_title="GOD'S TIME BARBERIA | 4K Dashboard", 
+    page_title="GOD'S TIME BARBERIA | 4K VIP Experience", 
     layout="wide", 
     initial_sidebar_state="expanded"
 )
@@ -78,7 +78,7 @@ OPCIONES_HORAS = [
     for m in (0, 30)
 ]
 
-# --- ESTILOS 4K ULTRA MODERNOS (GLASSMORPHISM & NEON GLOW) ---
+# --- ESTILOS 4K ULTRA MODERNOS & LANDING VIP ---
 st.markdown("""
     <style>
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
@@ -88,24 +88,141 @@ st.markdown("""
         font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
     }
 
-    /* Fondo general tipo estudio de diseño tecnológico 4K */
+    /* Fondo Holográfico Pro de Alta Resolución */
     .stApp {
-        background: radial-gradient(circle at 15% 15%, #0a1128 0%, #030712 50%, #010308 100%);
+        background: radial-gradient(circle at 50% -20%, #0c1a36 0%, #030712 60%, #010308 100%);
         color: #f8fafc;
     }
 
-    /* Barra Lateral Estilizada */
+    /* Badge VIP Flotante */
+    .vip-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(0, 240, 255, 0.08);
+        border: 1px solid rgba(0, 240, 255, 0.3);
+        padding: 6px 18px;
+        border-radius: 50px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #00f0ff;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+        margin-bottom: 12px;
+    }
+
+    .vip-badge-dot {
+        width: 8px;
+        height: 8px;
+        background-color: #00f0ff;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #00f0ff;
+        animation: pulse 1.8s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(0.95); opacity: 0.7; }
+        50% { transform: scale(1.3); opacity: 1; }
+        100% { transform: scale(0.95); opacity: 0.7; }
+    }
+
+    /* Títulos Eléctricos 4K */
+    .hero-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 48px;
+        font-weight: 900;
+        background: linear-gradient(135deg, #ffffff 20%, #80f5ff 60%, #0072ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-align: center;
+        letter-spacing: 2px;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+    }
+
+    .hero-subtitle {
+        text-align: center;
+        color: #94a3b8;
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 35px;
+        letter-spacing: 0.5px;
+    }
+
+    /* Tarjetas de Vidrio Esmerilado (Glassmorphism Cards) */
+    .card-landing, [data-testid="stForm"] {
+        background: rgba(10, 18, 35, 0.75) !important;
+        backdrop-filter: blur(25px) !important;
+        -webkit-backdrop-filter: blur(25px) !important;
+        border-radius: 24px !important;
+        padding: 32px !important;
+        border: 1px solid rgba(0, 240, 255, 0.2) !important;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1) !important;
+    }
+
+    /* Resumen de Tarifa VIP incorporado */
+    .price-preview-card {
+        background: linear-gradient(135deg, rgba(0, 240, 255, 0.08) 0%, rgba(0, 114, 255, 0.12) 100%);
+        border: 1px dashed rgba(0, 240, 255, 0.4);
+        border-radius: 16px;
+        padding: 16px;
+        text-align: center;
+        margin-top: 15px;
+        margin-bottom: 20px;
+    }
+
+    /* Botones Neón Estilo Cyberpunk */
+    .stButton > button {
+        background: linear-gradient(135deg, #00f0ff 0%, #0066cc 100%) !important;
+        color: #030712 !important;
+        font-weight: 800 !important;
+        font-size: 15px !important;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        border-radius: 16px !important;
+        border: none !important;
+        width: 100%;
+        padding: 16px 28px !important;
+        box-shadow: 0 12px 30px rgba(0, 240, 255, 0.35);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .stButton > button:hover {
+        box-shadow: 0 18px 40px rgba(0, 240, 255, 0.6);
+        transform: translateY(-3px);
+        background: linear-gradient(135deg, #33f3ff 0%, #1a75ff 100%) !important;
+    }
+
+    /* Botón WhatsApp */
+    .btn-ws-glow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+        color: white !important;
+        text-decoration: none;
+        border-radius: 16px !important;
+        padding: 16px 28px;
+        font-weight: 800;
+        font-size: 15px;
+        letter-spacing: 1px;
+        box-shadow: 0 12px 30px rgba(16, 185, 129, 0.4);
+        transition: all 0.3s ease;
+    }
+
+    .btn-ws-glow:hover {
+        box-shadow: 0 18px 40px rgba(16, 185, 129, 0.6);
+        transform: translateY(-3px);
+        color: white !important;
+    }
+
+    /* Barra Lateral */
     [data-testid="stSidebar"] {
         background: rgba(4, 9, 20, 0.85) !important;
         backdrop-filter: blur(20px);
         border-right: 1px solid rgba(0, 240, 255, 0.15) !important;
-    }
-
-    /* Menú Lateral Personalizado */
-    [data-testid="stSidebar"] .stRadio > div {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
     }
 
     [data-testid="stSidebar"] .stRadio label {
@@ -115,19 +232,9 @@ st.markdown("""
         color: #cbd5e1 !important;
         font-weight: 600 !important;
         font-size: 14px !important;
-        letter-spacing: 0.5px !important;
         cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        transition: all 0.3s ease !important;
         border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        display: flex;
-        align-items: center;
-    }
-
-    [data-testid="stSidebar"] .stRadio label:hover {
-        background: rgba(0, 240, 255, 0.1) !important;
-        color: #00f0ff !important;
-        border-color: rgba(0, 240, 255, 0.3) !important;
-        transform: translateX(4px);
     }
 
     [data-testid="stSidebar"] .stRadio div[aria-checked="true"] + label {
@@ -135,65 +242,6 @@ st.markdown("""
         color: #00f0ff !important;
         border: 1px solid rgba(0, 240, 255, 0.6) !important;
         box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
-        font-weight: 700 !important;
-    }
-
-    /* Botones Principales Estilo 4K Neon */
-    .stButton > button {
-        background: linear-gradient(135deg, #00f0ff 0%, #0066cc 100%) !important;
-        color: #030712 !important;
-        font-weight: 800 !important;
-        font-size: 14px !important;
-        letter-spacing: 0.8px;
-        text-transform: uppercase;
-        border-radius: 14px !important;
-        border: none !important;
-        width: 100%;
-        padding: 14px 24px !important;
-        box-shadow: 0 10px 25px rgba(0, 240, 255, 0.3);
-        transition: all 0.3s ease;
-    }
-
-    .stButton > button:hover {
-        box-shadow: 0 15px 35px rgba(0, 240, 255, 0.5);
-        transform: translateY(-2px);
-        background: linear-gradient(135deg, #33f3ff 0%, #1a75ff 100%) !important;
-    }
-
-    /* Botón WhatsApp de Alto Impacto */
-    .btn-ws-glow {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-        color: white !important;
-        text-decoration: none;
-        border-radius: 14px !important;
-        padding: 14px 24px;
-        font-weight: 800;
-        font-size: 15px;
-        letter-spacing: 0.8px;
-        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
-        transition: all 0.3s ease;
-    }
-
-    .btn-ws-glow:hover {
-        box-shadow: 0 15px 35px rgba(16, 185, 129, 0.6);
-        transform: translateY(-2px);
-        color: white !important;
-    }
-
-    /* Títulos Eléctricos 4K */
-    .title-electric {
-        font-family: 'Outfit', sans-serif;
-        font-size: 38px;
-        font-weight: 900;
-        background: linear-gradient(135deg, #ffffff 30%, #00f0ff 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-align: center;
-        letter-spacing: 1.5px;
     }
 
     .section-header {
@@ -207,41 +255,24 @@ st.markdown("""
         border-bottom: 2px solid rgba(0, 240, 255, 0.2);
         padding-bottom: 12px;
         margin-bottom: 24px;
-        letter-spacing: 0.5px;
-    }
-
-    /* Tarjetas de Vidrio Esmerilado (Glassmorphism Cards) */
-    .card-3d, [data-testid="stForm"] {
-        background: rgba(15, 23, 42, 0.65);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-radius: 20px;
-        padding: 28px;
-        margin-bottom: 24px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        transition: transform 0.3s ease, border-color 0.3s ease;
-    }
-
-    .card-3d:hover {
-        border-color: rgba(0, 240, 255, 0.3);
     }
     </style>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# VISTA 1: INICIO CLIENTES (AGENDAR CITAS) + LOGIN SUPERIOR
+# VISTA 1: INICIO CLIENTES 4K VIP LANDING + ACCESO PERSONAL
 # ---------------------------------------------------------
 if not st.session_state.autenticado:
-    col_header, col_login_btn = st.columns([5, 1.2])
+    # Barra Superior de Control
+    col_nav_left, col_nav_right = st.columns([4, 1.3])
     
-    with col_login_btn:
-        with st.popover("Acceso Personal 🔐", use_container_width=True):
-            st.markdown("<h4 style='text-align: center; color: #ffffff; margin-bottom: 15px;'>ACCESO PERSONAL</h4>", unsafe_allow_html=True)
+    with col_nav_right:
+        with st.popover("🔑 Acceso Personal / Barberos", use_container_width=True):
+            st.markdown("<h4 style='text-align: center; color: #ffffff; margin-bottom: 12px; font-size: 18px;'>PORTAL ADMINISTRATIVO</h4>", unsafe_allow_html=True)
             with st.form("login_form_popover"):
-                usuario = st.text_input("Usuario", placeholder="Ingresa tu usuario")
+                usuario = st.text_input("Usuario", placeholder="Tu usuario asignado")
                 contrasena = st.text_input("Contraseña", type="password", placeholder="••••••••")
-                submit = st.form_submit_button("ENTRAR AL SISTEMA")
+                submit = st.form_submit_button("INICIAR SESIÓN")
 
                 if submit:
                     if usuario in USUARIOS and USUARIOS[usuario]["clave"] == contrasena:
@@ -249,31 +280,49 @@ if not st.session_state.autenticado:
                         st.session_state.usuario_actual = usuario
                         st.rerun()
                     else:
-                        st.error("Credenciales incorrectas")
+                        st.error("Credenciales de acceso incorrectas")
 
+    # Header Principal VIP
     st.markdown('''
-        <div style="text-align: center; padding: 20px 0 10px 0;">
-            <div class="title-electric">GOD'S TIME BARBERIA</div>
-            <p style="color: #00f0ff; font-weight: 600; font-size: 16px; margin-top: 8px; letter-spacing: 1px;">⚡ EXCLUSIVIDAD, ESTILO Y PRECISIÓN EN CADA CORTE ⚡</p>
+        <div style="text-align: center; padding: 10px 0 0 0;">
+            <div class="vip-badge">
+                <span class="vip-badge-dot"></span> SISTEMA DE AGENDAMIENTO EN LÍNEA
+            </div>
+            <div class="hero-title">GOD'S TIME BARBERIA</div>
+            <div class="hero-subtitle">⚡ El corte perfecto en el momento exacto. Agenda tu turno sin esperas. ⚡</div>
         </div>
     ''', unsafe_allow_html=True)
 
-    col_c1, col_c2, col_c3 = st.columns([1, 2.2, 1])
+    # Formulario Central Glassmorphic
+    col_c1, col_c2, col_c3 = st.columns([1, 2.4, 1])
     with col_c2:
-        st.markdown("<h3 style='text-align: center; color: #ffffff; margin-bottom: 20px;'>Reserva tu Cita Online</h3>", unsafe_allow_html=True)
         with st.form("form_cita_login"):
-            nombre_c = st.text_input("Tu Nombre Completo")
-            telefono_c = st.text_input("Teléfono (Ej: 04121234567 o +584121234567)")
+            st.markdown("<h3 style='text-align: center; color: #ffffff; margin-bottom: 20px; font-weight: 700;'><i class='fa-regular fa-calendar-check' style='color:#00f0ff;'></i> Reserva Tu Cita Online</h3>", unsafe_allow_html=True)
+            
+            nombre_c = st.text_input("Nombre Completo", placeholder="Ej: Francisco Hurtado")
+            telefono_c = st.text_input("Número de Teléfono WhatsApp", placeholder="Ej: 04121234567")
             barbero_c = st.selectbox("Barbero de Preferencia", BARBEROS, key="barbero_cita_login")
             
             col_f1, col_h1 = st.columns(2)
             with col_f1:
                 fecha_c = st.date_input("Fecha de la Cita", min_value=date.today(), key="fecha_cita_login")
             with col_h1:
-                hora_c = st.selectbox("Hora", OPCIONES_HORAS, key="hora_cita_login")
+                hora_c = st.selectbox("Hora Preferida", OPCIONES_HORAS, key="hora_cita_login")
 
             servicio_c = st.selectbox("Servicio Solicitado", list(PRECIOS_CORTES.keys()), key="servicio_cita_login")
             
+            # Vista previa dinámica del precio
+            precio_est_usd = PRECIOS_CORTES[servicio_c]
+            precio_est_bs = precio_est_usd * st.session_state.tasa_bcv
+            
+            st.markdown(f'''
+                <div class="price-preview-card">
+                    <span style="color: #94a3b8; font-size: 13px; font-weight: 600;">MONTO ESTIMADO DEL SERVICIO:</span><br>
+                    <b style="color: #00f0ff; font-size: 22px;">${precio_est_usd:.2f} USD</b> 
+                    <span style="color: #38bdf8; font-size: 15px; font-weight: 600;">({precio_est_bs:,.2f} BS)</span>
+                </div>
+            ''', unsafe_allow_html=True)
+
             btn_agendar_login = st.form_submit_button("CONFIRMAR Y AGENDAR CITA")
 
         if btn_agendar_login:
@@ -290,18 +339,15 @@ if not st.session_state.autenticado:
                 st.session_state.citas_db.append(cita)
                 guardar_datos(CITAS_FILE, st.session_state.citas_db)
                 
-                precio_usd = PRECIOS_CORTES[servicio_c]
-                precio_bs = precio_usd * st.session_state.tasa_bcv
-                
-                mensaje = f"Hola {nombre_c}, confirmamos tu cita en GOD'S TIME BARBERIA el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c} (${precio_usd:.2f} / {precio_bs:.2f} BS)."
+                mensaje = f"Hola {nombre_c}, confirmamos tu cita en GOD'S TIME BARBERIA el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c} (${precio_est_usd:.2f} / {precio_est_bs:.2f} BS)."
                 mensaje_encoded = urllib.parse.quote(mensaje)
                 phone_clean = tel_final.replace("+", "")
                 ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
                 
-                st.success("¡Cita agendada exitosamente!")
+                st.success("¡Cita reservada con éxito!")
                 st.markdown(f'''
                     <a href="{ws_url}" target="_blank" class="btn-ws-glow" style="margin-top: 15px;">
-                        <i class="fa-brands fa-whatsapp" style="font-size: 20px;"></i> Enviar Confirmación por WhatsApp
+                        <i class="fa-brands fa-whatsapp" style="font-size: 20px;"></i> Confirmar Cita por WhatsApp
                     </a>
                 ''', unsafe_allow_html=True)
             else:
@@ -317,11 +363,11 @@ else:
     with st.sidebar:
         st.markdown('''
             <div style="text-align: center; padding: 15px 0;">
-                <div class="title-electric" style="font-size: 22px;">GOD'S TIME</div>
+                <div style="font-family: 'Outfit'; font-size: 22px; font-weight: 900; color: #00f0ff;">GOD'S TIME</div>
                 <p style='color: #94a3b8; font-size: 12px; margin-top: 4px;'>Panel de Control 4K</p>
             </div>
         ''', unsafe_allow_html=True)
-        st.markdown(f"<div style='background: rgba(0,240,255,0.08); padding: 10px; border-radius: 10px; text-align: center; border: 1px solid rgba(0,240,255,0.2); margin-bottom: 15px;'><span style='font-size: 13px; color: #cbd5e1;'>Usuario:</span><br><b style='color:#00f0ff; font-size: 15px;'>{st.session_state.usuario_actual}</b></div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='background: rgba(0,240,255,0.08); padding: 10px; border-radius: 10px; text-align: center; border: 1px solid rgba(0,240,255,0.2); margin-bottom: 15px;'><span style='font-size: 13px; color: #cbd5e1;'>Barbero Activo:</span><br><b style='color:#00f0ff; font-size: 15px;'>{st.session_state.usuario_actual}</b></div>", unsafe_allow_html=True)
         
         st.markdown("<p style='font-size: 12px; color: #00f0ff; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px;'>MENÚ DE NAVEGACIÓN</p>", unsafe_allow_html=True)
 
@@ -370,14 +416,14 @@ else:
 
         with c1:
             st.markdown(f'''
-                <div class="card-3d" style="text-align: center; padding: 20px;">
+                <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; text-align: center; padding: 20px;">
                     <div style="color: #94a3b8; font-size: 14px; font-weight: 600; text-transform: uppercase;">Total Cortes Realizados</div>
                     <div style="font-size: 36px; font-weight: 800; color: #00f0ff; margin-top: 8px;">{total_cortes}</div>
                 </div>
             ''', unsafe_allow_html=True)
         with c2:
             st.markdown(f'''
-                <div class="card-3d" style="text-align: center; padding: 20px;">
+                <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; text-align: center; padding: 20px;">
                     <div style="color: #94a3b8; font-size: 14px; font-weight: 600; text-transform: uppercase;">Ingresos Totales</div>
                     <div style="font-size: 30px; font-weight: 800; color: #10b981; margin-top: 8px;">${total_ingresos_usd:.2f}</div>
                     <div style="color: #38bdf8; font-size: 13px; font-weight: 600;">({total_ingresos_bs:,.2f} BS)</div>
@@ -385,13 +431,12 @@ else:
             ''', unsafe_allow_html=True)
         with c3:
             st.markdown(f'''
-                <div class="card-3d" style="text-align: center; padding: 20px;">
+                <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; text-align: center; padding: 20px;">
                     <div style="color: #94a3b8; font-size: 14px; font-weight: 600; text-transform: uppercase;">Citas Agendadas</div>
                     <div style="font-size: 36px; font-weight: 800; color: #f59e0b; margin-top: 8px;">{citas_pendientes}</div>
                 </div>
             ''', unsafe_allow_html=True)
 
-        # GRÁFICOS INTERACTIVOS 4K CON PLOTLY
         if not df_cortes.empty:
             st.markdown('<div class="section-header" style="margin-top: 35px;"><i class="fa-solid fa-bolt" style="color: #00f0ff;"></i> ANALÍTICA DE RENDIMIENTO EN TIEMPO REAL</div>', unsafe_allow_html=True)
             col_g1, col_g2 = st.columns(2)
