@@ -16,7 +16,7 @@ st.set_page_config(
 
 # --- CONFIGURACIÓN DE TU NÚMERO DE WHATSAPP ---
 # Reemplaza '584121234567' con tu número personal real (ej: código de país 58 + tu número sin el 0 inicial)
-MI_NUMERO_WHATSAPP = "584121234567"
+MI_NUMERO_WHATSAPP = "584125205165"
 
 # --- PERSISTENCIA LOCAL DE DATOS ---
 CORTES_FILE = "cortes_data.json"
