@@ -93,7 +93,7 @@ OPCIONES_HORAS = [
     for m in (0, 30)
 ]
 
-# --- ESTILOS 4K ULTRA MODERNOS & CORRECCIÓN DE CAMPOS MÓVILES ---
+# --- ESTILOS 4K ULTRA MODERNOS & EFECTO BRILLANTE EN BOTÓN ---
 st.markdown("""
     <style>
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
@@ -123,7 +123,6 @@ st.markdown("""
         border-radius: 12px !important;
     }
 
-    /* Etiquetas de los inputs visibles y claras */
     .stTextInput label, .stSelectbox label, .stDateInput label {
         color: #cbd5e1 !important;
         font-weight: 600 !important;
@@ -192,24 +191,45 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
+    /* ⚡ BOTÓN ULTRA MODERNO CON EFECTO BRILLANTE / SHIMMER ANIMADO */
     .stButton > button {
-        background: linear-gradient(135deg, #00f0ff 0%, #0066cc 100%) !important;
-        color: #030712 !important;
+        position: relative !important;
+        background: linear-gradient(135deg, #00f0ff 0%, #0072ff 50%, #7928ca 100%) !important;
+        color: #ffffff !important;
         font-weight: 800 !important;
-        font-size: 15px !important;
-        letter-spacing: 1px;
+        font-size: 16px !important;
+        letter-spacing: 1.2px;
         text-transform: uppercase;
         border-radius: 16px !important;
-        border: none !important;
+        border: 1px solid rgba(255, 255, 255, 0.4) !important;
         width: 100%;
         padding: 16px 28px !important;
-        box-shadow: 0 12px 30px rgba(0, 240, 255, 0.35);
-        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0, 240, 255, 0.4), inset 0 2px 6px rgba(255, 255, 255, 0.6) !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        overflow: hidden !important;
+    }
+
+    .stButton > button::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -60%;
+        width: 50%;
+        height: 200%;
+        background: rgba(255, 255, 255, 0.35);
+        transform: rotate(30deg);
+        animation: shine 3s infinite linear;
+    }
+
+    @keyframes shine {
+        0% { left: -60%; }
+        20% { left: 120%; }
+        100% { left: 120%; }
     }
 
     .stButton > button:hover {
-        box-shadow: 0 18px 40px rgba(0, 240, 255, 0.6);
-        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(0, 240, 255, 0.7), inset 0 2px 10px rgba(255, 255, 255, 0.9) !important;
+        transform: translateY(-3px) scale(1.01) !important;
     }
 
     .btn-ws-glow {
