@@ -372,7 +372,7 @@ if not st.session_state.autenticado:
                 st.error("Por favor completa tu nombre y número de teléfono.")
 
 # ---------------------------------------------------------
-# VISTA 2: DASHBOARD PRINCIPAL 4K
+# VISTA 2: MENÚ PRINCIPAL 
 # ---------------------------------------------------------
 else:
     user_info = USUARIOS.get(st.session_state.usuario_actual, {"rol": "invitado"})
