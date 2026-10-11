@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 from datetime import datetime, date, time
 import urllib.parse
 import json
@@ -8,7 +7,7 @@ import os
 
 # Configuración de la página
 st.set_page_config(
-    page_title="GOD'S TIME BARBERIA", 
+    page_title="Test Barberia", 
     layout="wide", 
     initial_sidebar_state="expanded"
 )
@@ -30,15 +29,6 @@ def cargar_datos(archivo, por_defecto):
 def guardar_datos(archivo, datos):
     with open(archivo, "w", encoding="utf-8") as f:
         json.dump(datos, f, ensure_ascii=False, indent=4)
-
-def limpiar_telefono(telefono):
-    tel_limpio = telefono.strip().replace(" ", "").replace("-", "")
-    if not tel_limpio.startswith("+"):
-        if tel_limpio.startswith("58"):
-            tel_limpio = "+" + tel_limpio
-        else:
-            tel_limpio = "+58" + tel_limpio.lstrip("0")
-    return tel_limpio
 
 # Inicialización de Estados
 if "autenticado" not in st.session_state:
@@ -93,11 +83,13 @@ st.markdown("""
         color: #e2e8f0;
     }
 
+    /* BARRA LATERAL IZQUIERDA MODERNIZADA */
     [data-testid="stSidebar"] {
         background: rgba(10, 17, 30, 0.95) !important;
         border-right: 1px solid rgba(0, 240, 255, 0.2) !important;
     }
 
+    /* MENÚ LATERAL: ESTILO BOTONES OVALADOS 3D (Cian / Azul Neón) */
     [data-testid="stSidebar"] .stRadio > div {
         display: flex;
         flex-direction: column;
@@ -126,6 +118,7 @@ st.markdown("""
         overflow: hidden;
     }
 
+    /* Reflejo de luz superior (Efecto Cristal) */
     [data-testid="stSidebar"] .stRadio label::before {
         content: '';
         position: absolute;
@@ -149,6 +142,7 @@ st.markdown("""
         box-shadow: 0 0 25px rgba(0, 240, 255, 0.9), inset 0 2px 6px rgba(255, 255, 255, 1) !important;
     }
 
+    /* BOTONES GENERALES STREAMLIT ESTILO 3D GLOSSY (Verde Neón / Azul) */
     .stButton > button {
         position: relative;
         background: linear-gradient(180deg, #00f0ff 0%, #0066cc 100%) !important;
@@ -171,6 +165,7 @@ st.markdown("""
         transform: translateY(-2px);
     }
 
+    /* BOTÓN WHATSAPP 3D GLOSSY (Verde Brillante) */
     .btn-ws-glow {
         position: relative;
         display: flex;
@@ -198,6 +193,7 @@ st.markdown("""
         color: white !important;
     }
 
+    /* EFECTO LATIDO Y NEÓN EN EL TÍTULO */
     @keyframes heartbeat-glow {
         0% { transform: scale(1); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
         14% { transform: scale(1.04); text-shadow: 0 0 25px rgba(0, 240, 255, 0.9); }
@@ -243,6 +239,7 @@ st.markdown("""
 # VISTA 1: INICIO CLIENTES (AGENDAR CITAS) + BOTÓN SUPERIOR DE LOGIN
 # ---------------------------------------------------------
 if not st.session_state.autenticado:
+    # Encabezado superior con botón flotante/pequeño para login
     col_header, col_login_btn = st.columns([5, 1.2])
     
     with col_login_btn:
@@ -263,18 +260,19 @@ if not st.session_state.autenticado:
 
     st.markdown('''
         <div style="text-align: center; margin-top: -20px;">
-            <div class="title-electric">GOD'S TIME BARBERIA</div>
+            <div class="title-electric">TEST BARBERIA</div>
         </div>
     ''', unsafe_allow_html=True)
     
     st.markdown("<p style='text-align: center; color: #00f0ff; font-weight: 700; font-size: 18px; margin-top: 10px; margin-bottom: 30px;'>🔥 ¡Eleva tu presencia! El corte perfecto en el momento exacto. ⚡</p>", unsafe_allow_html=True)
 
+    # Vista principal directa para clientes: AGENDAR CITA
     col_c1, col_c2, col_c3 = st.columns([1, 2, 1])
     with col_c2:
         st.markdown("<h3 style='text-align: center; color: #ffffff;'>Reserva tu Cita</h3>", unsafe_allow_html=True)
         with st.form("form_cita_login"):
             nombre_c = st.text_input("Tu Nombre Completo")
-            telefono_c = st.text_input("Teléfono (Ej: 04121234567 o +584121234567)")
+            telefono_c = st.text_input("Teléfono (Ej: +584120000000)")
             barbero_c = st.selectbox("Barbero de preferencia", BARBEROS, key="barbero_cita_login")
             
             col_f1, col_h1 = st.columns(2)
@@ -289,10 +287,9 @@ if not st.session_state.autenticado:
 
         if btn_agendar_login:
             if nombre_c and telefono_c:
-                tel_final = limpiar_telefono(telefono_c)
                 cita = {
                     "Cliente": nombre_c,
-                    "Teléfono": tel_final,
+                    "Teléfono": telefono_c,
                     "Barbero": barbero_c,
                     "Fecha": str(fecha_c),
                     "Hora": hora_c,
@@ -304,9 +301,9 @@ if not st.session_state.autenticado:
                 precio_usd = PRECIOS_CORTES[servicio_c]
                 precio_bs = precio_usd * st.session_state.tasa_bcv
                 
-                mensaje = f"Hola {nombre_c}, confirmamos tu cita en GOD'S TIME BARBERIA el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c} (${precio_usd:.2f} / {precio_bs:.2f} BS)."
+                mensaje = f"Hola {nombre_c}, confirmamos tu cita en Test Barberia el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c} (${precio_usd:.2f} / {precio_bs:.2f} BS)."
                 mensaje_encoded = urllib.parse.quote(mensaje)
-                phone_clean = tel_final.replace("+", "")
+                phone_clean = telefono_c.replace("+", "").replace(" ", "").replace("-", "")
                 ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
                 
                 st.success("¡Cita agendada exitosamente!")
@@ -325,10 +322,11 @@ else:
     user_info = USUARIOS.get(st.session_state.usuario_actual, {"rol": "invitado"})
     es_admin = user_info["rol"] == "admin"
 
+    # SIDEBAR: MENÚ CON BOTONES OVALADOS 3D CON BRILLO
     with st.sidebar:
         st.markdown('''
             <div style="text-align: center; padding: 10px 0;">
-                <div class="title-electric" style="font-size: 20px;">GOD'S TIME BARBERIA</div>
+                <div class="title-electric" style="font-size: 22px;">TEST BARBERIA</div>
             </div>
         ''', unsafe_allow_html=True)
         st.markdown(f"<p style='text-align: center; color: #94a3b8; font-size: 13px;'>Barbero: <b style='color:#00f0ff;'>{st.session_state.usuario_actual}</b></p>", unsafe_allow_html=True)
@@ -354,6 +352,7 @@ else:
         
         st.markdown("---")
         
+        # ACTUALIZACIÓN DE TASA DEL DÓLAR
         st.markdown("<p style='font-size: 13px; color: #00f0ff; font-weight: 800; margin-bottom: 5px;'>💵 TASA DEL DÓLAR ($)</p>", unsafe_allow_html=True)
         nueva_tasa_input = st.number_input("Tasa BS", value=float(st.session_state.tasa_bcv), step=0.10, label_visibility="collapsed")
         if st.button("ACTUALIZAR TASA DEL DÓLAR"):
@@ -370,12 +369,12 @@ else:
 
     # 1. PANEL GENERAL
     if opcion_menu == "Panel General":
-        st.markdown('<div class="section-header">📊 PANEL GENERAL - GOD\'S TIME BARBERIA</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">📊 PANEL GENERAL DE LA BARBERÍA</div>', unsafe_allow_html=True)
         df_cortes = pd.DataFrame(st.session_state.cortes_db)
         
         c1, c2, c3 = st.columns(3)
         total_cortes = len(df_cortes) if not df_cortes.empty else 0
-        total_ingresos_usd = df_cortes["Precio ($)"].sum() if (not df_cortes.empty and "Precio ($)" in df_cortes.columns) else 0.0
+        total_ingresos_usd = df_cortes["Precio ($)"].sum() if (not df_cortes.empty and "Precio ($)" in df_cortes.columns) else (df_cortes["Precio"].sum() if not df_cortes.empty else 0.0)
         total_ingresos_bs = total_ingresos_usd * st.session_state.tasa_bcv
         citas_pendientes = len(st.session_state.citas_db)
 
@@ -385,50 +384,6 @@ else:
             st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Ingresos Totales</h4><h2 style="margin:5px 0 0 0; font-size: 22px;">${total_ingresos_usd:.2f} <span style="color:#00f0ff; font-size:16px;">({total_ingresos_bs:.2f} BS)</span></h2></div>', unsafe_allow_html=True)
         with c3:
             st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Citas Agendadas</h4><h2 style="margin:5px 0 0 0;">{citas_pendientes}</h2></div>', unsafe_allow_html=True)
-
-        # GRÁFICOS INTERACTIVOS (PLOTLY)
-        if not df_cortes.empty:
-            st.markdown('<div class="section-header" style="margin-top: 30px;">📈 ANALÍTICA DE RENDIMIENTO</div>', unsafe_allow_html=True)
-            col_g1, col_g2 = st.columns(2)
-
-            with col_g1:
-                st.markdown("##### Ingresos por Barbero ($)")
-                df_barberos = df_cortes.groupby("Barbero")["Precio ($)"].sum().reset_index()
-                fig_barb = px.bar(
-                    df_barberos, x="Barbero", y="Precio ($)", 
-                    text_auto='.2f', color="Barbero",
-                    color_discrete_sequence=px.colors.qualitative.Prism
-                )
-                fig_barb.update_layout(
-                    paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-                    font_color='#e2e8f0', margin=dict(t=20, b=20, l=20, r=20)
-                )
-                st.plotly_chart(fig_barb, use_container_width=True)
-
-            with col_g2:
-                st.markdown("##### Distribución por Método de Pago")
-                df_pagos = df_cortes.groupby("Método Pago")["Precio ($)"].sum().reset_index()
-                fig_pagos = px.pie(
-                    df_pagos, names="Método Pago", values="Precio ($)", 
-                    hole=0.4, color_discrete_sequence=px.colors.sequential.Tealgrn
-                )
-                fig_pagos.update_layout(
-                    paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-                    font_color='#e2e8f0', margin=dict(t=20, b=20, l=20, r=20)
-                )
-                st.plotly_chart(fig_pagos, use_container_width=True)
-
-            st.markdown("##### Ingresos por Tipo de Servicio ($)")
-            df_servicios = df_cortes.groupby("Servicio")["Precio ($)"].sum().reset_index()
-            fig_serv = px.bar(
-                df_servicios, x="Servicio", y="Precio ($)", 
-                text_auto='.2f', color="Servicio"
-            )
-            fig_serv.update_layout(
-                paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-                font_color='#e2e8f0', showlegend=False, margin=dict(t=20, b=20, l=20, r=20)
-            )
-            st.plotly_chart(fig_serv, use_container_width=True)
 
         st.markdown('<div class="section-header" style="margin-top: 30px;">💵 TARIFA DE SERVICIOS</div>', unsafe_allow_html=True)
         precios_tabla = [
@@ -515,7 +470,7 @@ else:
         col_f1, col_f2 = st.columns(2)
         with col_f1:
             nombre_c = st.text_input("Nombre del Cliente")
-            telefono_c = st.text_input("Teléfono (Ej: 04121234567 o +584121234567)")
+            telefono_c = st.text_input("Teléfono (Ej: +584120000000)")
             barbero_c = st.selectbox("Barbero de preferencia", BARBEROS, key="barbero_cita")
         with col_f2:
             fecha_c = st.date_input("Fecha de la cita", min_value=date.today())
@@ -524,10 +479,9 @@ else:
             
         if st.button("REGISTRAR CITA Y NOTIFICAR POR WHATSAPP"):
             if nombre_c and telefono_c:
-                tel_final = limpiar_telefono(telefono_c)
                 cita = {
                     "Cliente": nombre_c,
-                    "Teléfono": tel_final,
+                    "Teléfono": telefono_c,
                     "Barbero": barbero_c,
                     "Fecha": str(fecha_c),
                     "Hora": hora_c,
@@ -539,9 +493,9 @@ else:
                 precio_usd = PRECIOS_CORTES[servicio_c]
                 precio_bs = precio_usd * st.session_state.tasa_bcv
                 
-                mensaje = f"Hola {nombre_c}, confirmamos tu cita en GOD'S TIME BARBERIA el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c} (${precio_usd:.2f} / {precio_bs:.2f} BS)."
+                mensaje = f"Hola {nombre_c}, confirmamos tu cita en Test Barberia el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c} (${precio_usd:.2f} / {precio_bs:.2f} BS)."
                 mensaje_encoded = urllib.parse.quote(mensaje)
-                phone_clean = tel_final.replace("+", "")
+                phone_clean = telefono_c.replace("+", "").replace(" ", "").replace("-", "")
                 ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
                 st.success("¡Cita agendada exitosamente!")
                 st.markdown(f'''
