@@ -77,7 +77,6 @@ else:
 USUARIOS = {
     "Admin": {"clave": "1234", "rol": "admin"},
     "Jonder": {"clave": "barbero1", "rol": "barbero"}
-    "fran": {"clave": "1234", "rol": "admin"}
 }
 
 PRECIOS_CORTES = {
