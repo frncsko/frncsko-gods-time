@@ -8,7 +8,7 @@ import os
 
 # Configuración de la página
 st.set_page_config(
-    page_title="GOD'S TIME BARBERIA", 
+    page_title="GOD'S TIME BARBERIA | 4K Dashboard", 
     layout="wide", 
     initial_sidebar_state="expanded"
 )
@@ -78,180 +78,170 @@ OPCIONES_HORAS = [
     for m in (0, 30)
 ]
 
-# ESTILOS FUTURISTAS Y BOTONES 3D BRILLANTES (GLOSSY PILL BUTTONS)
+# --- ESTILOS 4K ULTRA MODERNOS (GLASSMORPHISM & NEON GLOW) ---
 st.markdown("""
     <style>
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Space+Grotesk:wght@600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
     html, body, [class*="css"] {
-        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
     }
 
+    /* Fondo general tipo estudio de diseño tecnológico 4K */
     .stApp {
-        background: radial-gradient(circle at 50% 10%, #080f1a 0%, #03050a 100%);
-        color: #e2e8f0;
+        background: radial-gradient(circle at 15% 15%, #0a1128 0%, #030712 50%, #010308 100%);
+        color: #f8fafc;
     }
 
+    /* Barra Lateral Estilizada */
     [data-testid="stSidebar"] {
-        background: rgba(10, 17, 30, 0.95) !important;
-        border-right: 1px solid rgba(0, 240, 255, 0.2) !important;
+        background: rgba(4, 9, 20, 0.85) !important;
+        backdrop-filter: blur(20px);
+        border-right: 1px solid rgba(0, 240, 255, 0.15) !important;
     }
 
+    /* Menú Lateral Personalizado */
     [data-testid="stSidebar"] .stRadio > div {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 10px;
     }
 
     [data-testid="stSidebar"] .stRadio label {
-        position: relative;
-        background: linear-gradient(180deg, #00c6ff 0%, #0072ff 100%) !important;
-        border-radius: 50px !important;
-        padding: 12px 24px !important;
-        color: #ffffff !important;
-        font-weight: 800 !important;
+        background: rgba(15, 23, 42, 0.6) !important;
+        border-radius: 14px !important;
+        padding: 14px 18px !important;
+        color: #cbd5e1 !important;
+        font-weight: 600 !important;
         font-size: 14px !important;
-        letter-spacing: 1px !important;
-        text-transform: uppercase;
-        text-align: center;
+        letter-spacing: 0.5px !important;
         cursor: pointer;
-        transition: all 0.3s ease !important;
-        width: 100%;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
         display: flex;
-        justify-content: center;
         align-items: center;
-        border: 1px solid rgba(255, 255, 255, 0.3) !important;
-        box-shadow: 0 8px 15px rgba(0, 114, 255, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.7) !important;
-        overflow: hidden;
-    }
-
-    [data-testid="stSidebar"] .stRadio label::before {
-        content: '';
-        position: absolute;
-        top: 2px;
-        left: 10%;
-        right: 10%;
-        height: 40%;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 100%);
-        border-radius: 50px 50px 20px 20px;
-        pointer-events: none;
     }
 
     [data-testid="stSidebar"] .stRadio label:hover {
-        transform: translateY(-2px) scale(1.02);
-        box-shadow: 0 12px 20px rgba(0, 240, 255, 0.6), inset 0 2px 6px rgba(255, 255, 255, 0.9) !important;
+        background: rgba(0, 240, 255, 0.1) !important;
+        color: #00f0ff !important;
+        border-color: rgba(0, 240, 255, 0.3) !important;
+        transform: translateX(4px);
     }
 
     [data-testid="stSidebar"] .stRadio div[aria-checked="true"] + label {
-        background: linear-gradient(180deg, #00f0ff 0%, #0040a0 100%) !important;
-        border: 2px solid #ffffff !important;
-        box-shadow: 0 0 25px rgba(0, 240, 255, 0.9), inset 0 2px 6px rgba(255, 255, 255, 1) !important;
+        background: linear-gradient(135deg, rgba(0, 240, 255, 0.2) 0%, rgba(0, 114, 255, 0.3) 100%) !important;
+        color: #00f0ff !important;
+        border: 1px solid rgba(0, 240, 255, 0.6) !important;
+        box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
+        font-weight: 700 !important;
     }
 
+    /* Botones Principales Estilo 4K Neon */
     .stButton > button {
-        position: relative;
-        background: linear-gradient(180deg, #00f0ff 0%, #0066cc 100%) !important;
-        color: #ffffff !important;
+        background: linear-gradient(135deg, #00f0ff 0%, #0066cc 100%) !important;
+        color: #030712 !important;
         font-weight: 800 !important;
-        font-size: 15px !important;
-        letter-spacing: 1px;
+        font-size: 14px !important;
+        letter-spacing: 0.8px;
         text-transform: uppercase;
-        border-radius: 50px !important;
-        border: 1px solid rgba(255, 255, 255, 0.4) !important;
+        border-radius: 14px !important;
+        border: none !important;
         width: 100%;
-        padding: 14px 28px !important;
-        box-shadow: 0 8px 18px rgba(0, 102, 204, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.8) !important;
-        transition: all 0.3s ease-in-out;
-        overflow: hidden;
+        padding: 14px 24px !important;
+        box-shadow: 0 10px 25px rgba(0, 240, 255, 0.3);
+        transition: all 0.3s ease;
     }
 
     .stButton > button:hover {
-        box-shadow: 0 12px 25px rgba(0, 240, 255, 0.8), inset 0 2px 6px rgba(255, 255, 255, 1) !important;
+        box-shadow: 0 15px 35px rgba(0, 240, 255, 0.5);
         transform: translateY(-2px);
+        background: linear-gradient(135deg, #33f3ff 0%, #1a75ff 100%) !important;
     }
 
+    /* Botón WhatsApp de Alto Impacto */
     .btn-ws-glow {
-        position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 12px;
-        background: linear-gradient(180deg, #25D366 0%, #128C7E 100%) !important;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
         color: white !important;
         text-decoration: none;
-        border-radius: 50px !important;
-        padding: 14px 28px;
+        border-radius: 14px !important;
+        padding: 14px 24px;
         font-weight: 800;
         font-size: 15px;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        box-shadow: 0 8px 18px rgba(37, 211, 102, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.8);
+        letter-spacing: 0.8px;
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
         transition: all 0.3s ease;
-        overflow: hidden;
     }
 
     .btn-ws-glow:hover {
-        box-shadow: 0 12px 25px rgba(37, 211, 102, 0.8), inset 0 2px 6px rgba(255, 255, 255, 1);
+        box-shadow: 0 15px 35px rgba(16, 185, 129, 0.6);
         transform: translateY(-2px);
         color: white !important;
     }
 
-    @keyframes heartbeat-glow {
-        0% { transform: scale(1); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
-        14% { transform: scale(1.04); text-shadow: 0 0 25px rgba(0, 240, 255, 0.9); }
-        28% { transform: scale(1); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
-        42% { transform: scale(1.02); text-shadow: 0 0 20px rgba(0, 240, 255, 0.8); }
-        70% { transform: scale(1); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); }
-    }
-
+    /* Títulos Eléctricos 4K */
     .title-electric {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 32px;
-        font-weight: 800;
-        color: #00f0ff !important;
+        font-family: 'Outfit', sans-serif;
+        font-size: 38px;
+        font-weight: 900;
+        background: linear-gradient(135deg, #ffffff 30%, #00f0ff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
         text-align: center;
-        letter-spacing: 2px;
-        display: inline-block;
-        animation: heartbeat-glow 2.5s infinite ease-in-out;
+        letter-spacing: 1.5px;
     }
 
     .section-header {
-        font-family: 'Space Grotesk', sans-serif;
+        font-family: 'Outfit', sans-serif;
         font-size: 22px;
         font-weight: 700;
-        color: #00f0ff;
-        border-bottom: 2px solid rgba(0, 240, 255, 0.3);
-        padding-bottom: 8px;
-        margin-bottom: 20px;
+        color: #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 2px solid rgba(0, 240, 255, 0.2);
+        padding-bottom: 12px;
+        margin-bottom: 24px;
         letter-spacing: 0.5px;
     }
 
+    /* Tarjetas de Vidrio Esmerilado (Glassmorphism Cards) */
     .card-3d, [data-testid="stForm"] {
-        background: rgba(10, 18, 32, 0.85);
-        backdrop-filter: blur(14px);
+        background: rgba(15, 23, 42, 0.65);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
         border-radius: 20px;
-        padding: 24px;
-        margin-bottom: 20px;
-        border: 1px solid rgba(0, 240, 255, 0.2);
+        padding: 28px;
+        margin-bottom: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .card-3d:hover {
+        border-color: rgba(0, 240, 255, 0.3);
     }
     </style>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# VISTA 1: INICIO CLIENTES (AGENDAR CITAS) + BOTÓN SUPERIOR DE LOGIN
+# VISTA 1: INICIO CLIENTES (AGENDAR CITAS) + LOGIN SUPERIOR
 # ---------------------------------------------------------
 if not st.session_state.autenticado:
     col_header, col_login_btn = st.columns([5, 1.2])
     
     with col_login_btn:
         with st.popover("Acceso Personal 🔐", use_container_width=True):
-            st.markdown("<h4 style='text-align: center; color: #ffffff; margin-bottom: 10px;'>ACCESO PERSONAL</h4>", unsafe_allow_html=True)
+            st.markdown("<h4 style='text-align: center; color: #ffffff; margin-bottom: 15px;'>ACCESO PERSONAL</h4>", unsafe_allow_html=True)
             with st.form("login_form_popover"):
                 usuario = st.text_input("Usuario", placeholder="Ingresa tu usuario")
                 contrasena = st.text_input("Contraseña", type="password", placeholder="••••••••")
-                submit = st.form_submit_button("ENTRAR")
+                submit = st.form_submit_button("ENTRAR AL SISTEMA")
 
                 if submit:
                     if usuario in USUARIOS and USUARIOS[usuario]["clave"] == contrasena:
@@ -262,30 +252,29 @@ if not st.session_state.autenticado:
                         st.error("Credenciales incorrectas")
 
     st.markdown('''
-        <div style="text-align: center; margin-top: -20px;">
+        <div style="text-align: center; padding: 20px 0 10px 0;">
             <div class="title-electric">GOD'S TIME BARBERIA</div>
+            <p style="color: #00f0ff; font-weight: 600; font-size: 16px; margin-top: 8px; letter-spacing: 1px;">⚡ EXCLUSIVIDAD, ESTILO Y PRECISIÓN EN CADA CORTE ⚡</p>
         </div>
     ''', unsafe_allow_html=True)
-    
-    st.markdown("<p style='text-align: center; color: #00f0ff; font-weight: 700; font-size: 18px; margin-top: 10px; margin-bottom: 30px;'>🔥 ¡Eleva tu presencia! El corte perfecto en el momento exacto. ⚡</p>", unsafe_allow_html=True)
 
-    col_c1, col_c2, col_c3 = st.columns([1, 2, 1])
+    col_c1, col_c2, col_c3 = st.columns([1, 2.2, 1])
     with col_c2:
-        st.markdown("<h3 style='text-align: center; color: #ffffff;'>Reserva tu Cita</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center; color: #ffffff; margin-bottom: 20px;'>Reserva tu Cita Online</h3>", unsafe_allow_html=True)
         with st.form("form_cita_login"):
             nombre_c = st.text_input("Tu Nombre Completo")
             telefono_c = st.text_input("Teléfono (Ej: 04121234567 o +584121234567)")
-            barbero_c = st.selectbox("Barbero de preferencia", BARBEROS, key="barbero_cita_login")
+            barbero_c = st.selectbox("Barbero de Preferencia", BARBEROS, key="barbero_cita_login")
             
             col_f1, col_h1 = st.columns(2)
             with col_f1:
-                fecha_c = st.date_input("Fecha de la cita", min_value=date.today(), key="fecha_cita_login")
+                fecha_c = st.date_input("Fecha de la Cita", min_value=date.today(), key="fecha_cita_login")
             with col_h1:
-                hora_c = st.selectbox("Hora de la cita", OPCIONES_HORAS, key="hora_cita_login")
+                hora_c = st.selectbox("Hora", OPCIONES_HORAS, key="hora_cita_login")
 
-            servicio_c = st.selectbox("Servicio solicitado", list(PRECIOS_CORTES.keys()), key="servicio_cita_login")
+            servicio_c = st.selectbox("Servicio Solicitado", list(PRECIOS_CORTES.keys()), key="servicio_cita_login")
             
-            btn_agendar_login = st.form_submit_button("REGISTRAR CITA")
+            btn_agendar_login = st.form_submit_button("CONFIRMAR Y AGENDAR CITA")
 
         if btn_agendar_login:
             if nombre_c and telefono_c:
@@ -311,15 +300,15 @@ if not st.session_state.autenticado:
                 
                 st.success("¡Cita agendada exitosamente!")
                 st.markdown(f'''
-                    <a href="{ws_url}" target="_blank" class="btn-ws-glow">
-                        Confirmar por WhatsApp
+                    <a href="{ws_url}" target="_blank" class="btn-ws-glow" style="margin-top: 15px;">
+                        <i class="fa-brands fa-whatsapp" style="font-size: 20px;"></i> Enviar Confirmación por WhatsApp
                     </a>
                 ''', unsafe_allow_html=True)
             else:
                 st.error("Por favor completa tu nombre y número de teléfono.")
 
 # ---------------------------------------------------------
-# VISTA 2: PANEL PRINCIPAL (MENÚ CON BOTONES 3D GLOSSY)
+# VISTA 2: DASHBOARD PRINCIPAL 4K
 # ---------------------------------------------------------
 else:
     user_info = USUARIOS.get(st.session_state.usuario_actual, {"rol": "invitado"})
@@ -327,21 +316,21 @@ else:
 
     with st.sidebar:
         st.markdown('''
-            <div style="text-align: center; padding: 10px 0;">
-                <div class="title-electric" style="font-size: 20px;">GOD'S TIME BARBERIA</div>
+            <div style="text-align: center; padding: 15px 0;">
+                <div class="title-electric" style="font-size: 22px;">GOD'S TIME</div>
+                <p style='color: #94a3b8; font-size: 12px; margin-top: 4px;'>Panel de Control 4K</p>
             </div>
         ''', unsafe_allow_html=True)
-        st.markdown(f"<p style='text-align: center; color: #94a3b8; font-size: 13px;'>Barbero: <b style='color:#00f0ff;'>{st.session_state.usuario_actual}</b></p>", unsafe_allow_html=True)
-        st.markdown("---")
+        st.markdown(f"<div style='background: rgba(0,240,255,0.08); padding: 10px; border-radius: 10px; text-align: center; border: 1px solid rgba(0,240,255,0.2); margin-bottom: 15px;'><span style='font-size: 13px; color: #cbd5e1;'>Usuario:</span><br><b style='color:#00f0ff; font-size: 15px;'>{st.session_state.usuario_actual}</b></div>", unsafe_allow_html=True)
         
-        st.markdown("<p style='font-size: 13px; color: #00f0ff; font-weight: 800; margin-bottom: 8px;'>MENÚ PRINCIPAL</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size: 12px; color: #00f0ff; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px;'>MENÚ DE NAVEGACIÓN</p>", unsafe_allow_html=True)
 
         opciones_menu = {
-            "📊  Panel General": "Panel General",
-            "✂️  Registrar Corte": "Registrar Corte",
-            "💈  Historial Barberos": "Historial Barberos",
-            "📅  Citas y WhatsApp": "Citas y WhatsApp",
-            "⚙️  Administración": "Administración"
+            "📊 Panel General": "Panel General",
+            "✂️ Registrar Corte": "Registrar Corte",
+            "💈 Historial Barberos": "Historial Barberos",
+            "📅 Citas y WhatsApp": "Citas y WhatsApp",
+            "⚙️ Administración": "Administración"
         }
         
         seleccion_label = st.radio(
@@ -354,9 +343,9 @@ else:
         
         st.markdown("---")
         
-        st.markdown("<p style='font-size: 13px; color: #00f0ff; font-weight: 800; margin-bottom: 5px;'>💵 TASA DEL DÓLAR ($)</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size: 12px; color: #00f0ff; font-weight: 800; letter-spacing: 1px; margin-bottom: 8px;'>💵 TASA BCV ($)</p>", unsafe_allow_html=True)
         nueva_tasa_input = st.number_input("Tasa BS", value=float(st.session_state.tasa_bcv), step=0.10, label_visibility="collapsed")
-        if st.button("ACTUALIZAR TASA DEL DÓLAR"):
+        if st.button("ACTUALIZAR TASA"):
             st.session_state.tasa_bcv = nueva_tasa_input
             guardar_datos(CONFIG_FILE, {"tasa_bcv": nueva_tasa_input})
             st.success(f"Tasa actualizada: {nueva_tasa_input:.2f} BS")
@@ -370,7 +359,7 @@ else:
 
     # 1. PANEL GENERAL
     if opcion_menu == "Panel General":
-        st.markdown('<div class="section-header">📊 PANEL GENERAL - GOD\'S TIME BARBERIA</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header"><i class="fa-solid fa-chart-pie" style="color: #00f0ff;"></i> PANEL GENERAL - DASHBOARD 4K</div>', unsafe_allow_html=True)
         df_cortes = pd.DataFrame(st.session_state.cortes_db)
         
         c1, c2, c3 = st.columns(3)
@@ -380,15 +369,31 @@ else:
         citas_pendientes = len(st.session_state.citas_db)
 
         with c1:
-            st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Total Cortes</h4><h2 style="margin:5px 0 0 0;">{total_cortes}</h2></div>', unsafe_allow_html=True)
+            st.markdown(f'''
+                <div class="card-3d" style="text-align: center; padding: 20px;">
+                    <div style="color: #94a3b8; font-size: 14px; font-weight: 600; text-transform: uppercase;">Total Cortes Realizados</div>
+                    <div style="font-size: 36px; font-weight: 800; color: #00f0ff; margin-top: 8px;">{total_cortes}</div>
+                </div>
+            ''', unsafe_allow_html=True)
         with c2:
-            st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Ingresos Totales</h4><h2 style="margin:5px 0 0 0; font-size: 22px;">${total_ingresos_usd:.2f} <span style="color:#00f0ff; font-size:16px;">({total_ingresos_bs:.2f} BS)</span></h2></div>', unsafe_allow_html=True)
+            st.markdown(f'''
+                <div class="card-3d" style="text-align: center; padding: 20px;">
+                    <div style="color: #94a3b8; font-size: 14px; font-weight: 600; text-transform: uppercase;">Ingresos Totales</div>
+                    <div style="font-size: 30px; font-weight: 800; color: #10b981; margin-top: 8px;">${total_ingresos_usd:.2f}</div>
+                    <div style="color: #38bdf8; font-size: 13px; font-weight: 600;">({total_ingresos_bs:,.2f} BS)</div>
+                </div>
+            ''', unsafe_allow_html=True)
         with c3:
-            st.markdown(f'<div class="card-3d"><h4 style="color:#94a3b8; margin:0;">Citas Agendadas</h4><h2 style="margin:5px 0 0 0;">{citas_pendientes}</h2></div>', unsafe_allow_html=True)
+            st.markdown(f'''
+                <div class="card-3d" style="text-align: center; padding: 20px;">
+                    <div style="color: #94a3b8; font-size: 14px; font-weight: 600; text-transform: uppercase;">Citas Agendadas</div>
+                    <div style="font-size: 36px; font-weight: 800; color: #f59e0b; margin-top: 8px;">{citas_pendientes}</div>
+                </div>
+            ''', unsafe_allow_html=True)
 
-        # GRÁFICOS INTERACTIVOS (PLOTLY)
+        # GRÁFICOS INTERACTIVOS 4K CON PLOTLY
         if not df_cortes.empty:
-            st.markdown('<div class="section-header" style="margin-top: 30px;">📈 ANALÍTICA DE RENDIMIENTO</div>', unsafe_allow_html=True)
+            st.markdown('<div class="section-header" style="margin-top: 35px;"><i class="fa-solid fa-bolt" style="color: #00f0ff;"></i> ANALÍTICA DE RENDIMIENTO EN TIEMPO REAL</div>', unsafe_allow_html=True)
             col_g1, col_g2 = st.columns(2)
 
             with col_g1:
@@ -397,11 +402,12 @@ else:
                 fig_barb = px.bar(
                     df_barberos, x="Barbero", y="Precio ($)", 
                     text_auto='.2f', color="Barbero",
-                    color_discrete_sequence=px.colors.qualitative.Prism
+                    color_discrete_sequence=['#00f0ff', '#3b82f6', '#8b5cf6', '#ec4899']
                 )
                 fig_barb.update_layout(
                     paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-                    font_color='#e2e8f0', margin=dict(t=20, b=20, l=20, r=20)
+                    font_color='#f8fafc', margin=dict(t=20, b=20, l=20, r=20),
+                    xaxis=dict(showgrid=False), yaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)')
                 )
                 st.plotly_chart(fig_barb, use_container_width=True)
 
@@ -410,11 +416,11 @@ else:
                 df_pagos = df_cortes.groupby("Método Pago")["Precio ($)"].sum().reset_index()
                 fig_pagos = px.pie(
                     df_pagos, names="Método Pago", values="Precio ($)", 
-                    hole=0.4, color_discrete_sequence=px.colors.sequential.Tealgrn
+                    hole=0.45, color_discrete_sequence=['#10b981', '#3b82f6', '#f59e0b', '#ec4899']
                 )
                 fig_pagos.update_layout(
                     paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-                    font_color='#e2e8f0', margin=dict(t=20, b=20, l=20, r=20)
+                    font_color='#f8fafc', margin=dict(t=20, b=20, l=20, r=20)
                 )
                 st.plotly_chart(fig_pagos, use_container_width=True)
 
@@ -422,24 +428,26 @@ else:
             df_servicios = df_cortes.groupby("Servicio")["Precio ($)"].sum().reset_index()
             fig_serv = px.bar(
                 df_servicios, x="Servicio", y="Precio ($)", 
-                text_auto='.2f', color="Servicio"
+                text_auto='.2f', color="Servicio",
+                color_discrete_sequence=['#00f0ff', '#10b981', '#f59e0b', '#8b5cf6']
             )
             fig_serv.update_layout(
                 paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-                font_color='#e2e8f0', showlegend=False, margin=dict(t=20, b=20, l=20, r=20)
+                font_color='#f8fafc', showlegend=False, margin=dict(t=20, b=20, l=20, r=20),
+                xaxis=dict(showgrid=False), yaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)')
             )
             st.plotly_chart(fig_serv, use_container_width=True)
 
-        st.markdown('<div class="section-header" style="margin-top: 30px;">💵 TARIFA DE SERVICIOS</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header" style="margin-top: 35px;"><i class="fa-solid fa-tags" style="color: #00f0ff;"></i> TARIFA OFICIAL DE SERVICIOS</div>', unsafe_allow_html=True)
         precios_tabla = [
-            {"Servicio / Corte": k, "Precio ($)": f"${v:.2f}", "Precio (BS)": f"{v * st.session_state.tasa_bcv:.2f} BS"}
+            {"Servicio / Corte": k, "Precio ($)": f"${v:.2f}", "Precio (BS)": f"{v * st.session_state.tasa_bcv:,.2f} BS"}
             for k, v in PRECIOS_CORTES.items()
         ]
         st.table(pd.DataFrame(precios_tabla))
 
     # 2. REGISTRAR CORTE
     elif opcion_menu == "Registrar Corte":
-        st.markdown('<div class="section-header">✂️ REGISTRO DE NUEVO CORTE</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header"><i class="fa-solid fa-scissors" style="color: #00f0ff;"></i> REGISTRO DE NUEVO CORTE</div>', unsafe_allow_html=True)
         with st.form("form_corte"):
             col1, col2 = st.columns(2)
             with col1:
@@ -448,14 +456,14 @@ else:
                 corte_sel = st.selectbox("Tipo de Corte / Servicio", list(PRECIOS_CORTES.keys()))
                 precio_corte_usd = st.number_input("Precio ($)", value=float(PRECIOS_CORTES[corte_sel]), step=1.0)
                 precio_corte_bs = precio_corte_usd * st.session_state.tasa_bcv
-                st.info(f"Monto equivalente en Bolívares (Tasa {st.session_state.tasa_bcv:.2f}): **{precio_corte_bs:.2f} BS**")
+                st.info(f"Monto equivalente en Bolívares (Tasa BCV {st.session_state.tasa_bcv:.2f}): **{precio_corte_bs:,.2f} BS**")
                 cliente_nombre = st.text_input("Nombre del Cliente (Opcional)")
             
             with col2:
                 metodo_pago = st.selectbox("Método de Pago", METODOS_PAGO)
                 referencia_pago = st.text_input("N° de Referencia / Transacción", placeholder="N/A para Efectivo")
 
-            btn_guardar = st.form_submit_button("GUARDAR CORTE Y REGISTRAR")
+            btn_guardar = st.form_submit_button("GUARDAR CORTE Y REGISTRAR EN SISTEMA")
             
             if btn_guardar:
                 ref_final = referencia_pago.strip() if referencia_pago.strip() else ("N/A" if metodo_pago == "EFECTIVO" else "Sin ref.")
@@ -472,11 +480,11 @@ else:
                 }
                 st.session_state.cortes_db.append(nuevo_registro)
                 guardar_datos(CORTES_FILE, st.session_state.cortes_db)
-                st.success(f"Corte registrado a {barbero_sel} correctamente (${precio_corte_usd:.2f} / {precio_corte_bs:.2f} BS) vía {metodo_pago}.")
+                st.success(f"¡Corte registrado exitosamente a {barbero_sel} (${precio_corte_usd:.2f} / {precio_corte_bs:,.2f} BS) vía {metodo_pago}!")
 
     # 3. HISTORIAL Y REGISTRO DE CLIENTES POR BARBERO
     elif opcion_menu == "Historial Barberos":
-        st.markdown('<div class="section-header">💈 HISTORIAL Y REGISTRO DE CLIENTES POR BARBERO</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header"><i class="fa-solid fa-users-viewfinder" style="color: #00f0ff;"></i> HISTORIAL Y GESTIÓN DE CLIENTES</div>', unsafe_allow_html=True)
         idx_filtro = BARBEROS.index(st.session_state.usuario_actual) if st.session_state.usuario_actual in BARBEROS else 0
         barbero_filtro = st.selectbox("Selecciona un Barbero", BARBEROS, index=idx_filtro, key="filtro_barbero")
         
@@ -488,15 +496,15 @@ else:
                 col_precio = "Precio ($)" if "Precio ($)" in df_filtrado.columns else "Precio"
                 total_usd = df_filtrado[col_precio].sum()
                 total_bs = total_usd * st.session_state.tasa_bcv
-                st.info(f"Total acumulado por **{barbero_filtro}**: **${total_usd:.2f} USD** / **{total_bs:.2f} BS** ({len(df_filtrado)} cortes)")
+                st.info(f"Rendimiento de **{barbero_filtro}**: **${total_usd:.2f} USD** / **{total_bs:,.2f} BS** ({len(df_filtrado)} servicios prestados)")
 
-                tab_hist, tab_cli = st.tabs(["HISTORIAL DE CORTES", "CLIENTES ATENDIDOS"])
+                tab_hist, tab_cli = st.tabs(["📋 HISTORIAL DE CORTES", "👥 CLIENTES ATENDIDOS"])
                 
                 with tab_hist:
                     st.dataframe(df_filtrado, use_container_width=True)
                 
                 with tab_cli:
-                    st.markdown(f"### Clientes registrados con {barbero_filtro}")
+                    st.markdown(f"### Base de Datos de Clientes - {barbero_filtro}")
                     df_clientes = df_filtrado.groupby("Cliente").agg(
                         Visitas=("Servicio", "count"),
                         Total_Gastado_USD=(col_precio, "sum"),
@@ -505,24 +513,24 @@ else:
                     df_clientes["Total_Gastado_BS"] = df_clientes["Total_Gastado_USD"] * st.session_state.tasa_bcv
                     st.dataframe(df_clientes, use_container_width=True)
             else:
-                st.warning(f"No hay registros de cortes para {barbero_filtro}.")
+                st.warning(f"No hay registros de cortes para {barbero_filtro} todavía.")
         else:
-            st.write("No hay datos de cortes registrados aún.")
+            st.write("No hay datos de cortes registrados en la base de datos.")
 
     # 4. CITAS Y WHATSAPP
     elif opcion_menu == "Citas y WhatsApp":
-        st.markdown('<div class="section-header">📅 GESTIÓN DE CITAS Y RECORDATORIOS POR WHATSAPP</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header"><i class="fa-regular fa-calendar-days" style="color: #00f0ff;"></i> GESTIÓN DE CITAS Y WHATSAPP</div>', unsafe_allow_html=True)
         col_f1, col_f2 = st.columns(2)
         with col_f1:
             nombre_c = st.text_input("Nombre del Cliente")
             telefono_c = st.text_input("Teléfono (Ej: 04121234567 o +584121234567)")
-            barbero_c = st.selectbox("Barbero de preferencia", BARBEROS, key="barbero_cita")
+            barbero_c = st.selectbox("Barbero de Preferencia", BARBEROS, key="barbero_cita")
         with col_f2:
-            fecha_c = st.date_input("Fecha de la cita", min_value=date.today())
-            hora_c = st.selectbox("Hora de la cita", OPCIONES_HORAS, key="hora_cita_admin")
-            servicio_c = st.selectbox("Servicio solicitado", list(PRECIOS_CORTES.keys()), key="servicio_cita")
+            fecha_c = st.date_input("Fecha de la Cita", min_value=date.today())
+            hora_c = st.selectbox("Hora de la Cita", OPCIONES_HORAS, key="hora_cita_admin")
+            servicio_c = st.selectbox("Servicio Solicitado", list(PRECIOS_CORTES.keys()), key="servicio_cita")
             
-        if st.button("REGISTRAR CITA Y NOTIFICAR POR WHATSAPP"):
+        if st.button("REGISTRAR CITA Y ENVIAR RECORDATORIO"):
             if nombre_c and telefono_c:
                 tel_final = limpiar_telefono(telefono_c)
                 cita = {
@@ -543,29 +551,29 @@ else:
                 mensaje_encoded = urllib.parse.quote(mensaje)
                 phone_clean = tel_final.replace("+", "")
                 ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
-                st.success("¡Cita agendada exitosamente!")
+                st.success("¡Cita agendada correctamente!")
                 st.markdown(f'''
-                    <a href="{ws_url}" target="_blank" class="btn-ws-glow">
-                        Enviar Confirmación por WhatsApp
+                    <a href="{ws_url}" target="_blank" class="btn-ws-glow" style="margin-top: 15px;">
+                        <i class="fa-brands fa-whatsapp" style="font-size: 20px;"></i> Enviar Confirmación por WhatsApp
                     </a>
                 ''', unsafe_allow_html=True)
 
-        st.markdown('<div class="section-header" style="margin-top:30px;">CITAS REGISTRADAS</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header" style="margin-top:35px;">CITAS PROGRAMADAS EN AGENDA</div>', unsafe_allow_html=True)
         if st.session_state.citas_db:
             st.dataframe(pd.DataFrame(st.session_state.citas_db), use_container_width=True)
 
     # 5. ADMINISTRACIÓN
     elif opcion_menu == "Administración":
-        st.markdown('<div class="section-header">⚙️ PANEL DE ADMINISTRACIÓN</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-header"><i class="fa-solid fa-shield-halved" style="color: #00f0ff;"></i> PANEL DE ADMINISTRACIÓN</div>', unsafe_allow_html=True)
         
         if es_admin:
-            st.warning("⚠️ **Atención:** La siguiente opción borrará permanentemente las citas y los registros de cortes.")
-            if st.button("REINICIAR TODO EL HISTORIAL"):
+            st.warning("⚠️ **Zona de Peligro:** La siguiente acción eliminará permanentemente todos los registros de cortes y citas guardadas en el sistema.")
+            if st.button("REINICIAR TODO EL HISTORIAL DE LA BARBERÍA"):
                 st.session_state.cortes_db = []
                 st.session_state.citas_db = []
                 guardar_datos(CORTES_FILE, [])
                 guardar_datos(CITAS_FILE, [])
-                st.success("El historial completo ha sido borrado.")
+                st.success("El historial completo ha sido reiniciado con éxito.")
                 st.rerun()
         else:
-            st.error("🔒 **Acceso restringido:** Tu usuario no posee permisos para reiniciar el historial de la barbería.")
+            st.error("🔒 **Acceso Restringido:** Esta sección requiere permisos de Administrador.")
