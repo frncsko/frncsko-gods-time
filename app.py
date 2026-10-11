@@ -14,6 +14,10 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# --- CONFIGURACIÓN DE TU NÚMERO DE WHATSAPP ---
+# Reemplaza '584121234567' con tu número personal real (ej: código de país 58 + tu número sin el 0 inicial)
+MI_NUMERO_WHATSAPP = "584121234567"
+
 # --- PERSISTENCIA LOCAL DE DATOS ---
 CORTES_FILE = "cortes_data.json"
 CITAS_FILE = "citas_data.json"
@@ -108,7 +112,6 @@ st.markdown("""
         color: #f8fafc;
     }
 
-    /* FORZAR INPUTS Y SELECTORES OSCUROS EN MÓVILES Y ESCRITORIO */
     input, select, textarea {
         background-color: rgba(15, 23, 42, 0.9) !important;
         color: #ffffff !important;
@@ -191,7 +194,6 @@ st.markdown("""
         margin-bottom: 20px;
     }
 
-    /* ⚡ BOTÓN ULTRA MODERNO CON EFECTO BRILLANTE / SHIMMER ANIMADO */
     .stButton > button {
         position: relative !important;
         background: linear-gradient(135deg, #00f0ff 0%, #0072ff 50%, #7928ca 100%) !important;
@@ -357,22 +359,24 @@ if not st.session_state.autenticado:
                 st.session_state.citas_db.append(cita)
                 guardar_datos(CITAS_FILE, st.session_state.citas_db)
                 
-                mensaje = f"Hola {nombre_c}, confirmamos tu cita en GOD'S TIME BARBERIA el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c} (${precio_est_usd:.2f})."
+                # Mensaje detallado para tu WhatsApp personal
+                mensaje = f"🔥 NUEVA CITA RESERVADA EN GOD'S TIME BARBERIA\n\n👤 Cliente: {nombre_c}\n📞 Teléfono: {tel_final}\n💈 Barbero: {barbero_c}\n📅 Fecha: {fecha_c}\n⏰ Hora: {hora_c}\n✂️ Servicio: {servicio_c} (${precio_est_usd:.2f})"
                 mensaje_encoded = urllib.parse.quote(mensaje)
-                phone_clean = tel_final.replace("+", "")
-                ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
+                
+                # El mensaje se envía a tu número configurado en MI_NUMERO_WHATSAPP
+                ws_url = f"https://wa.me/{MI_NUMERO_WHATSAPP}?text={mensaje_encoded}"
                 
                 st.success("¡Cita reservada con éxito!")
                 st.markdown(f'''
                     <a href="{ws_url}" target="_blank" class="btn-ws-glow" style="margin-top: 15px;">
-                        <i class="fa-brands fa-whatsapp" style="font-size: 20px;"></i> Confirmar Cita por WhatsApp
+                        <i class="fa-brands fa-whatsapp" style="font-size: 20px;"></i> Enviar Cita a mi WhatsApp
                     </a>
                 ''', unsafe_allow_html=True)
             else:
                 st.error("Por favor completa tu nombre y número de teléfono.")
 
 # ---------------------------------------------------------
-# VISTA 2: MENÚ PRINCIPAL 
+# VISTA 2: DASHBOARD PRINCIPAL 4K
 # ---------------------------------------------------------
 else:
     user_info = USUARIOS.get(st.session_state.usuario_actual, {"rol": "invitado"})
@@ -602,14 +606,14 @@ else:
                 
                 precio_usd = PRECIOS_CORTES[servicio_c]
                 
-                mensaje = f"Hola {nombre_c}, confirmamos tu cita en GOD'S TIME BARBERIA el {fecha_c} a las {hora_c} con {barbero_c} para {servicio_c} (${precio_usd:.2f})."
+                mensaje = f"🔥 NUEVA CITA REGISTRADA EN AGENDA\n\n👤 Cliente: {nombre_c}\n📞 Teléfono: {tel_final}\n💈 Barbero: {barbero_c}\n📅 Fecha: {fecha_c}\n⏰ Hora: {hora_c}\n✂️ Servicio: {servicio_c} (${precio_usd:.2f})"
                 mensaje_encoded = urllib.parse.quote(mensaje)
-                phone_clean = tel_final.replace("+", "")
-                ws_url = f"https://wa.me/{phone_clean}?text={mensaje_encoded}"
+                
+                ws_url = f"https://wa.me/{MI_NUMERO_WHATSAPP}?text={mensaje_encoded}"
                 st.success("¡Cita agendada correctamente!")
                 st.markdown(f'''
                     <a href="{ws_url}" target="_blank" class="btn-ws-glow" style="margin-top: 15px;">
-                        <i class="fa-brands fa-whatsapp" style="font-size: 20px;"></i> Enviar Confirmación por WhatsApp
+                        <i class="fa-brands fa-whatsapp" style="font-size: 20px;"></i> Enviar Cita a mi WhatsApp
                     </a>
                 ''', unsafe_allow_html=True)
 
