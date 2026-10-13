@@ -8,15 +8,19 @@ import streamlit as st
 
 # Configuración de la página
 st.set_page_config(
-    page_title="GOD'S TIME BARBERIA | VIP Experience",
+    page_title="GOD'S TIME BARBERIA | 4K VIP Experience",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # --- CONFIGURACIÓN DE TUS REDES Y WHATSAPP ---
 MI_NUMERO_WHATSAPP = "584125205165"
-INSTAGRAM_URL = "https://instagram.com/godstimebarberia?xtok=MWZxZTc0c2l0aTJ2bw%3D%3D"
-TIKTOK_URL = "https://www.tiktok.com/@gods.time.barberia?_r=1&_t=ZS-9AVkad3X9S0"
+INSTAGRAM_URL = (
+    "https://instagram.com/godstimebarberia?xtok=MWZxZTc0c2l0aTJ2bw%3D%3D"
+)
+TIKTOK_URL = (
+    "https://www.tiktok.com/@gods.time.barberia?_r=1&_t=ZS-9AVkad3X9S0"
+)
 
 # --- PERSISTENCIA LOCAL DE DATOS ---
 CORTES_FILE = "cortes_data.json"
@@ -78,8 +82,8 @@ PRECIOS_CORTES = {
     "Corte Clásico": 8.0,
     "Corte y Barba": 10.0,
     "Barba Completa": 5.0,
-    "Combo (Corte + Barba+ Mascarilla)": 12.0,
-    "Diseño / Cejas": 2.0,
+    "Combo (Corte + Barba+ Mascarilla)": 13.0,
+    "Diseño / Cejas": 5.0,
 }
 
 BARBEROS = ["Francisco", "Jonder", "Barbero 3"]
@@ -461,6 +465,18 @@ if not st.session_state.autenticado:
       else:
         st.error("Por favor completa tu nombre y número de teléfono.")
 
+  # Créditos en la página principal
+  st.markdown(
+      """
+        <div style="text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid rgba(0, 240, 255, 0.15);">
+            <p style="color: #94a3b8; font-size: 13px; letter-spacing: 1px; font-weight: 500; margin: 0;">
+                GOD'S TIME BARBERIA SYSTEM &bull; Developed with <span style="color: #00f0ff;">⚡</span> By: <b style="color: #00f0ff;">Frncsko</b>
+            </p>
+        </div>
+    """,
+      unsafe_allow_html=True,
+  )
+
 # ---------------------------------------------------------
 # VISTA 2: DASHBOARD PRINCIPAL 4K
 # ---------------------------------------------------------
@@ -536,6 +552,15 @@ else:
       st.session_state.usuario_actual = ""
       st.rerun()
 
+    # Créditos en la parte inferior de la barra lateral
+    st.markdown(
+        "<div style='text-align: center; margin-top: 30px; border-top: 1px"
+        " solid rgba(255,255,255,0.08); padding-top: 12px;'><p"
+        " style='color: #64748b; font-size: 11px; margin: 0;'>By: <b"
+        " style='color: #00f0ff;'>Frncsko</b></p></div>",
+        unsafe_allow_html=True,
+    )
+
   # 1. PANEL GENERAL
   if opcion_menu == "Panel General":
     st.markdown(
@@ -545,7 +570,15 @@ else:
     )
     df_cortes = pd.DataFrame(st.session_state.cortes_db)
 
-    c1, c2, c3 = st.columns(3)
+    # Conteo diario de cortes
+    fecha_hoy = datetime.now().strftime("%Y-%m-%d")
+    cortes_hoy = 0
+    if not df_cortes.empty and "Fecha" in df_cortes.columns:
+      cortes_hoy = len(
+          df_cortes[df_cortes["Fecha"].str.startswith(fecha_hoy)]
+      )
+
+    c1, c2, c3, c4 = st.columns(4)
     total_cortes = len(df_cortes) if not df_cortes.empty else 0
     total_ingresos_usd = (
         df_cortes["Precio ($)"].sum()
@@ -563,9 +596,9 @@ else:
     with c1:
       st.markdown(
           f"""
-            <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; text-align: center; padding: 20px;">
-                <div style="color: #94a3b8; font-size: 14px; font-weight: 600; text-transform: uppercase;">Total Cortes Realizados</div>
-                <div style="font-size: 36px; font-weight: 800; color: #00f0ff; margin-top: 8px;">{total_cortes}</div>
+            <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(0,240,255,0.3); border-radius: 20px; text-align: center; padding: 20px;">
+                <div style="color: #00f0ff; font-size: 13px; font-weight: 700; text-transform: uppercase;">Cortes Hoy</div>
+                <div style="font-size: 36px; font-weight: 800; color: #00f0ff; margin-top: 8px;">{cortes_hoy}</div>
             </div>
         """,
           unsafe_allow_html=True,
@@ -574,8 +607,8 @@ else:
       st.markdown(
           f"""
             <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; text-align: center; padding: 20px;">
-                <div style="color: #94a3b8; font-size: 14px; font-weight: 600; text-transform: uppercase;">Ingresos Totales</div>
-                <div style="font-size: 32px; font-weight: 800; color: #10b981; margin-top: 8px;">${total_ingresos_usd:.2f}</div>
+                <div style="color: #94a3b8; font-size: 13px; font-weight: 600; text-transform: uppercase;">Total Cortes</div>
+                <div style="font-size: 36px; font-weight: 800; color: #3b82f6; margin-top: 8px;">{total_cortes}</div>
             </div>
         """,
           unsafe_allow_html=True,
@@ -584,7 +617,17 @@ else:
       st.markdown(
           f"""
             <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; text-align: center; padding: 20px;">
-                <div style="color: #94a3b8; font-size: 14px; font-weight: 600; text-transform: uppercase;">Citas Pendientes</div>
+                <div style="color: #94a3b8; font-size: 13px; font-weight: 600; text-transform: uppercase;">Ingresos Totales</div>
+                <div style="font-size: 32px; font-weight: 800; color: #10b981; margin-top: 8px;">${total_ingresos_usd:.2f}</div>
+            </div>
+        """,
+          unsafe_allow_html=True,
+      )
+    with c4:
+      st.markdown(
+          f"""
+            <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; text-align: center; padding: 20px;">
+                <div style="color: #94a3b8; font-size: 13px; font-weight: 600; text-transform: uppercase;">Citas Pendientes</div>
                 <div style="font-size: 36px; font-weight: 800; color: #f59e0b; margin-top: 8px;">{citas_pendientes}</div>
             </div>
         """,
