@@ -21,6 +21,8 @@ INSTAGRAM_URL = (
 TIKTOK_URL = (
     "https://www.tiktok.com/@gods.time.barberia?_r=1&_t=ZS-9AVkad3X9S0"
 )
+# Enlace de tu perfil personal de TikTok para los créditos
+TIKTOK_PERSONAL_URL = "https://www.tiktok.com/@franbarb3r?is_from_webapp=1&sender_device=pc"
 
 # --- PERSISTENCIA LOCAL DE DATOS ---
 CORTES_FILE = "cortes_data.json"
@@ -82,8 +84,8 @@ PRECIOS_CORTES = {
     "Corte Clásico": 8.0,
     "Corte y Barba": 10.0,
     "Barba Completa": 5.0,
-    "Combo (Corte + Barba+ Mascarilla)": 13.0,
-    "Diseño / Cejas": 5.0,
+    "Combo (Corte + Barba+ Mascarilla)": 12.0,
+    "Diseño / Cejas": 2.0,
 }
 
 BARBEROS = ["Francisco", "Jonder", "Barbero 3"]
@@ -465,12 +467,15 @@ if not st.session_state.autenticado:
       else:
         st.error("Por favor completa tu nombre y número de teléfono.")
 
-  # Créditos en la página principal
+  # Créditos en la página principal con enlace a tu TikTok personal
   st.markdown(
-      """
+      f"""
         <div style="text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid rgba(0, 240, 255, 0.15);">
             <p style="color: #94a3b8; font-size: 13px; letter-spacing: 1px; font-weight: 500; margin: 0;">
-                GOD'S TIME BARBERIA SYSTEM &bull; Developed with <span style="color: #00f0ff;">⚡</span> By: <b style="color: #00f0ff;">Frncsko</b>
+                GOD'S TIME BARBERIA SYSTEM &bull; Developed with <span style="color: #00f0ff;">⚡</span> By: 
+                <a href="{TIKTOK_PERSONAL_URL}" target="_blank" style="color: #00f0ff; text-decoration: none; font-weight: 700;">
+                    <i class="fa-brands fa-tiktok" style="margin-right: 3px;"></i>Frncsko
+                </a>
             </p>
         </div>
     """,
@@ -552,12 +557,17 @@ else:
       st.session_state.usuario_actual = ""
       st.rerun()
 
-    # Créditos en la parte inferior de la barra lateral
+    # Créditos en la parte inferior de la barra lateral con tu enlace de TikTok personal
     st.markdown(
-        "<div style='text-align: center; margin-top: 30px; border-top: 1px"
-        " solid rgba(255,255,255,0.08); padding-top: 12px;'><p"
-        " style='color: #64748b; font-size: 11px; margin: 0;'>By: <b"
-        " style='color: #00f0ff;'>Frncsko</b></p></div>",
+        f"""
+        <div style='text-align: center; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;'>
+            <p style='color: #64748b; font-size: 11px; margin: 0;'>
+                By: <a href="{TIKTOK_PERSONAL_URL}" target="_blank" style="color: #00f0ff; text-decoration: none; font-weight: 700;">
+                    <i class="fa-brands fa-tiktok" style="font-size: 10px;"></i> Frncsko
+                </a>
+            </p>
+        </div>
+    """,
         unsafe_allow_html=True,
     )
 
