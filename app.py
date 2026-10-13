@@ -85,6 +85,8 @@ if "likes_total" not in st.session_state:
   st.session_state.likes_total = datos_likes["total"]
 if "usuario_dio_like" not in st.session_state:
   st.session_state.usuario_dio_like = False
+if "disparar_animacion_like" not in st.session_state:
+  st.session_state.disparar_animacion_like = False
 
 if "citas_db" not in st.session_state:
   citas_cargadas = cargar_datos(CITAS_FILE, [])
@@ -120,7 +122,7 @@ OPCIONES_HORAS = [
     time(h, m).strftime("%I:%M %p") for h in range(8, 20) for m in (0, 30)
 ]
 
-# --- ESTILOS 4K FORZANDO MODO OSCURO ABSOLUTO ---
+# --- ESTILOS 4K Y ANIMACIÓN DE CORAZONES FLOTANTES ---
 st.markdown(
     f"""
     <style>
@@ -196,6 +198,7 @@ st.markdown(
     .stats-container {{
         display: flex;
         justify-content: center;
+        align-items: center;
         gap: 15px;
         margin-bottom: 15px;
         flex-wrap: wrap;
@@ -245,6 +248,40 @@ st.markdown(
         font-size: 15px;
         font-weight: 500;
         margin-bottom: 25px;
+    }}
+
+    /* Estilos para la animación de corazones flotantes */
+    .floating-hearts-container {{
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        pointer-events: none;
+        z-index: 9999;
+        display: flex;
+        gap: 15px;
+    }}
+
+    .floating-heart {{
+        font-size: 28px;
+        color: #ef4444;
+        animation: floatUp 2.5s ease-out forwards;
+        text-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
+    }}
+
+    @keyframes floatUp {{
+        0% {{
+            transform: translateY(0px) scale(0.5);
+            opacity: 1;
+        }}
+        50% {{
+            transform: translateY(-180px) scale(1.4) rotate(15deg);
+            opacity: 0.9;
+        }}
+        100% {{
+            transform: translateY(-350px) scale(1) rotate(-15deg);
+            opacity: 0;
+        }}
     }}
 
     .stButton > button {{
@@ -387,20 +424,12 @@ if not st.session_state.autenticado:
           else:
             st.error("Credenciales de acceso incorrectas")
 
-  # Encabezado con insignia, contadores de visitas y likes
+  # Encabezado con insignia y títulos
   st.markdown(
-      f"""
+      """
         <div style="text-align: center; padding: 10px 0 0 0;">
             <div class="vip-badge">
                 <span class="vip-badge-dot"></span> EXPERIENCIA EXCLUSIVA 4K
-            </div>
-            <div class="stats-container">
-                <div class="stat-pill">
-                    <i class="fa-solid fa-users-viewfinder"></i> Visitas: <span class="stat-number">{st.session_state.visitas_total:,}</span>
-                </div>
-                <div class="stat-pill">
-                    <i class="fa-solid fa-heart" style="color: #ef4444;"></i> Likes: <span class="stat-number" style="color: #ef4444;">{st.session_state.likes_total:,}</span>
-                </div>
             </div>
             <div class="hero-title">GOD'S TIME BARBERIA</div>
             <div class="hero-subtitle">⚡ El corte perfecto en el momento exacto. Agenda tu turno sin esperas. ⚡</div>
@@ -409,20 +438,60 @@ if not st.session_state.autenticado:
       unsafe_allow_html=True,
   )
 
-  # Botón interactivo de Like justo debajo del subtítulo
-  col_like_centro = st.columns([1, 1.5, 1])
-  with col_like_centro[1]:
+  # Barra superior de estadísticas y botón de Like integrados fluidamente
+  col_stats_1, col_stats_2, col_stats_3 = st.columns([1.2, 1.2, 1.2])
+
+  with col_stats_1:
+    st.markdown(
+        f"""
+        <div class="stat-pill" style="width: 100%; justify-content: center;">
+            <i class="fa-solid fa-users-viewfinder"></i> Visitas: <span class="stat-number">{st.session_state.visitas_total:,}</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+  with col_stats_2:
+    st.markdown(
+        f"""
+        <div class="stat-pill" style="width: 100%; justify-content: center;">
+            <i class="fa-solid fa-heart" style="color: #ef4444;"></i> Likes: <span class="stat-number" style="color: #ef4444;">{st.session_state.likes_total:,}</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+  with col_stats_3:
     texto_btn_like = (
-        "❤️ ¡Gracias por tu Like!"
+        "❤️ ¡Gracias!"
         if st.session_state.usuario_dio_like
-        else "❤️ Dar Me Gusta a la Barbería"
+        else "❤️ Dar Me Gusta"
     )
     if st.button(texto_btn_like, key="btn_like_principal"):
       if not st.session_state.usuario_dio_like:
         st.session_state.likes_total += 1
         st.session_state.usuario_dio_like = True
+        st.session_state.disparar_animacion_like = True
         guardar_datos(LIKES_FILE, {"total": st.session_state.likes_total})
         st.rerun()
+
+  st.markdown("<br>", unsafe_allow_html=True)
+
+  # Mostrar animación flotante de corazones si se dio Like recientemente
+  if st.session_state.disparar_animacion_like:
+    st.markdown(
+        """
+        <div class="floating-hearts-container">
+            <div class="floating-heart" style="animation-delay: 0s;"><i class="fa-solid fa-heart"></i></div>
+            <div class="floating-heart" style="animation-delay: 0.3s;"><i class="fa-solid fa-heart" style="color:#ff758c;"></i></div>
+            <div class="floating-heart" style="animation-delay: 0.6s;"><i class="fa-solid fa-heart" style="color:#ffeb3b;"></i></div>
+            <div class="floating-heart" style="animation-delay: 0.2s;"><i class="fa-solid fa-heart"></i></div>
+            <div class="floating-heart" style="animation-delay: 0.5s;"><i class="fa-solid fa-heart" style="color:#00f0ff;"></i></div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.session_state.disparar_animacion_like = False
 
   col_form, col_precios = st.columns([1.6, 1])
 
@@ -1115,6 +1184,7 @@ else:
       if st.button("REINICIAR TODO EL HISTORIAL DE LA BARBERÍA"):
         st.session_state.cortes_db = []
         st.session_state.citas_db = []
+        guardar_dashboard_files = []  # Opcional
         guardar_datos(CORTES_FILE, [])
         guardar_datos(CITAS_FILE, [])
         st.success("El historial completo ha sido reiniciado con éxito.")
