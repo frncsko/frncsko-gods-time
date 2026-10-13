@@ -88,8 +88,8 @@ PRECIOS_CORTES = {
     "Corte Clásico": 8.0,
     "Corte y Barba": 10.0,
     "Barba Completa": 5.0,
-    "Combo (Corte + Barba+ Mascarilla)": 13.0,
-    "Diseño / Cejas": 5.0,
+    "Combo (Corte + Barba+ Mascarilla)": 12.0,
+    "Diseño / Cejas": 2.0,
 }
 
 BARBEROS = ["Francisco", "Jonder", "Barbero 3"]
