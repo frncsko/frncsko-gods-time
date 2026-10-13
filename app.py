@@ -8,7 +8,7 @@ import streamlit as st
 
 # Configuración de la página
 st.set_page_config(
-    page_title="GOD'S TIME BARBERIA | 4K VIP Experience",
+    page_title="GOD'S TIME BARBERIA | VIP Experience",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -78,8 +78,8 @@ PRECIOS_CORTES = {
     "Corte Clásico": 8.0,
     "Corte y Barba": 10.0,
     "Barba Completa": 5.0,
-    "Combo (Corte + Barba+ Mascarilla)": 13.0,
-    "Diseño / Cejas": 5.0,
+    "Combo (Corte + Barba+ Mascarilla)": 12.0,
+    "Diseño / Cejas": 2.0,
 }
 
 BARBEROS = ["Francisco", "Jonder", "Barbero 3"]
@@ -501,7 +501,7 @@ else:
         "✂️ Registrar Corte": "Registrar Corte",
         "💈 Historial Barberos": "Historial Barberos",
         "📅 Citas y WhatsApp": "Citas y WhatsApp",
-        "⚙️ Administración": "Administración",
+        "⚙️ Administración": "RESET",
     }
 
     seleccion_label = st.radio(
