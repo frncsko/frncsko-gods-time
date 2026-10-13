@@ -99,36 +99,42 @@ OPCIONES_HORAS = [
     time(h, m).strftime("%I:%M %p") for h in range(8, 20) for m in (0, 30)
 ]
 
-# --- ESTILOS 4K CON FONDO Y MODO OSCURO FORZADO ---
+# --- ESTILOS 4K FORZANDO MODO OSCURO ABSOLUTO ---
 st.markdown(
     f"""
     <style>
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
+    /* Forzar colores oscuros globales */
+    :root {{
+        color-scheme: dark !important;
+    }}
+
     html, body, [class*="css"] {{
         font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+        color: #f8fafc !important;
+        background-color: #030712 !important;
+    }}
+
+    /* Ocultar el menú superior para evitar cambios no deseados */
+    #MainMenu, footer, header {{
+        visibility: hidden;
     }}
 
     .stApp {{
-        background: linear-gradient(rgba(3, 7, 18, 0.88), rgba(3, 7, 18, 0.94)), url("{URL_IMAGEN_FONDO}") !important;
+        background: linear-gradient(rgba(3, 7, 18, 0.90), rgba(3, 7, 18, 0.95)), url("{URL_IMAGEN_FONDO}") !important;
         background-size: cover !important;
         background-position: center center !important;
         background-attachment: fixed !important;
         color: #f8fafc !important;
     }}
 
-    input, select, textarea {{
-        background-color: rgba(15, 23, 42, 0.9) !important;
+    /* Forzar modo oscuro en campos de texto, desplegables y tablas */
+    input, select, textarea, div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {{
+        background-color: rgba(15, 23, 42, 0.95) !important;
         color: #ffffff !important;
-        border: 1px solid rgba(0, 240, 255, 0.3) !important;
-        border-radius: 12px !important;
-    }}
-
-    div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {{
-        background-color: rgba(15, 23, 42, 0.9) !important;
-        color: #ffffff !important;
-        border: 1px solid rgba(0, 240, 255, 0.3) !important;
+        border: 1px solid rgba(0, 240, 255, 0.4) !important;
         border-radius: 12px !important;
     }}
 
@@ -265,13 +271,13 @@ st.markdown(
     .btn-tk {{ background: #000000; border: 1px solid rgba(255,255,255,0.2); }}
 
     [data-testid="stSidebar"] {{
-        background: rgba(4, 9, 20, 0.92) !important;
+        background: rgba(4, 9, 20, 0.95) !important;
         backdrop-filter: blur(20px);
         border-right: 1px solid rgba(0, 240, 255, 0.15) !important;
     }}
 
     [data-testid="stSidebar"] .stRadio label {{
-        background: rgba(15, 23, 42, 0.6) !important;
+        background: rgba(15, 23, 42, 0.7) !important;
         border-radius: 14px !important;
         padding: 14px 18px !important;
         color: #cbd5e1 !important;
