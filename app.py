@@ -6,7 +6,7 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-# Configuración de la página
+# Configuración de la página: Forzada en Modo Ancho (Ordenador)
 st.set_page_config(
     page_title="GOD'S TIME BARBERIA | 4K VIP Experience",
     layout="wide",
@@ -21,8 +21,9 @@ INSTAGRAM_URL = (
 TIKTOK_URL = (
     "https://www.tiktok.com/@gods.time.barberia?_r=1&_t=ZS-9AVkad3X9S0"
 )
-# Enlace de tu perfil personal de TikTok para los créditos
-TIKTOK_PERSONAL_URL = "https://www.tiktok.com/@franbarb3r?is_from_webapp=1&sender_device=pc"
+TIKTOK_PERSONAL_URL = (
+    "https://www.tiktok.com/@franbarb3r?is_from_webapp=1&sender_device=pc"
+)
 
 # --- PERSISTENCIA LOCAL DE DATOS ---
 CORTES_FILE = "cortes_data.json"
@@ -95,7 +96,7 @@ OPCIONES_HORAS = [
     time(h, m).strftime("%I:%M %p") for h in range(8, 20) for m in (0, 30)
 ]
 
-# --- ESTILOS 4K ULTRA MODERNOS & EFECTO BRILLANTE EN BOTÓN ---
+# --- ESTILOS 4K ULTRA MODERNOS & MODO OSCURO FORZADO ---
 st.markdown(
     """
     <style>
@@ -106,9 +107,10 @@ st.markdown(
         font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
     }
 
+    /* Forzar diseño de pantalla ancha / ordenador y tema oscuro absoluto */
     .stApp {
-        background: radial-gradient(circle at 50% -20%, #0c1a36 0%, #030712 60%, #010308 100%);
-        color: #f8fafc;
+        background: radial-gradient(circle at 50% -20%, #0c1a36 0%, #030712 60%, #010308 100%) !important;
+        color: #f8fafc !important;
     }
 
     input, select, textarea {
