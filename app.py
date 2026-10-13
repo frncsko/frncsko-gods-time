@@ -68,20 +68,20 @@ if "usuario_actual" not in st.session_state:
 if "cortes_db" not in st.session_state:
   st.session_state.cortes_db = cargar_datos(CORTES_FILE, [])
 
-# Contador de visitas persistente
+# Contador de visitas persistente desde 0
 if "visitado_session" not in st.session_state:
-  datos_visitas = cargar_datos(VISITAS_FILE, {"total": 1250})
+  datos_visitas = cargar_datos(VISITAS_FILE, {"total": 0})
   datos_visitas["total"] += 1
   guardar_datos(VISITAS_FILE, datos_visitas)
   st.session_state.visitado_session = True
   st.session_state.visitas_total = datos_visitas["total"]
 else:
-  datos_visitas = cargar_datos(VISITAS_FILE, {"total": 1250})
+  datos_visitas = cargar_datos(VISITAS_FILE, {"total": 0})
   st.session_state.visitas_total = datos_visitas["total"]
 
-# Sistema de Likes persistente
+# Sistema de Likes persistente desde 0
 if "likes_total" not in st.session_state:
-  datos_likes = cargar_datos(LIKES_FILE, {"total": 840})
+  datos_likes = cargar_datos(LIKES_FILE, {"total": 0})
   st.session_state.likes_total = datos_likes["total"]
 if "usuario_dio_like" not in st.session_state:
   st.session_state.usuario_dio_like = False
@@ -284,44 +284,14 @@ st.markdown(
         }}
     }}
 
-    .stButton > button {{
-        position: relative !important;
-        background: linear-gradient(135deg, #00f0ff 0%, #0072ff 50%, #7928ca 100%) !important;
-        color: #ffffff !important;
-        font-weight: 800 !important;
-        font-size: 16px !important;
-        letter-spacing: 1.2px;
-        text-transform: uppercase;
-        border-radius: 16px !important;
-        border: 1px solid rgba(255, 255, 255, 0.4) !important;
-        width: 100%;
-        padding: 16px 28px !important;
-        box-shadow: 0 10px 30px rgba(0, 240, 255, 0.4), inset 0 2px 6px rgba(255, 255, 255, 0.6) !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        overflow: hidden !important;
-    }}
-
-    .stButton > button::after {{
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -60%;
-        width: 50%;
-        height: 200%;
-        background: rgba(255, 255, 255, 0.35);
-        transform: rotate(30deg);
-        animation: shine 3s infinite linear;
-    }}
-
-    @keyframes shine {{
-        0% {{ left: -60%; }}
-        20% {{ left: 120%; }}
-        100% {{ left: 120%; }}
-    }}
-
-    .stButton > button:hover {{
-        box-shadow: 0 15px 40px rgba(0, 240, 255, 0.7), inset 0 2px 10px rgba(255, 255, 255, 0.9) !important;
-        transform: translateY(-3px) scale(1.01) !important;
+    /* Botón de Like pequeño y compacto */
+    div[data-testid="column"] button {{
+        padding: 6px 12px !important;
+        font-size: 13px !important;
+        min-height: 38px !important;
+        border-radius: 20px !important;
+        background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4) !important;
     }}
 
     .btn-ws-glow {{
@@ -438,8 +408,8 @@ if not st.session_state.autenticado:
       unsafe_allow_html=True,
   )
 
-  # Barra superior de estadísticas y botón de Like integrados fluidamente
-  col_stats_1, col_stats_2, col_stats_3 = st.columns([1.2, 1.2, 1.2])
+  # Barra superior compacta con Visitas, Likes y Botón de Like pequeño alineados
+  col_stats_1, col_stats_2, col_stats_3 = st.columns([1.1, 1.1, 1.1])
 
   with col_stats_1:
     st.markdown(
@@ -465,7 +435,7 @@ if not st.session_state.autenticado:
     texto_btn_like = (
         "❤️ ¡Gracias!"
         if st.session_state.usuario_dio_like
-        else "❤️ Dar Me Gusta"
+        else "❤️ Me Gusta"
     )
     if st.button(texto_btn_like, key="btn_like_principal"):
       if not st.session_state.usuario_dio_like:
@@ -1184,7 +1154,6 @@ else:
       if st.button("REINICIAR TODO EL HISTORIAL DE LA BARBERÍA"):
         st.session_state.cortes_db = []
         st.session_state.citas_db = []
-        guardar_dashboard_files = []  # Opcional
         guardar_datos(CORTES_FILE, [])
         guardar_datos(CITAS_FILE, [])
         st.success("El historial completo ha sido reiniciado con éxito.")
