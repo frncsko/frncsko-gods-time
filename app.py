@@ -13,8 +13,10 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# --- CONFIGURACIÓN DE TU NÚMERO DE WHATSAPP ---
+# --- CONFIGURACIÓN DE TUS REDES Y WHATSAPP ---
 MI_NUMERO_WHATSAPP = "584125205165"
+INSTAGRAM_URL = "https://instagram.com/godstimebarberia?xtok=MWZxZTc0c2l0aTJ2bw%3D%3D"
+TIKTOK_URL = "https://www.tiktok.com/@gods.time.barberia?_r=1&_t=ZS-9AVkad3X9S0"
 
 # --- PERSISTENCIA LOCAL DE DATOS ---
 CORTES_FILE = "cortes_data.json"
@@ -76,8 +78,8 @@ PRECIOS_CORTES = {
     "Corte Clásico": 8.0,
     "Corte y Barba": 10.0,
     "Barba Completa": 5.0,
-    "Combo (Corte + Barba+ Mascarilla)": 12.0,
-    "Diseño / Cejas": 2.0,
+    "Combo (Corte + Barba+ Mascarilla)": 13.0,
+    "Diseño / Cejas": 5.0,
 }
 
 BARBEROS = ["Francisco", "Jonder", "Barbero 3"]
@@ -230,6 +232,25 @@ st.markdown(
         box-shadow: 0 12px 30px rgba(16, 185, 129, 0.4);
     }
 
+    .social-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 14px;
+        text-decoration: none;
+        color: white !important;
+        width: 100%;
+        margin-bottom: 8px;
+        transition: opacity 0.2s;
+    }
+    .social-btn:hover { opacity: 0.85; }
+    .btn-ig { background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); }
+    .btn-tk { background: #000000; border: 1px solid rgba(255,255,255,0.2); }
+
     [data-testid="stSidebar"] {
         background: rgba(4, 9, 20, 0.85) !important;
         backdrop-filter: blur(20px);
@@ -321,6 +342,24 @@ if not st.session_state.autenticado:
         {"Servicio": k, "Precio": f"${v:.2f}"} for k, v in PRECIOS_CORTES.items()
     ]
     st.table(pd.DataFrame(precios_publicos))
+
+    # Botones de redes sociales con los enlaces oficiales
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(
+        "<h4 style='color: #ffffff; font-size: 16px; margin-bottom: 10px;'>¡Síguenos en Redes!</h4>",
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        f"""
+        <a href="{INSTAGRAM_URL}" target="_blank" class="social-btn btn-ig">
+            <i class="fa-brands fa-instagram"></i> Instagram (@godstimebarberia)
+        </a>
+        <a href="{TIKTOK_URL}" target="_blank" class="social-btn btn-tk">
+            <i class="fa-brands fa-tiktok"></i> TikTok (@gods.time.barberia)
+        </a>
+    """,
+        unsafe_allow_html=True,
+    )
 
   with col_form:
     with st.form("form_cita_login"):
@@ -472,6 +511,25 @@ else:
     opcion_menu = opciones_menu[seleccion_label]
 
     st.markdown("---")
+
+    # Redes sociales en la barra lateral
+    st.markdown(
+        "<p style='font-size: 11px; color: #00f0ff; font-weight: 800;"
+        " letter-spacing: 1px; margin-bottom: 8px;'>REDES SOCIALES</p>",
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        f"""
+        <a href="{INSTAGRAM_URL}" target="_blank" class="social-btn btn-ig" style="padding: 8px 12px; font-size: 13px;">
+            <i class="fa-brands fa-instagram"></i> Instagram
+        </a>
+        <a href="{TIKTOK_URL}" target="_blank" class="social-btn btn-tk" style="padding: 8px 12px; font-size: 13px;">
+            <i class="fa-brands fa-tiktok"></i> TikTok
+        </a>
+    """,
+        unsafe_allow_html=True,
+    )
+
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("🚪 Cerrar Sesión"):
       st.session_state.autenticado = False
@@ -739,7 +797,7 @@ else:
     else:
       st.write("No hay datos de cortes registrados en la base de datos.")
 
-  # 4. CITAS Y WHATSAPP (CON VALIDACIÓN DE PAGO Y REFERENCIA)
+  # 4. CITAS Y WHATSAPP
   elif opcion_menu == "Citas y WhatsApp":
     st.markdown(
         '<div class="section-header"><i class="fa-regular fa-calendar-days"'
