@@ -8,7 +8,7 @@ import streamlit as st
 
 # Configuración de la página
 st.set_page_config(
-    page_title="GOD'S TIME BARBERIA | VIP Experience",
+    page_title="GOD'S TIME BARBERIA | 4K VIP Experience",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -58,6 +58,10 @@ if "citas_db" not in st.session_state:
   for c in citas_cargadas:
     if "estado" not in c:
       c["estado"] = "Pendiente"
+    if "referencia" not in c:
+      c["referencia"] = "Por verificar"
+    if "metodo_pago" not in c:
+      c["metodo_pago"] = "PAGO MOVIL"
     if "id" not in c:
       c["id"] = abs(hash(c.get("Cliente", "") + str(c.get("Fecha", "")))) % 100000
   st.session_state.citas_db = citas_cargadas
@@ -72,8 +76,8 @@ PRECIOS_CORTES = {
     "Corte Clásico": 8.0,
     "Corte y Barba": 10.0,
     "Barba Completa": 5.0,
-    "Combo (Corte + Barba+ Mascarilla)": 12.0,
-    "Diseño / Cejas": 2.0,
+    "Combo (Corte + Barba+ Mascarilla)": 13.0,
+    "Diseño / Cejas": 5.0,
 }
 
 BARBEROS = ["Francisco", "Jonder", "Barbero 3"]
@@ -296,7 +300,7 @@ if not st.session_state.autenticado:
       """
         <div style="text-align: center; padding: 15px 0 0 0;">
             <div class="vip-badge">
-                <span class="vip-badge-dot"></span> SI DESEAS LUCIR BIEN NO DUDES EN VISITARNOS
+                <span class="vip-badge-dot"></span> EXPERIENCIA EXCLUSIVA 4K
             </div>
             <div class="hero-title">GOD'S TIME BARBERIA</div>
             <div class="hero-subtitle">⚡ El corte perfecto en el momento exacto. Agenda tu turno sin esperas. ⚡</div>
@@ -305,7 +309,6 @@ if not st.session_state.autenticado:
       unsafe_allow_html=True,
   )
 
-  # Menú principal de clientes divido en dos columnas: Formulario de Cita y Tarifa Oficial de Servicios
   col_form, col_precios = st.columns([1.6, 1])
 
   with col_precios:
@@ -354,6 +357,15 @@ if not st.session_state.autenticado:
           key="servicio_cita_login",
       )
 
+      metodo_pago_c = st.selectbox(
+          "Método de Pago", METODOS_PAGO, key="metodo_pago_login"
+      )
+      referencia_c = st.text_input(
+          "N° de Referencia Bancaria (o 'Efectivo')",
+          placeholder="Ej: 1234 o N/A",
+          key="ref_pago_login",
+      )
+
       precio_est_usd = PRECIOS_CORTES[servicio_c]
 
       btn_agendar_login = st.form_submit_button("CONFIRMAR Y AGENDAR CITA")
@@ -361,6 +373,9 @@ if not st.session_state.autenticado:
     if btn_agendar_login:
       if nombre_c and telefono_c:
         tel_final = limpiar_telefono(telefono_c)
+        ref_final = (
+            referencia_c.strip() if referencia_c.strip() else "Por verificar"
+        )
         nuevo_id = (
             int(datetime.now().timestamp())
             % 100000
@@ -376,17 +391,20 @@ if not st.session_state.autenticado:
             "Hora": hora_c,
             "Servicio": servicio_c,
             "Precio": precio_est_usd,
+            "metodo_pago": metodo_pago_c,
+            "referencia": ref_final,
             "estado": "Pendiente",
         }
         st.session_state.citas_db.append(cita)
         guardar_datos(CITAS_FILE, st.session_state.citas_db)
 
-        # Mensaje detallado para tu WhatsApp personal
+        # Mensaje detallado para tu WhatsApp personal incluyendo pago y referencia
         mensaje = (
             f"🔥 NUEVA CITA RESERVADA EN GOD'S TIME BARBERIA\n\n👤 Cliente:"
             f" {nombre_c}\n📞 Teléfono: {tel_final}\n💈 Barbero:"
             f" {barbero_c}\n📅 Fecha: {fecha_c}\n⏰ Hora: {hora_c}\n✂️ Servicio:"
-            f" {servicio_c}"
+            f" {servicio_c} (${precio_est_usd:.2f})\n💳 Pago: {metodo_pago_c}"
+            f" (Ref: {ref_final})"
         )
         mensaje_encoded = urllib.parse.quote(mensaje)
 
@@ -721,7 +739,7 @@ else:
     else:
       st.write("No hay datos de cortes registrados en la base de datos.")
 
-  # 4. CITAS Y WHATSAPP
+  # 4. CITAS Y WHATSAPP (CON VALIDACIÓN DE PAGO Y REFERENCIA)
   elif opcion_menu == "Citas y WhatsApp":
     st.markdown(
         '<div class="section-header"><i class="fa-regular fa-calendar-days"'
@@ -751,12 +769,25 @@ else:
               key="servicio_cita_admin",
           )
 
+        col_p1, col_p2 = st.columns(2)
+        with col_p1:
+          metodo_pago_admin = st.selectbox(
+              "Método de Pago", METODOS_PAGO, key="metodo_pago_admin_reg"
+          )
+        with col_p2:
+          ref_admin = st.text_input(
+              "N° Referencia Bancaria",
+              placeholder="Ej: 4589",
+              key="ref_admin_reg",
+          )
+
         btn_registrar_cita = st.form_submit_button("AGENDAR CITA EN EL SISTEMA")
 
         if btn_registrar_cita:
           if nombre_c and telefono_c:
             tel_final = limpiar_telefono(telefono_c)
             precio_usd = PRECIOS_CORTES[servicio_c]
+            ref_final = ref_admin.strip() if ref_admin.strip() else "Por verificar"
             nuevo_id = (
                 int(datetime.now().timestamp())
                 % 100000
@@ -772,6 +803,8 @@ else:
                 "Hora": hora_c,
                 "Servicio": servicio_c,
                 "Precio": precio_usd,
+                "metodo_pago": metodo_pago_admin,
+                "referencia": ref_final,
                 "estado": "Pendiente",
             }
             st.session_state.citas_db.append(cita)
@@ -782,14 +815,16 @@ else:
             st.error("Por favor completa nombre y teléfono del cliente.")
 
     st.markdown("---")
-    st.markdown("### 📅 Listado de Citas y Acciones de WhatsApp")
+    st.markdown(
+        "### 📅 Listado de Citas, Validación de Pagos y WhatsApp"
+    )
 
     if not st.session_state.citas_db:
       st.info("No hay citas registradas en este momento.")
     else:
       for idx, cita in enumerate(st.session_state.citas_db):
         with st.container():
-          col1, col2, col3 = st.columns([3, 1.5, 2])
+          col1, col2, col3 = st.columns([3, 1.8, 2])
 
           precio_cita = (
               cita["Precio"]
@@ -797,6 +832,8 @@ else:
               else PRECIOS_CORTES.get(cita.get("Servicio"), 10.0)
           )
           estado_actual = cita.get("estado", "Pendiente")
+          metodo_pago_reg = cita.get("metodo_pago", "PAGO MOVIL")
+          ref_reg = cita.get("referencia", "Por verificar")
 
           with col1:
             st.markdown(f"**👤 Cliente:** {cita.get('Cliente')}")
@@ -805,8 +842,11 @@ else:
                 f" `{cita.get('Barbero')}`"
             )
             st.markdown(
-                f"✂️ Servicio: `{cita.get('Servicio')}` | 🕒"
-                f" **{cita.get('Fecha')} a las {cita.get('Hora')}**"
+                f"✂️ Servicio: `{cita.get('Servicio')}` (${precio_cita:.2f}) |"
+                f" 🕒 **{cita.get('Fecha')} a las {cita.get('Hora')}**"
+            )
+            st.markdown(
+                f"💳 Pago: **{metodo_pago_reg}** | 🔢 Ref: `{ref_reg}`"
             )
 
           with col2:
@@ -816,21 +856,22 @@ else:
               st.warning("Estado: Pendiente ⏳")
 
           with col3:
-            # Botón para confirmar cita
+            # Botón para confirmar cita y validar el pago
             if estado_actual == "Pendiente":
-              if st.button("Confirmar Cita", key=f"btn_conf_{idx}_{cita.get('id', idx)}"):
+              if st.button("Validar y Confirmar", key=f"btn_conf_{idx}_{cita.get('id', idx)}"):
                 st.session_state.citas_db[idx]["estado"] = "Confirmada"
                 guardar_datos(CITAS_FILE, st.session_state.citas_db)
-                st.success("¡Cita confirmada!")
+                st.success("¡Pago validado y cita confirmada!")
                 st.rerun()
 
             # Enlace de WhatsApp automático al número del cliente
             mensaje_cliente = (
                 f"¡Hola {cita.get('Cliente')}! Te escribimos de *God's Time"
-                f" Barberia* para confirmarte tu cita de"
-                f" *{cita.get('Servicio')}* el día *{cita.get('Fecha')}* a las"
-                f" *{cita.get('Hora')}* con el barbero *{cita.get('Barbero')}*."
-                " ¡Te esperamos!"
+                f" Barberia* para confirmarte que hemos recibido tu pago y tu"
+                f" cita de *{cita.get('Servicio')}* para el día"
+                f" *{cita.get('Fecha')}* a las *{cita.get('Hora')}* con el"
+                f" barbero *{cita.get('Barbero')}* está confirmada. ¡Te"
+                " esperamos!"
             )
             mensaje_codificado = urllib.parse.quote(mensaje_cliente)
             link_ws_cliente = f"https://wa.me/{cita.get('Teléfono')}?text={mensaje_codificado}"
