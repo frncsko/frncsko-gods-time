@@ -31,6 +31,7 @@ URL_IMAGEN_FONDO = "https://images.unsplash.com/photo-1503951914875-452162b0f3f1
 # --- PERSISTENCIA LOCAL DE DATOS ---
 CORTES_FILE = "cortes_data.json"
 CITAS_FILE = "citas_data.json"
+VISITAS_FILE = "visitas_data.json"
 
 
 def cargar_datos(archivo, por_defecto):
@@ -65,6 +66,17 @@ if "usuario_actual" not in st.session_state:
   st.session_state.usuario_actual = ""
 if "cortes_db" not in st.session_state:
   st.session_state.cortes_db = cargar_datos(CORTES_FILE, [])
+
+# Contador de visitas persistente
+if "visitas_registradas" not in st.session_state:
+  datos_visitas = cargar_datos(VISITAS_FILE, {"total": 1250})
+  # Si es la primera vez que este usuario abre la sesión en esta pestaña, sumamos 1
+  if "visitado_session" not in st.session_state:
+    datos_visitas["total"] += 1
+    guardar_datos(VISITAS_FILE, datos_visitas)
+    st.session_state.visitado_session = True
+  st.session_state.visitas_total = datos_visitas["total"]
+
 if "citas_db" not in st.session_state:
   citas_cargadas = cargar_datos(CITAS_FILE, [])
   for c in citas_cargadas:
@@ -106,7 +118,6 @@ st.markdown(
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-    /* Forzar colores oscuros globales */
     :root {{
         color-scheme: dark !important;
     }}
@@ -117,7 +128,6 @@ st.markdown(
         background-color: #030712 !important;
     }}
 
-    /* Ocultar el menú superior para evitar cambios no deseados */
     #MainMenu, footer, header {{
         visibility: hidden;
     }}
@@ -130,7 +140,6 @@ st.markdown(
         color: #f8fafc !important;
     }}
 
-    /* Forzar modo oscuro en campos de texto, desplegables y tablas */
     input, select, textarea, div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {{
         background-color: rgba(15, 23, 42, 0.95) !important;
         color: #ffffff !important;
@@ -157,7 +166,7 @@ st.markdown(
         letter-spacing: 1.5px;
         text-transform: uppercase;
         box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
-        margin-bottom: 12px;
+        margin-bottom: 8px;
     }}
 
     .vip-badge-dot {{
@@ -173,6 +182,33 @@ st.markdown(
         0% {{ transform: scale(0.95); opacity: 0.7; }}
         50% {{ transform: scale(1.3); opacity: 1; }}
         100% {{ transform: scale(0.95); opacity: 0.7; }}
+    }}
+
+    /* Estilo del contador de visitas estilo VIP */
+    .visitor-counter {{
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(15, 23, 42, 0.85);
+        border: 1px solid rgba(0, 240, 255, 0.35);
+        padding: 8px 20px;
+        border-radius: 30px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #f8fafc;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        margin-bottom: 15px;
+    }}
+
+    .visitor-counter i {{
+        color: #00f0ff;
+        font-size: 16px;
+    }}
+
+    .visitor-number {{
+        color: #00f0ff;
+        font-weight: 900;
+        letter-spacing: 1px;
     }}
 
     .hero-title {{
@@ -336,11 +372,17 @@ if not st.session_state.autenticado:
           else:
             st.error("Credenciales de acceso incorrectas")
 
+  # Encabezado con insignia, contador de visitas y título principal
   st.markdown(
-      """
-        <div style="text-align: center; padding: 15px 0 0 0;">
+      f"""
+        <div style="text-align: center; padding: 10px 0 0 0;">
             <div class="vip-badge">
                 <span class="vip-badge-dot"></span> EXPERIENCIA EXCLUSIVA 4K
+            </div>
+            <div>
+                <div class="visitor-counter">
+                    <i class="fa-solid fa-users-viewfinder"></i> Visitas a la App: <span class="visitor-number">{st.session_state.visitas_total:,}</span>
+                </div>
             </div>
             <div class="hero-title">GOD'S TIME BARBERIA</div>
             <div class="hero-subtitle">⚡ El corte perfecto en el momento exacto. Agenda tu turno sin esperas. ⚡</div>
