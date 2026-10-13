@@ -6,14 +6,14 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-# Configuración de la página: Forzada en Modo Ancho (Ordenador)
+# Configuración de la página
 st.set_page_config(
     page_title="GOD'S TIME BARBERIA | 4K VIP Experience",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# --- CONFIGURACIÓN DE TUS REDES Y WHATSAPP ---
+# --- CONFIGURACIÓN DE TUS REDES, WHATSAPP Y FONDO ---
 MI_NUMERO_WHATSAPP = "584125205165"
 INSTAGRAM_URL = (
     "https://instagram.com/godstimebarberia?xtok=MWZxZTc0c2l0aTJ2bw%3D%3D"
@@ -24,6 +24,9 @@ TIKTOK_URL = (
 TIKTOK_PERSONAL_URL = (
     "https://www.tiktok.com/@franbarb3r?is_from_webapp=1&sender_device=pc"
 )
+
+# Imagen de fondo profesional (estilo oscuro 4K)
+URL_IMAGEN_FONDO = "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=1920&auto=format&fit=crop"
 
 # --- PERSISTENCIA LOCAL DE DATOS ---
 CORTES_FILE = "cortes_data.json"
@@ -85,8 +88,8 @@ PRECIOS_CORTES = {
     "Corte Clásico": 8.0,
     "Corte y Barba": 10.0,
     "Barba Completa": 5.0,
-    "Combo (Corte + Barba+ Mascarilla)": 12.0,
-    "Diseño / Cejas": 2.0,
+    "Combo (Corte + Barba+ Mascarilla)": 13.0,
+    "Diseño / Cejas": 5.0,
 }
 
 BARBEROS = ["Francisco", "Jonder", "Barbero 3"]
@@ -96,43 +99,45 @@ OPCIONES_HORAS = [
     time(h, m).strftime("%I:%M %p") for h in range(8, 20) for m in (0, 30)
 ]
 
-# --- ESTILOS 4K ULTRA MODERNOS & MODO OSCURO FORZADO ---
+# --- ESTILOS 4K CON FONDO Y MODO OSCURO FORZADO ---
 st.markdown(
-    """
+    f"""
     <style>
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-    html, body, [class*="css"] {
+    html, body, [class*="css"] {{
         font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
-    }
+    }}
 
-    /* Forzar diseño de pantalla ancha / ordenador y tema oscuro absoluto */
-    .stApp {
-        background: radial-gradient(circle at 50% -20%, #0c1a36 0%, #030712 60%, #010308 100%) !important;
+    .stApp {{
+        background: linear-gradient(rgba(3, 7, 18, 0.88), rgba(3, 7, 18, 0.94)), url("{URL_IMAGEN_FONDO}") !important;
+        background-size: cover !important;
+        background-position: center center !important;
+        background-attachment: fixed !important;
         color: #f8fafc !important;
-    }
+    }}
 
-    input, select, textarea {
+    input, select, textarea {{
         background-color: rgba(15, 23, 42, 0.9) !important;
         color: #ffffff !important;
         border: 1px solid rgba(0, 240, 255, 0.3) !important;
         border-radius: 12px !important;
-    }
+    }}
 
-    div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {
+    div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {{
         background-color: rgba(15, 23, 42, 0.9) !important;
         color: #ffffff !important;
         border: 1px solid rgba(0, 240, 255, 0.3) !important;
         border-radius: 12px !important;
-    }
+    }}
 
-    .stTextInput label, .stSelectbox label, .stDateInput label {
+    .stTextInput label, .stSelectbox label, .stDateInput label {{
         color: #cbd5e1 !important;
         font-weight: 600 !important;
-    }
+    }}
 
-    .vip-badge {
+    .vip-badge {{
         display: inline-flex;
         align-items: center;
         gap: 8px;
@@ -147,24 +152,24 @@ st.markdown(
         text-transform: uppercase;
         box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
         margin-bottom: 12px;
-    }
+    }}
 
-    .vip-badge-dot {
+    .vip-badge-dot {{
         width: 8px;
         height: 8px;
         background-color: #00f0ff;
         border-radius: 50%;
         box-shadow: 0 0 10px #00f0ff;
         animation: pulse 1.8s infinite ease-in-out;
-    }
+    }}
 
-    @keyframes pulse {
-        0% { transform: scale(0.95); opacity: 0.7; }
-        50% { transform: scale(1.3); opacity: 1; }
-        100% { transform: scale(0.95); opacity: 0.7; }
-    }
+    @keyframes pulse {{
+        0% {{ transform: scale(0.95); opacity: 0.7; }}
+        50% {{ transform: scale(1.3); opacity: 1; }}
+        100% {{ transform: scale(0.95); opacity: 0.7; }}
+    }}
 
-    .hero-title {
+    .hero-title {{
         font-family: 'Outfit', sans-serif;
         font-size: 42px;
         font-weight: 900;
@@ -175,17 +180,17 @@ st.markdown(
         letter-spacing: 2px;
         margin-bottom: 5px;
         text-transform: uppercase;
-    }
+    }}
 
-    .hero-subtitle {
+    .hero-subtitle {{
         text-align: center;
         color: #94a3b8;
         font-size: 15px;
         font-weight: 500;
         margin-bottom: 25px;
-    }
+    }}
 
-    .stButton > button {
+    .stButton > button {{
         position: relative !important;
         background: linear-gradient(135deg, #00f0ff 0%, #0072ff 50%, #7928ca 100%) !important;
         color: #ffffff !important;
@@ -200,9 +205,9 @@ st.markdown(
         box-shadow: 0 10px 30px rgba(0, 240, 255, 0.4), inset 0 2px 6px rgba(255, 255, 255, 0.6) !important;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         overflow: hidden !important;
-    }
+    }}
 
-    .stButton > button::after {
+    .stButton > button::after {{
         content: '';
         position: absolute;
         top: -50%;
@@ -212,20 +217,20 @@ st.markdown(
         background: rgba(255, 255, 255, 0.35);
         transform: rotate(30deg);
         animation: shine 3s infinite linear;
-    }
+    }}
 
-    @keyframes shine {
-        0% { left: -60%; }
-        20% { left: 120%; }
-        100% { left: 120%; }
-    }
+    @keyframes shine {{
+        0% {{ left: -60%; }}
+        20% {{ left: 120%; }}
+        100% {{ left: 120%; }}
+    }}
 
-    .stButton > button:hover {
+    .stButton > button:hover {{
         box-shadow: 0 15px 40px rgba(0, 240, 255, 0.7), inset 0 2px 10px rgba(255, 255, 255, 0.9) !important;
         transform: translateY(-3px) scale(1.01) !important;
-    }
+    }}
 
-    .btn-ws-glow {
+    .btn-ws-glow {{
         display: flex;
         align-items: center;
         justify-content: center;
@@ -238,9 +243,9 @@ st.markdown(
         font-weight: 800;
         font-size: 15px;
         box-shadow: 0 12px 30px rgba(16, 185, 129, 0.4);
-    }
+    }}
 
-    .social-btn {
+    .social-btn {{
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -254,33 +259,33 @@ st.markdown(
         width: 100%;
         margin-bottom: 8px;
         transition: opacity 0.2s;
-    }
-    .social-btn:hover { opacity: 0.85; }
-    .btn-ig { background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); }
-    .btn-tk { background: #000000; border: 1px solid rgba(255,255,255,0.2); }
+    }}
+    .social-btn:hover {{ opacity: 0.85; }}
+    .btn-ig {{ background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); }}
+    .btn-tk {{ background: #000000; border: 1px solid rgba(255,255,255,0.2); }}
 
-    [data-testid="stSidebar"] {
-        background: rgba(4, 9, 20, 0.85) !important;
+    [data-testid="stSidebar"] {{
+        background: rgba(4, 9, 20, 0.92) !important;
         backdrop-filter: blur(20px);
         border-right: 1px solid rgba(0, 240, 255, 0.15) !important;
-    }
+    }}
 
-    [data-testid="stSidebar"] .stRadio label {
+    [data-testid="stSidebar"] .stRadio label {{
         background: rgba(15, 23, 42, 0.6) !important;
         border-radius: 14px !important;
         padding: 14px 18px !important;
         color: #cbd5e1 !important;
         font-weight: 600 !important;
         border: 1px solid rgba(255, 255, 255, 0.05) !important;
-    }
+    }}
 
-    [data-testid="stSidebar"] .stRadio div[aria-checked="true"] + label {
+    [data-testid="stSidebar"] .stRadio div[aria-checked="true"] + label {{
         background: linear-gradient(135deg, rgba(0, 240, 255, 0.2) 0%, rgba(0, 114, 255, 0.3) 100%) !important;
         color: #00f0ff !important;
         border: 1px solid rgba(0, 240, 255, 0.6) !important;
-    }
+    }}
 
-    .section-header {
+    .section-header {{
         font-family: 'Outfit', sans-serif;
         font-size: 22px;
         font-weight: 700;
@@ -291,7 +296,7 @@ st.markdown(
         border-bottom: 2px solid rgba(0, 240, 255, 0.2);
         padding-bottom: 12px;
         margin-bottom: 24px;
-    }
+    }}
     </style>
     """,
     unsafe_allow_html=True,
@@ -608,7 +613,7 @@ else:
     with c1:
       st.markdown(
           f"""
-            <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(0,240,255,0.3); border-radius: 20px; text-align: center; padding: 20px;">
+            <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(0,240,255,0.3); border-radius: 20px; text-align: center; padding: 20px;">
                 <div style="color: #00f0ff; font-size: 13px; font-weight: 700; text-transform: uppercase;">Cortes Hoy</div>
                 <div style="font-size: 36px; font-weight: 800; color: #00f0ff; margin-top: 8px;">{cortes_hoy}</div>
             </div>
@@ -618,7 +623,7 @@ else:
     with c2:
       st.markdown(
           f"""
-            <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; text-align: center; padding: 20px;">
+            <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; text-align: center; padding: 20px;">
                 <div style="color: #94a3b8; font-size: 13px; font-weight: 600; text-transform: uppercase;">Total Cortes</div>
                 <div style="font-size: 36px; font-weight: 800; color: #3b82f6; margin-top: 8px;">{total_cortes}</div>
             </div>
@@ -628,7 +633,7 @@ else:
     with c3:
       st.markdown(
           f"""
-            <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; text-align: center; padding: 20px;">
+            <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; text-align: center; padding: 20px;">
                 <div style="color: #94a3b8; font-size: 13px; font-weight: 600; text-transform: uppercase;">Ingresos Totales</div>
                 <div style="font-size: 32px; font-weight: 800; color: #10b981; margin-top: 8px;">${total_ingresos_usd:.2f}</div>
             </div>
@@ -638,7 +643,7 @@ else:
     with c4:
       st.markdown(
           f"""
-            <div style="background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; text-align: center; padding: 20px;">
+            <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; text-align: center; padding: 20px;">
                 <div style="color: #94a3b8; font-size: 13px; font-weight: 600; text-transform: uppercase;">Citas Pendientes</div>
                 <div style="font-size: 36px; font-weight: 800; color: #f59e0b; margin-top: 8px;">{citas_pendientes}</div>
             </div>
