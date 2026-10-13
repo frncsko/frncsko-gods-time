@@ -501,7 +501,7 @@ else:
         "✂️ Registrar Corte": "Registrar Corte",
         "💈 Historial Barberos": "Historial Barberos",
         "📅 Citas y WhatsApp": "Citas y WhatsApp",
-        "⚙️ Administración": "RESET",
+        "⚙️ Administración": "Administración",
     }
 
     seleccion_label = st.radio(
