@@ -305,13 +305,26 @@ if not st.session_state.autenticado:
       unsafe_allow_html=True,
   )
 
-  col_c1, col_c2, col_c3 = st.columns([0.5, 3, 0.5])
-  with col_c2:
+  # Menú principal de clientes divido en dos columnas: Formulario de Cita y Tarifa Oficial de Servicios
+  col_form, col_precios = st.columns([1.6, 1])
+
+  with col_precios:
+    st.markdown(
+        "<h3 style='color: #00f0ff; font-weight: 700; margin-bottom: 15px;'><i"
+        " class='fa-solid fa-tags'></i> Tarifa Oficial</h3>",
+        unsafe_allow_html=True,
+    )
+    precios_publicos = [
+        {"Servicio": k, "Precio": f"${v:.2f}"} for k, v in PRECIOS_CORTES.items()
+    ]
+    st.table(pd.DataFrame(precios_publicos))
+
+  with col_form:
     with st.form("form_cita_login"):
       st.markdown(
-          "<h3 style='text-align: center; color: #ffffff; margin-bottom: 20px;"
-          " font-weight: 700;'><i class='fa-regular fa-calendar-check'"
-          " style='color:#00f0ff;'></i> Reserva Tu Cita Online</h3>",
+          "<h3 style='color: #ffffff; margin-bottom: 20px; font-weight:"
+          " 700;'><i class='fa-regular fa-calendar-check' style='color:#00f0ff;'>"
+          "</i> Reserva Tu Cita Online</h3>",
           unsafe_allow_html=True,
       )
 
