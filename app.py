@@ -32,6 +32,7 @@ URL_IMAGEN_FONDO = "https://images.unsplash.com/photo-1503951914875-452162b0f3f1
 CORTES_FILE = "cortes_data.json"
 CITAS_FILE = "citas_data.json"
 VISITAS_FILE = "visitas_data.json"
+LIKES_FILE = "likes_data.json"
 
 
 def cargar_datos(archivo, por_defecto):
@@ -68,14 +69,22 @@ if "cortes_db" not in st.session_state:
   st.session_state.cortes_db = cargar_datos(CORTES_FILE, [])
 
 # Contador de visitas persistente
-if "visitas_registradas" not in st.session_state:
+if "visitado_session" not in st.session_state:
   datos_visitas = cargar_datos(VISITAS_FILE, {"total": 1250})
-  # Si es la primera vez que este usuario abre la sesión en esta pestaña, sumamos 1
-  if "visitado_session" not in st.session_state:
-    datos_visitas["total"] += 1
-    guardar_datos(VISITAS_FILE, datos_visitas)
-    st.session_state.visitado_session = True
+  datos_visitas["total"] += 1
+  guardar_datos(VISITAS_FILE, datos_visitas)
+  st.session_state.visitado_session = True
   st.session_state.visitas_total = datos_visitas["total"]
+else:
+  datos_visitas = cargar_datos(VISITAS_FILE, {"total": 1250})
+  st.session_state.visitas_total = datos_visitas["total"]
+
+# Sistema de Likes persistente
+if "likes_total" not in st.session_state:
+  datos_likes = cargar_datos(LIKES_FILE, {"total": 840})
+  st.session_state.likes_total = datos_likes["total"]
+if "usuario_dio_like" not in st.session_state:
+  st.session_state.usuario_dio_like = False
 
 if "citas_db" not in st.session_state:
   citas_cargadas = cargar_datos(CITAS_FILE, [])
@@ -184,28 +193,34 @@ st.markdown(
         100% {{ transform: scale(0.95); opacity: 0.7; }}
     }}
 
-    /* Estilo del contador de visitas estilo VIP */
-    .visitor-counter {{
+    .stats-container {{
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }}
+
+    .stat-pill {{
         display: inline-flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         background: rgba(15, 23, 42, 0.85);
         border: 1px solid rgba(0, 240, 255, 0.35);
-        padding: 8px 20px;
+        padding: 8px 18px;
         border-radius: 30px;
         font-size: 14px;
         font-weight: 700;
         color: #f8fafc;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        margin-bottom: 15px;
     }}
 
-    .visitor-counter i {{
+    .stat-pill i {{
         color: #00f0ff;
-        font-size: 16px;
+        font-size: 15px;
     }}
 
-    .visitor-number {{
+    .stat-number {{
         color: #00f0ff;
         font-weight: 900;
         letter-spacing: 1px;
@@ -372,16 +387,19 @@ if not st.session_state.autenticado:
           else:
             st.error("Credenciales de acceso incorrectas")
 
-  # Encabezado con insignia, contador de visitas y título principal
+  # Encabezado con insignia, contadores de visitas y likes
   st.markdown(
       f"""
         <div style="text-align: center; padding: 10px 0 0 0;">
             <div class="vip-badge">
                 <span class="vip-badge-dot"></span> EXPERIENCIA EXCLUSIVA 4K
             </div>
-            <div>
-                <div class="visitor-counter">
-                    <i class="fa-solid fa-users-viewfinder"></i> Visitas a la App: <span class="visitor-number">{st.session_state.visitas_total:,}</span>
+            <div class="stats-container">
+                <div class="stat-pill">
+                    <i class="fa-solid fa-users-viewfinder"></i> Visitas: <span class="stat-number">{st.session_state.visitas_total:,}</span>
+                </div>
+                <div class="stat-pill">
+                    <i class="fa-solid fa-heart" style="color: #ef4444;"></i> Likes: <span class="stat-number" style="color: #ef4444;">{st.session_state.likes_total:,}</span>
                 </div>
             </div>
             <div class="hero-title">GOD'S TIME BARBERIA</div>
@@ -390,6 +408,21 @@ if not st.session_state.autenticado:
     """,
       unsafe_allow_html=True,
   )
+
+  # Botón interactivo de Like justo debajo del subtítulo
+  col_like_centro = st.columns([1, 1.5, 1])
+  with col_like_centro[1]:
+    texto_btn_like = (
+        "❤️ ¡Gracias por tu Like!"
+        if st.session_state.usuario_dio_like
+        else "❤️ Dar Me Gusta a la Barbería"
+    )
+    if st.button(texto_btn_like, key="btn_like_principal"):
+      if not st.session_state.usuario_dio_like:
+        st.session_state.likes_total += 1
+        st.session_state.usuario_dio_like = True
+        guardar_datos(LIKES_FILE, {"total": st.session_state.likes_total})
+        st.rerun()
 
   col_form, col_precios = st.columns([1.6, 1])
 
