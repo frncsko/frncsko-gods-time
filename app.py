@@ -8,7 +8,7 @@ import streamlit as st
 
 # Configuración de la página
 st.set_page_config(
-    page_title="GOD'S TIME BARBERIA | 4K VIP Experience",
+    page_title="GOD'S TIME BARBERIA | VIP Experience",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -296,7 +296,7 @@ if not st.session_state.autenticado:
       """
         <div style="text-align: center; padding: 15px 0 0 0;">
             <div class="vip-badge">
-                <span class="vip-badge-dot"></span> EXPERIENCIA EXCLUSIVA 4K
+                <span class="vip-badge-dot"></span> SI DESEAS LUCIR BIEN NO DUDES EN VISITARNOS
             </div>
             <div class="hero-title">GOD'S TIME BARBERIA</div>
             <div class="hero-subtitle">⚡ El corte perfecto en el momento exacto. Agenda tu turno sin esperas. ⚡</div>
