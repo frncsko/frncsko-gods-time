@@ -4,7 +4,6 @@ import os
 import urllib.parse
 import pandas as pd
 import plotly.express as px
-import requests
 import streamlit as st
 
 # Configuración de la página
@@ -20,7 +19,6 @@ MI_NUMERO_WHATSAPP = "584125205165"
 # --- PERSISTENCIA LOCAL DE DATOS ---
 CORTES_FILE = "cortes_data.json"
 CITAS_FILE = "citas_data.json"
-CONFIG_FILE = "config_data.json"
 
 
 def cargar_datos(archivo, por_defecto):
@@ -36,20 +34,6 @@ def cargar_datos(archivo, por_defecto):
 def guardar_datos(archivo, datos):
   with open(archivo, "w", encoding="utf-8") as f:
     json.dump(datos, f, ensure_ascii=False, indent=4)
-
-
-# --- FUNCIÓN PARA OBTENER TASA BCV AUTOMÁTICA ---
-def obtener_tasa_bcv_auto():
-  try:
-    response = requests.get(
-        "https://rates.dolarvzla.com/bcv/latest.json", timeout=4
-    )
-    if response.status_code == 200:
-      data = response.json()
-      return float(data.get("usd", 36.50))
-  except Exception:
-    pass
-  return None
 
 
 def limpiar_telefono(telefono):
@@ -70,7 +54,6 @@ if "usuario_actual" not in st.session_state:
 if "cortes_db" not in st.session_state:
   st.session_state.cortes_db = cargar_datos(CORTES_FILE, [])
 if "citas_db" not in st.session_state:
-  # Aseguramos que cada cita traiga un estado por defecto ("Pendiente")
   citas_cargadas = cargar_datos(CITAS_FILE, [])
   for c in citas_cargadas:
     if "estado" not in c:
@@ -78,14 +61,6 @@ if "citas_db" not in st.session_state:
     if "id" not in c:
       c["id"] = abs(hash(c.get("Cliente", "") + str(c.get("Fecha", "")))) % 100000
   st.session_state.citas_db = citas_cargadas
-
-config_cargada = cargar_datos(CONFIG_FILE, {"tasa_bcv": 36.50})
-tasa_en_red = obtener_tasa_bcv_auto()
-
-if tasa_en_red:
-  st.session_state.tasa_bcv = tasa_en_red
-else:
-  st.session_state.tasa_bcv = config_cargada.get("tasa_bcv", 36.50)
 
 # CREDENCIALES Y ROLES DE USUARIOS
 USUARIOS = {
@@ -194,16 +169,6 @@ st.markdown(
         font-size: 15px;
         font-weight: 500;
         margin-bottom: 25px;
-    }
-
-    .price-preview-card {
-        background: linear-gradient(135deg, rgba(0, 240, 255, 0.08) 0%, rgba(0, 114, 255, 0.12) 100%);
-        border: 1px dashed rgba(0, 240, 255, 0.4);
-        border-radius: 16px;
-        padding: 16px;
-        text-align: center;
-        margin-top: 15px;
-        margin-bottom: 20px;
     }
 
     .stButton > button {
@@ -328,10 +293,10 @@ if not st.session_state.autenticado:
             st.error("Credenciales de acceso incorrectas")
 
   st.markdown(
-      f"""
-        <div style="text-align: center; padding: 10px 0 0 0;">
+      """
+        <div style="text-align: center; padding: 15px 0 0 0;">
             <div class="vip-badge">
-                <span class="vip-badge-dot"></span> TASA BCV ACTUAL: {st.session_state.tasa_bcv:.2f} BS
+                <span class="vip-badge-dot"></span> EXPERIENCIA EXCLUSIVA 4K
             </div>
             <div class="hero-title">GOD'S TIME BARBERIA</div>
             <div class="hero-subtitle">⚡ El corte perfecto en el momento exacto. Agenda tu turno sin esperas. ⚡</div>
@@ -378,16 +343,6 @@ if not st.session_state.autenticado:
 
       precio_est_usd = PRECIOS_CORTES[servicio_c]
 
-      st.markdown(
-          f"""
-            <div class="price-preview-card">
-                <span style="color: #94a3b8; font-size: 13px; font-weight: 600;">VALOR DEL SERVICIO:</span><br>
-                <b style="color: #00f0ff; font-size: 26px;">${precio_est_usd:.2f} USD</b>
-            </div>
-        """,
-          unsafe_allow_html=True,
-      )
-
       btn_agendar_login = st.form_submit_button("CONFIRMAR Y AGENDAR CITA")
 
     if btn_agendar_login:
@@ -418,7 +373,7 @@ if not st.session_state.autenticado:
             f"🔥 NUEVA CITA RESERVADA EN GOD'S TIME BARBERIA\n\n👤 Cliente:"
             f" {nombre_c}\n📞 Teléfono: {tel_final}\n💈 Barbero:"
             f" {barbero_c}\n📅 Fecha: {fecha_c}\n⏰ Hora: {hora_c}\n✂️ Servicio:"
-            f" {servicio_c} (${precio_est_usd:.2f})"
+            f" {servicio_c}"
         )
         mensaje_encoded = urllib.parse.quote(mensaje)
 
@@ -486,25 +441,6 @@ else:
     opcion_menu = opciones_menu[seleccion_label]
 
     st.markdown("---")
-
-    st.markdown(
-        f"<p style='font-size: 12px; color: #00f0ff; font-weight: 800;"
-        " letter-spacing: 1px; margin-bottom: 8px;'>💵 TASA BCV (Auto): <b>"
-        f"{st.session_state.tasa_bcv:.2f} BS</b></p>",
-        unsafe_allow_html=True,
-    )
-    nueva_tasa_input = st.number_input(
-        "Tasa BS",
-        value=float(st.session_state.tasa_bcv),
-        step=0.10,
-        label_visibility="collapsed",
-    )
-    if st.button("FORZAR O CAMBIAR TASA"):
-      st.session_state.tasa_bcv = nueva_tasa_input
-      guardar_datos(CONFIG_FILE, {"tasa_bcv": nueva_tasa_input})
-      st.success(f"Tasa fijada manualmente: {nueva_tasa_input:.2f} BS")
-      st.rerun()
-
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("🚪 Cerrar Sesión"):
       st.session_state.autenticado = False
@@ -772,7 +708,7 @@ else:
     else:
       st.write("No hay datos de cortes registrados en la base de datos.")
 
-  # 4. CITAS Y WHATSAPP (CON BOTÓN DE CONFIRMACIÓN Y WHATSAPP AUTOMÁTICO)
+  # 4. CITAS Y WHATSAPP
   elif opcion_menu == "Citas y WhatsApp":
     st.markdown(
         '<div class="section-header"><i class="fa-regular fa-calendar-days"'
@@ -856,8 +792,8 @@ else:
                 f" `{cita.get('Barbero')}`"
             )
             st.markdown(
-                f"✂️ Servicio: `{cita.get('Servicio')}` (${precio_cita:.2f}) |"
-                f" 🕒 **{cita.get('Fecha')} a las {cita.get('Hora')}**"
+                f"✂️ Servicio: `{cita.get('Servicio')}` | 🕒"
+                f" **{cita.get('Fecha')} a las {cita.get('Hora')}**"
             )
 
           with col2:
@@ -879,9 +815,9 @@ else:
             mensaje_cliente = (
                 f"¡Hola {cita.get('Cliente')}! Te escribimos de *God's Time"
                 f" Barberia* para confirmarte tu cita de"
-                f" *{cita.get('Servicio')}* (${precio_cita:.2f}) el día"
-                f" *{cita.get('Fecha')}* a las *{cita.get('Hora')}* con el"
-                f" barbero *{cita.get('Barbero')}*. ¡Te esperamos!"
+                f" *{cita.get('Servicio')}* el día *{cita.get('Fecha')}* a las"
+                f" *{cita.get('Hora')}* con el barbero *{cita.get('Barbero')}*."
+                " ¡Te esperamos!"
             )
             mensaje_codificado = urllib.parse.quote(mensaje_cliente)
             link_ws_cliente = f"https://wa.me/{cita.get('Teléfono')}?text={mensaje_codificado}"
