@@ -1,116 +1,258 @@
 import streamlit as st
 
-st.set_page_config(page_title="Fran ADS", layout="wide")
+st.set_page_config(
+    page_title="Fran ADS",
+    page_icon="💳",
+    layout="centered",
+    initial_sidebar_state="collapsed"
+)
 
-# Estados de sesion
-if "saldo" not in st.session_state:
-    st.session_state.saldo = 350.0
+# ----------------- CREDENCIALES ADMINISTRADOR -----------------
+ADMIN_USER = "fran"
+ADMIN_PASS = "1234"
 
-if "bono_listo" not in st.session_state:
-    st.session_state.bono_listo = False
+# ----------------- ESTADOS DE SESIÓN -----------------
+if "autenticado" not in st.session_state:
+    st.session_state.autenticado = False
 
-if "campanas" not in st.session_state:
-    # Datos base compactados para evitar cortes de linea
-    datos_raw = [
-        (1, "Promo VIP", "TikTok Reels", "Activo", "3,120", 15.0, "Radio Local"),
-        (2, "Audiencia Local", "Instagram Feed", "Activo", "1,240", 10.0, "General 18-35"),
-        (3, "Lanzamiento Edicion", "Shorts", "Pausado", "470", 5.0, "Moda y Estilo"),
-        (4, "Branding Semanal", "Display Red", "Activo", "890", 8.0, "Remarketing")
-    ]
-    st.session_state.campanas = [
-        {"id": d[0], "nombre": d[1], "red": d[2], "estado": d[3], "clics": d[4], "presupuesto": d[5], "aud": d[6]}
-        for d in datos_raw
-    ]
+if "mostrar_login" not in st.session_state:
+    st.session_state.mostrar_login = False
 
-# Deteccion segura de link de referido (?ref=...)
-ref_code = None
-try:
-    if hasattr(st, "query_params"):
-        ref_code = st.query_params.get("ref", None)
-except Exception:
-    pass
+if "saldo_nuevo_usuario" not in st.session_state:
+    st.session_state.saldo_nuevo_usuario = 10.00  # Bono de $10 USD para nuevos usuarios
 
-if ref_code and not st.session_state.bono_listo:
-    st.session_state.saldo += 10.0
-    st.session_state.bono_listo = True
+if "bonus_reclamado" not in st.session_state:
+    st.session_state.bonus_reclamado = True
 
-# Barra lateral
-with st.sidebar:
-    st.title("Fran ADS")
-    st.divider()
-    menu = st.radio("Menu", ["Panel General", "Programa de Referidos"])
-    st.divider()
-    st.metric("Saldo Disponible", f"${st.session_state.saldo:.2f} USD")
-    if st.session_state.bono_listo:
-        st.success("Bono $10 USD activo")
+# ----------------- ESTILOS EXACTOS DE LA IMAGEN -----------------
+st.markdown("""
+<style>
+    /* Fondo general oscuro estilo AdSelect */
+    .stApp {
+        background-color: #000000;
+        color: #ffffff;
+    }
+    header, footer {
+        visibility: hidden;
+    }
+    .block-container {
+        max-width: 440px !important;
+        padding-top: 1.5rem !important;
+        padding-bottom: 2rem !important;
+    }
 
-# Secciones
-if menu == "Programa de Referidos":
-    st.title("Enlace de Registro y Bono")
-    st.write("Comparte este enlace para nuevos usuarios ($10.00 USD de bienvenida):")
-    st.code("https://frncsko-gods-time.streamlit.app/?ref=FRAN10", language="text")
-    st.divider()
-    st.subheader("Registro Manual")
-    with st.form("form_ref"):
-        nombre = st.text_input("Nombre de Usuario")
-        enviar = st.form_submit_button("Registrar con Bono", type="primary")
-        if enviar:
-            if not st.session_state.bono_listo:
-                st.session_state.saldo += 10.0
-                st.session_state.bono_listo = True
-                st.success(f"Usuario {nombre} registrado (+ $10.00 USD)")
-                st.rerun()
-            else:
-                st.info("El bono ya fue aplicado en esta sesion.")
-else:
-    if st.session_state.bono_listo and ref_code:
-        st.success("Bono de bienvenida de $10.00 USD acreditado exitosamente.")
+    /* Tarjeta principal estilo tarjeta de crédito */
+    .credit-card {
+        background: linear-gradient(145deg, #18181a 0%, #0d0d0f 100%);
+        border: 1px solid #28282e;
+        border-radius: 20px;
+        padding: 24px;
+        position: relative;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+        margin-bottom: 20px;
+    }
+    .card-brand {
+        font-family: 'Courier New', Courier, monospace;
+        letter-spacing: 3px;
+        font-size: 13px;
+        color: #9c9ca3;
+        text-transform: uppercase;
+    }
+    .card-chip {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        width: 38px;
+        height: 28px;
+        background: linear-gradient(135deg, #d4af37 0%, #aa8c2c 100%);
+        border-radius: 6px;
+        border: 1px solid #7a631c;
+    }
+    .card-balance {
+        font-family: 'Times New Roman', serif;
+        font-size: 42px;
+        font-weight: 500;
+        color: #ffffff;
+        margin: 25px 0 15px 0;
+    }
+    .card-user {
+        font-family: 'Courier New', Courier, monospace;
+        letter-spacing: 2px;
+        font-size: 12px;
+        color: #8f8f99;
+        text-transform: uppercase;
+    }
 
-    c_tit, c_btn = st.columns([3, 1])
-    c_tit.title("Panel de Control - Fran ADS")
-    c_btn.button("+ Nuevo Creativo", use_container_width=True, type="primary")
+    /* Botón Cash Out */
+    div[data-testid="stButton"] > button.cashout-btn {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        font-weight: 600 !important;
+        font-size: 16px !important;
+        border-radius: 14px !important;
+        height: 48px !important;
+        width: 100% !important;
+        border: none !important;
+    }
 
-    # KPIs
-    k1, k2, k3, k4 = st.columns(4)
-    k1.metric("Impresiones", "124,520", "+12.4%")
-    k2.metric("Clics", "4,830", "+8.1%")
-    k3.metric("CTR", "3.88%", "+0.45%")
-    k4.metric("Gasto", "$38.00", "-$7.20")
+    /* Tarjeta Daily Bonus */
+    .bonus-card {
+        background-color: #0f0f12;
+        border: 1px solid #1f1f26;
+        border-radius: 18px;
+        padding: 16px;
+        margin-top: 18px;
+    }
+    .streak-dots {
+        display: flex;
+        gap: 6px;
+        margin: 12px 0;
+    }
+    .dot-active {
+        width: 22px;
+        height: 5px;
+        background-color: #d4af37;
+        border-radius: 4px;
+    }
+    .dot-inactive {
+        width: 14px;
+        height: 5px;
+        background-color: #27272f;
+        border-radius: 4px;
+    }
 
-    st.divider()
-    col_izq, col_der = st.columns([1.8, 1.2], gap="large")
+    /* Caja Earned Today */
+    .earned-card {
+        background-color: #0a0a0d;
+        border: 1px solid #1a1a22;
+        border-radius: 14px;
+        padding: 14px 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+    }
+</style>
+""", unsafe_allow_html=True)
 
-    with col_izq:
-        st.subheader("Campanas en Circulacion")
-        for c in st.session_state.campanas:
-            with st.container(border=True):
-                info, badge, accion = st.columns([3, 1, 1])
-                info.markdown(f"**{c['nombre']}** ({c['red']})  \n{c['clics']} clics  •  ${c['presupuesto']:.2f}/dia")
-                if c["estado"] == "Activo":
-                    badge.success("Activo")
-                else:
-                    badge.warning("Pausado")
-                btn_txt = "Pausar" if c["estado"] == "Activo" else "Activar"
-                if accion.button(btn_txt, key=f"btn_{c['id']}", use_container_width=True):
-                    c["estado"] = "Pausado" if c["estado"] == "Activo" else "Activo"
-                    st.rerun()
 
-    with col_der:
-        st.subheader("Ajuste de Campana")
+# =========================================================
+# VISTA 1: INTERFAZ DE USUARIO NUEVO (ESTILO ADSELECT)
+# =========================================================
+def vista_usuario_nuevo():
+    # Barra superior discreta
+    c_logo, c_admin = st.columns([3, 1])
+    with c_admin:
+        if st.button("Acceso Admin", use_container_width=True):
+            st.session_state.mostrar_login = not st.session_state.mostrar_login
+            st.rerun()
+
+    # Formulario desplegable si toca "Acceso Admin"
+    if st.session_state.mostrar_login:
         with st.container(border=True):
-            st.info("Formato 9:16 (TikTok / Reels)")
-            nombres = [c["nombre"] for c in st.session_state.campanas]
-            sel = st.selectbox("Seleccionar", nombres)
-            item = next(x for x in st.session_state.campanas if x["nombre"] == sel)
+            st.caption("Panel Privado (fran / 1234)")
+            user = st.text_input("Usuario", key="login_u")
+            clave = st.text_input("Clave", type="password", key="login_p")
+            if st.button("Ingresar al Gestor", type="primary", use_container_width=True):
+                if user == ADMIN_USER and clave == ADMIN_PASS:
+                    st.session_state.autenticado = True
+                    st.session_state.mostrar_login = False
+                    st.rerun()
+                else:
+                    st.error("Credenciales incorrectas")
 
-            nuevo_p = st.slider("Presupuesto USD", 5.0, 150.0, float(item["presupuesto"]), 1.0)
-            auds = ["Radio Local", "General 18-35", "Moda y Estilo", "Remarketing"]
-            nueva_a = st.selectbox("Audiencia", auds, index=auds.index(item["aud"]) if item["aud"] in auds else 0)
-            estado = st.toggle("En Emision", value=(item["estado"] == "Activo"))
+    # 1. Tarjeta bancaria negra (AdSelect Card)
+    st.markdown(f"""
+    <div class="credit-card">
+        <div class="card-brand">FRAN ADS</div>
+        <div class="card-chip"></div>
+        <div class="card-balance">${st.session_state.saldo_nuevo_usuario:.2f}</div>
+        <div class="card-user">NUEVO MIEMBRO</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-            if st.button("Guardar Cambios", type="primary", use_container_width=True):
-                item["presupuesto"] = nuevo_p
-                item["aud"] = nueva_a
-                item["estado"] = "Activo" if estado else "Pausado"
-                st.success("Guardado con exito.")
-                st.rerun()
+    # 2. Botón Cash Out
+    col_co1, col_co2, col_co3 = st.columns([1, 2, 1])
+    with col_co2:
+        if st.button("Cash Out", key="btn_cashout", use_container_width=True):
+            st.info("Mínimo de retiro: $50.00 USD. Completa tus misiones diarias para retirar.")
+
+    # 3. Módulo Daily Bonus
+    st.markdown("""
+    <div class="bonus-card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="background-color: #1a1a20; border: 1px solid #2f2f3a; border-radius: 10px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                    🎁
+                </div>
+                <div>
+                    <div style="font-weight: 600; font-size: 14px; color: #f4f4f5;">Daily Bonus • Day 1/30</div>
+                    <div style="font-size: 11px; color: #71717a; letter-spacing: 1px;">NEXT 23:59:59</div>
+                </div>
+            </div>
+            <div style="background-color: #1c1c22; border: 1px solid #2e2e38; color: #a1a1aa; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                Claimed
+            </div>
+        </div>
+        <div class="streak-dots">
+            <div class="dot-active"></div>
+            <div class="dot-inactive"></div>
+            <div class="dot-inactive"></div>
+            <div class="dot-inactive"></div>
+            <div class="dot-inactive"></div>
+            <div class="dot-inactive"></div>
+            <div class="dot-inactive"></div>
+        </div>
+        <div style="font-size: 11px; color: #71717a; line-height: 1.4;">
+            Come back tomorrow to earn more bonuses. Miss a day and the streak restarts from day 1.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 4. Sección Earned Today
+    st.markdown("""
+    <div class="earned-card">
+        <div style="font-size: 11px; letter-spacing: 2px; color: #71717a; font-weight: 600; text-transform: uppercase;">
+            EARNED TODAY
+        </div>
+        <div style="font-family: 'Times New Roman', serif; font-size: 18px; color: #d4af37; font-weight: 600;">
+            $10.00
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+# =========================================================
+# VISTA 2: PANEL DE ADMINISTRADOR EXCLUSIVO (FRAN / 1234)
+# =========================================================
+def vista_admin():
+    with st.sidebar:
+        st.title("Fran ADS")
+        st.caption("Panel de Control Privado")
+        st.divider()
+        st.metric("Saldo Admin", "$350.00 USD")
+        if st.button("Cerrar Sesión", use_container_width=True):
+            st.session_state.autenticado = False
+            st.rerun()
+
+    st.title("Consola Administrativa - Fran ADS")
+    st.caption("Solo visible tras ingresar con usuario: fran")
+
+    k1, k2, k3 = st.columns(3)
+    k1.metric("Usuarios Nuevos", "48")
+    k2.metric("Bonos Asignados", "$480.00 USD")
+    k3.metric("Campañas Activas", "4")
+
+    st.divider()
+    st.subheader("Enlace Promocional de Invitación")
+    st.code("https://frncsko-gods-time.streamlit.app/?ref=FRAN10", language="text")
+    st.caption("Los usuarios que ingresen verán la tarjeta AdSelect con sus $10.00 USD acreditados.")
+
+
+# =========================================================
+# CONTROL PRINCIPAL
+# =========================================================
+if st.session_state.autenticado:
+    vista_admin()
+else:
+    vista_usuario_nuevo()
