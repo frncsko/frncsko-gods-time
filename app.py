@@ -1,6 +1,7 @@
 import streamlit as st
+from datetime import datetime
 
-# 1. Configuración con menú lateral desplegado por defecto
+# 1. Configuración de página
 st.set_page_config(
     page_title="Fran ADS",
     page_icon="💳",
@@ -13,25 +14,31 @@ ADMIN_USER = "fran"
 ADMIN_PASS = "1234"
 
 # ----------------- ESTADOS DE SESIÓN -----------------
-if "autenticado" not in st.session_state:
-    st.session_state.autenticado = False
+if "autenticado_admin" not in st.session_state:
+    st.session_state.autenticado_admin = False
 
-if "mostrar_login" not in st.session_state:
-    st.session_state.mostrar_login = False
+if "usuario_activo" not in st.session_state:
+    st.session_state.usuario_activo = None
 
-# Saldo del administrador: $50,000.00 USD
+if "modo_login_admin" not in st.session_state:
+    st.session_state.modo_login_admin = False
+
+# Fondo administrativo de $50,000 USD
 if "saldo_admin" not in st.session_state:
     st.session_state.saldo_admin = 50000.00
 
-# Saldo para nuevo usuario (bono de $10 USD)
-if "saldo_nuevo_usuario" not in st.session_state:
-    st.session_state.saldo_nuevo_usuario = 10.00
+# Base de datos en memoria para control de usuarios
+if "usuarios_db" not in st.session_state:
+    st.session_state.usuarios_db = {}
 
-# Historial de transferencias
+# Historial de retiros y transferencias
+if "solicitudes_retiro" not in st.session_state:
+    st.session_state.solicitudes_retiro = []
+
 if "historial_envios" not in st.session_state:
     st.session_state.historial_envios = []
 
-# ----------------- ESTILOS (SIN BLOQUEAR LA BARRA LATERAL) -----------------
+# ----------------- ESTILOS NEGRO CON AZUL -----------------
 st.markdown("""
 <style>
     .stApp {
@@ -39,7 +46,6 @@ st.markdown("""
         color: #f8fafc;
     }
     
-    /* Permite que la flecha para abrir la barra lateral siempre sea visible */
     [data-testid="stSidebarCollapseButton"] {
         visibility: visible !important;
         display: block !important;
@@ -135,47 +141,137 @@ st.markdown("""
 
 
 # =========================================================
-# VISTA 1: USUARIO NUEVO (VISTA PÚBLICA)
+# VISTA 1: REGISTRO E INICIO DE USUARIOS NUEVOS
 # =========================================================
-def vista_usuario_nuevo():
-    col_izq, col_centro, col_der = st.columns([1, 1.8, 1])
+def vista_registro_nuevo_usuario():
+    col_l, col_center, col_r = st.columns([1, 1.4, 1])
 
-    with col_centro:
-        # Botón discreto para abrir formulario de acceso
-        c_espacio, c_admin = st.columns([2, 1])
-        with c_admin:
+    with col_center:
+        # Botón discreto para acceso admin
+        c_espacio, c_adm = st.columns([2, 1])
+        with c_adm:
             if st.button("Acceso Admin", use_container_width=True):
-                st.session_state.mostrar_login = not st.session_state.mostrar_login
+                st.session_state.modo_login_admin = not st.session_state.modo_login_admin
                 st.rerun()
 
-        if st.session_state.mostrar_login:
+        if st.session_state.modo_login_admin:
             with st.container(border=True):
-                st.caption("Panel Privado (fran / 1234)")
-                user = st.text_input("Usuario", key="login_u")
-                clave = st.text_input("Clave", type="password", key="login_p")
-                if st.button("Ingresar", type="primary", use_container_width=True):
-                    if user == ADMIN_USER and clave == ADMIN_PASS:
-                        st.session_state.autenticado = True
-                        st.session_state.mostrar_login = False
+                st.caption("Consola Fran ADS (fran / 1234)")
+                u_adm = st.text_input("Usuario Admin", key="admin_u")
+                p_adm = st.text_input("Clave", type="password", key="admin_p")
+                if st.button("Ingresar como Admin", type="primary", use_container_width=True):
+                    if u_adm == ADMIN_USER and p_adm == ADMIN_PASS:
+                        st.session_state.autenticado_admin = True
+                        st.session_state.modo_login_admin = False
                         st.rerun()
                     else:
-                        st.error("Credenciales incorrectas")
+                        st.error("Credenciales de administrador incorrectas.")
+
+        tab_reg, tab_log = st.tabs(["Crear Cuenta (+ $5 USD)", "Iniciar Sesión"])
+
+        with tab_reg:
+            with st.container(border=True):
+                st.title("Fran ADS")
+                st.write("Regístrate y recibe **$5.00 USD** de bienvenida en tu tarjeta.")
+                st.divider()
+
+                with st.form("form_registro"):
+                    user_reg = st.text_input("Nombre de Usuario", placeholder="ejemplo: fran01")
+                    email_reg = st.text_input("Correo Electrónico", placeholder="tuemail@gmail.com")
+                    pass_reg = st.text_input("Contraseña", type="password", placeholder="Ingresa tu clave")
+                    btn_registro = st.form_submit_button("Crear Cuenta y Recibir $5 USD", type="primary", use_container_width=True)
+
+                    if btn_registro:
+                        if not user_reg or not email_reg or not pass_reg:
+                            st.error("Por favor llena todos los campos.")
+                        elif user_reg in st.session_state.usuarios_db:
+                            st.warning("Este usuario ya existe. Intenta iniciar sesión.")
+                        else:
+                            st.session_state.usuarios_db[user_reg] = {
+                                "email": email_reg,
+                                "password": pass_reg,
+                                "saldo": 5.00,
+                                "fecha_registro": datetime.now().strftime("%Y-%m-%d %H:%M")
+                            }
+                            st.session_state.usuario_activo = user_reg
+                            st.success("¡Registro exitoso! Se han acreditado $5.00 USD a tu cuenta.")
+                            st.rerun()
+
+        with tab_log:
+            with st.container(border=True):
+                st.title("Iniciar Sesión")
+                st.caption("Accede para ver tu saldo y solicitar retiros.")
+                st.divider()
+
+                with st.form("form_login_user"):
+                    u_in = st.text_input("Usuario")
+                    p_in = st.text_input("Contraseña", type="password")
+                    btn_in = st.form_submit_button("Entrar", type="primary", use_container_width=True)
+
+                    if btn_in:
+                        if u_in in st.session_state.usuarios_db and st.session_state.usuarios_db[u_in]["password"] == p_in:
+                            st.session_state.usuario_activo = u_in
+                            st.rerun()
+                        else:
+                            st.error("Usuario o contraseña incorrectos.")
+
+
+# =========================================================
+# VISTA 2: PANEL DEL USUARIO REGISTRADO (INTERFAZ ADSELECT)
+# =========================================================
+def vista_dashboard_usuario():
+    col_izq, col_mid, col_der = st.columns([1, 1.8, 1])
+    usuario_data = st.session_state.usuarios_db[st.session_state.usuario_activo]
+
+    with col_mid:
+        c_saludo, c_salir = st.columns([3, 1])
+        with c_saludo:
+            st.caption(f"Conectado como: **@{st.session_state.usuario_activo}**")
+        with c_salir:
+            if st.button("Cerrar Sesión", key="btn_exit_user", use_container_width=True):
+                st.session_state.usuario_activo = None
+                st.rerun()
 
         # 1. Tarjeta estilo crédito AdSelect
         st.markdown(f"""
         <div class="credit-card">
             <div class="card-brand">FRAN ADS</div>
             <div class="card-chip"></div>
-            <div class="card-balance">${st.session_state.saldo_nuevo_usuario:.2f}</div>
-            <div class="card-user">NUEVO MIEMBRO</div>
+            <div class="card-balance">${usuario_data['saldo']:.2f}</div>
+            <div class="card-user">{st.session_state.usuario_activo.upper()}</div>
         </div>
         """, unsafe_allow_html=True)
 
-        # 2. Botón Cash Out
-        c1, c2, c3 = st.columns([1, 2, 1])
-        with c2:
-            if st.button("Cash Out", key="btn_cashout", use_container_width=True, type="primary"):
-                st.info("Mínimo de retiro: $50.00 USD. Completa las condiciones para retirar.")
+        # 2. Menú de Retiro por Binance
+        with st.expander("💳 Retirar Fondos por Binance (Cash Out)", expanded=True):
+            st.caption("Solicitud directa de retiro a tu billetera Binance (USDT / Binance Pay).")
+            with st.form("form_retiro_binance"):
+                binance_id = st.text_input("Binance Pay ID o Correo de Binance", placeholder="Ej: 12345678 o email@binance.com")
+                monto_retiro = st.number_input(
+                    "Monto a retirar (USD)",
+                    min_value=1.0,
+                    max_value=float(usuario_data["saldo"]),
+                    value=float(usuario_data["saldo"]) if usuario_data["saldo"] > 0 else 1.0,
+                    step=1.0
+                )
+                btn_retirar = st.form_submit_button("Solicitar Retiro", type="primary", use_container_width=True)
+
+                if btn_retirar:
+                    if not binance_id:
+                        st.error("Debes ingresar tu Binance Pay ID o correo asociado.")
+                    elif monto_retiro > usuario_data["saldo"]:
+                        st.error("Saldo insuficiente.")
+                    else:
+                        usuario_data["saldo"] -= monto_retiro
+                        st.session_state.solicitudes_retiro.insert(0, {
+                            "usuario": st.session_state.usuario_activo,
+                            "binance_id": binance_id,
+                            "monto": monto_retiro,
+                            "estado": "Pendiente",
+                            "fecha": datetime.now().strftime("%d/%m %H:%M")
+                        })
+                        st.success(f"Solicitud de ${monto_retiro:.2f} USD enviada a revisión.")
+                        st.rerun()
 
         # 3. Bono por Referido
         st.markdown("""
@@ -204,7 +300,7 @@ def vista_usuario_nuevo():
                 <div class="dot-inactive"></div>
             </div>
             <div style="font-size: 11px; color: #94a3b8; line-height: 1.4;">
-                Has recibido $10.00 USD por registrarte mediante enlace de invitación.
+                Has recibido $5.00 USD por registro inicial en la plataforma.
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -216,105 +312,128 @@ def vista_usuario_nuevo():
                 EARNED TODAY
             </div>
             <div style="font-family: 'Times New Roman', serif; font-size: 20px; color: #38bdf8; font-weight: 600;">
-                $10.00
+                $5.00
             </div>
         </div>
         """, unsafe_allow_html=True)
 
 
 # =========================================================
-# VISTA 2: PANEL DE ADMINISTRADOR
+# VISTA 3: PANEL ADMIN (CONTROL TOTAL DE USUARIOS)
 # =========================================================
 def vista_admin():
-    # Menú lateral
     with st.sidebar:
         st.title("Fran ADS")
         st.caption("Consola Administrativa")
         st.divider()
 
         st.metric("Mi Dinero Disponible", f"${st.session_state.saldo_admin:,.2f} USD")
+        st.metric("Total Usuarios", len(st.session_state.usuarios_db))
         st.divider()
 
-        opcion_sidebar = st.radio(
-            "Navegación Rápida",
-            ["Panel Principal", "Enviar Dinero", "Programa de Referidos"]
-        )
-
-        st.divider()
-        if st.button("Cerrar Sesión", use_container_width=True):
-            st.session_state.autenticado = False
+        if st.button("Cerrar Sesión Admin", use_container_width=True):
+            st.session_state.autenticado_admin = False
             st.rerun()
 
-    # Pestañas principales en pantalla (doble vía para navegar sin depender solo del sidebar)
-    tab_panel, tab_enviar, tab_referidos = st.tabs(["Panel General", "💸 Enviar Dinero", "🔗 Referidos"])
+    tab_usuarios, tab_enviar, tab_retiros = st.tabs([
+        "👥 Control de Usuarios", 
+        "💸 Enviar Dinero ($50.000)", 
+        "📥 Retiros de Binance"
+    ])
 
-    # PESTAÑA: PANEL GENERAL
-    with tab_panel:
-        st.title("Panel de Control - Fran ADS")
-        st.caption("Gestión central de fondos y plataforma.")
+    # PESTAÑA 1: CONTROL DE USUARIOS
+    with tab_usuarios:
+        st.title("Usuarios Registrados")
+        st.caption("Supervisa cada cuenta creada con su saldo y credenciales.")
 
-        k1, k2, k3 = st.columns(3)
-        k1.metric("Mi Fondo Total", f"${st.session_state.saldo_admin:,.2f} USD")
-        k2.metric("Envíos Realizados", f"{len(st.session_state.historial_envios)}")
-        k3.metric("Saldo Tarjeta Usuario", f"${st.session_state.saldo_nuevo_usuario:,.2f} USD")
+        if not st.session_state.usuarios_db:
+            st.info("Aún no hay usuarios registrados.")
+        else:
+            for u_nombre, u_info in st.session_state.usuarios_db.items():
+                with st.container(border=True):
+                    c_det, c_sal, c_acc = st.columns([3, 1.5, 1.5])
+                    with c_det:
+                        st.markdown(f"**Usuario:** `{u_nombre}`")
+                        st.caption(f"Email: {u_info['email']}  |  Clave: `{u_info['password']}`  |  Fecha: {u_info['fecha_registro']}")
+                    with c_sal:
+                        st.metric("Saldo", f"${u_info['saldo']:.2f} USD")
+                    with c_acc:
+                        nuevo_monto = st.number_input("Ajustar saldo", min_value=0.0, value=float(u_info['saldo']), step=5.0, key=f"adj_{u_nombre}")
+                        if st.button("Actualizar", key=f"btn_adj_{u_nombre}", use_container_width=True):
+                            u_info['saldo'] = nuevo_monto
+                            st.success(f"Saldo de {u_nombre} actualizado.")
+                            st.rerun()
 
-        st.divider()
-        st.info("💡 Ve a la pestaña **'Enviar Dinero'** para transferir saldo de tus $50,000 USD a cualquier usuario.")
-
-    # PESTAÑA: ENVIAR DINERO
+    # PESTAÑA 2: ENVIAR DINERO
     with tab_enviar:
         st.title("Transferir Fondos a Usuarios")
-        st.caption("Envía saldo directamente a la tarjeta de un miembro.")
+        st.caption(f"Fondos disponibles en tu cuenta admin: **${st.session_state.saldo_admin:,.2f} USD**")
 
-        with st.container(border=True):
-            st.subheader(f"Fondos disponibles para transferir: ${st.session_state.saldo_admin:,.2f} USD")
-            st.write("")
+        if not st.session_state.usuarios_db:
+            st.warning("No hay usuarios registrados a quienes transferir.")
+        else:
+            with st.container(border=True):
+                with st.form("form_transferir_fondos", clear_on_submit=True):
+                    lista_users = list(st.session_state.usuarios_db.keys())
+                    usuario_sel = st.selectbox("Seleccionar Usuario Destinatario", lista_users)
+                    monto_a_enviar = st.number_input(
+                        "Monto a transferir (USD)",
+                        min_value=1.0,
+                        max_value=float(st.session_state.saldo_admin),
+                        value=10.0,
+                        step=5.0
+                    )
+                    btn_enviar_fondos = st.form_submit_button("Transferir Dinero", type="primary", use_container_width=True)
 
-            with st.form("form_transferencia", clear_on_submit=True):
-                destinatario = st.text_input("Nombre del usuario", placeholder="Ej. Carlos Mendoza")
-                monto = st.number_input(
-                    "Monto a enviar (USD)",
-                    min_value=1.0,
-                    max_value=float(st.session_state.saldo_admin),
-                    value=10.0,
-                    step=5.0
-                )
-                enviar_btn = st.form_submit_button("Confirmar Envío", type="primary", use_container_width=True)
-
-                if enviar_btn:
-                    if not destinatario.strip():
-                        st.error("Debes ingresar el nombre del usuario.")
-                    elif monto > st.session_state.saldo_admin:
-                        st.error("No posees saldo suficiente.")
-                    else:
-                        st.session_state.saldo_admin -= monto
-                        st.session_state.saldo_nuevo_usuario += monto
+                    if btn_enviar_fondos:
+                        st.session_state.saldo_admin -= monto_a_enviar
+                        st.session_state.usuarios_db[usuario_sel]["saldo"] += monto_a_enviar
                         st.session_state.historial_envios.insert(0, {
-                            "usuario": destinatario,
-                            "monto": monto
+                            "destinatario": usuario_sel,
+                            "monto": monto_a_enviar,
+                            "fecha": datetime.now().strftime("%d/%m %H:%M")
                         })
-                        st.success(f"Se enviaron ${monto:,.2f} USD a {destinatario} con éxito.")
+                        st.success(f"¡Transferencia exitosa! Se enviaron ${monto_a_enviar:,.2f} USD a @{usuario_sel}.")
                         st.rerun()
 
         if st.session_state.historial_envios:
-            st.subheader("Registro de Envíos")
+            st.subheader("Historial de Transferencias")
             for h in st.session_state.historial_envios:
                 with st.container(border=True):
-                    c_user, c_val = st.columns([3, 1])
-                    c_user.write(f"Destinatario: **{h['usuario']}**")
-                    c_val.write(f"**-${h['monto']:,.2f} USD**")
+                    st.write(f"Enviado a **@{h['destinatario']}** — **${h['monto']:,.2f} USD** ({h['fecha']})")
 
-    # PESTAÑA: REFERIDOS
-    with tab_referidos:
-        st.title("Programa de Invitación")
-        st.write("Enlace promocional configurado para asignar $10 USD automáticos:")
-        st.code("https://frncsko-gods-time.streamlit.app/?ref=FRAN10", language="text")
+    # PESTAÑA 3: SOLICITUDES DE RETIRO BINANCE
+    with tab_retiros:
+        st.title("Solicitudes de Retiro por Binance")
+        st.caption("Aprueba o procesa las peticiones de retiro enviadas por los usuarios.")
+
+        if not st.session_state.solicitudes_retiro:
+            st.info("No hay solicitudes de retiro pendientes.")
+        else:
+            for idx, req in enumerate(st.session_state.solicitudes_retiro):
+                with st.container(border=True):
+                    col_r1, col_r2, col_r3 = st.columns([2.5, 1.5, 1])
+                    with col_r1:
+                        st.markdown(f"**Usuario:** @{req['usuario']}")
+                        st.caption(f"Binance Pay ID / Correo: `{req['binance_id']}`")
+                        st.caption(f"Fecha: {req['fecha']}")
+                    with col_r2:
+                        st.metric("Monto a Pagar", f"${req['monto']:.2f} USD")
+                        st.write(f"Estado: **{req['estado']}**")
+                    with col_r3:
+                        if req['estado'] == "Pendiente":
+                            if st.button("Marcar Pagado", key=f"pay_{idx}", type="primary", use_container_width=True):
+                                req['estado'] = "Completado"
+                                st.success("Retiro marcado como completado.")
+                                st.rerun()
 
 
 # =========================================================
-# CONTROL PRINCIPAL
+# CONTROL PRINCIPAL DE RUTAS
 # =========================================================
-if st.session_state.autenticado:
+if st.session_state.autenticado_admin:
     vista_admin()
+elif st.session_state.usuario_activo:
+    vista_dashboard_usuario()
 else:
-    vista_usuario_nuevo()
+    vista_registro_nuevo_usuario()
