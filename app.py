@@ -1,6 +1,5 @@
 import streamlit as st
 
-# 1. Configuración de página (debe ser la primera orden de Streamlit)
 st.set_page_config(
     page_title="Fran ADS - Gestor de Publicidad",
     page_icon="🚀",
@@ -8,15 +7,12 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. Inicialización segura de variables en session_state
+# 1. Estados iniciales en memoria
 if "saldo" not in st.session_state:
     st.session_state.saldo = 350.00
 
 if "bono_reclamado" not in st.session_state:
     st.session_state.bono_reclamado = False
-
-if "mensaje_bono" not in st.session_state:
-    st.session_state.mensaje_bono = False
 
 if "campanas" not in st.session_state:
     st.session_state.campanas = [
@@ -44,4 +40,33 @@ if "campanas" not in st.session_state:
             "plataforma": "Historias / Shorts",
             "estado": "Pausado",
             "clics": "470 clics",
-            "presupuesto": 5.
+            "presupuesto": 5.0,
+            "audiencia": "Intereses: Moda & Estilo"
+        },
+        {
+            "id": 4,
+            "nombre": "Branding Apertura de Semana",
+            "plataforma": "Display Red",
+            "estado": "Activo",
+            "clics": "890 clics",
+            "presupuesto": 8.0,
+            "audiencia": "Remarketing"
+        }
+    ]
+
+# 2. Lectura segura del enlace de referido (?ref=...)
+codigo_ref = None
+try:
+    if hasattr(st, "query_params"):
+        codigo_ref = st.query_params.get("ref", None)
+    elif hasattr(st, "experimental_get_query_params"):
+        params = st.experimental_get_query_params()
+        if "ref" in params and len(params["ref"]) > 0:
+            codigo_ref = params["ref"][0]
+except Exception:
+    codigo_ref = None
+
+if codigo_ref and not st.session_state.bono_reclamado:
+    st.session_state.saldo += 10.00
+    st.session_state.bono_reclamado = True
+    st.toast("🎉 ¡B
