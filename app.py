@@ -1,6 +1,6 @@
 import streamlit as st
 
-# Configuración de página
+# 1. Configuración de página (debe ser la primera orden de Streamlit)
 st.set_page_config(
     page_title="Fran ADS - Gestor de Publicidad",
     page_icon="🚀",
@@ -8,12 +8,15 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Inicializar estados en sesión
+# 2. Inicialización segura de variables en session_state
 if "saldo" not in st.session_state:
     st.session_state.saldo = 350.00
 
 if "bono_reclamado" not in st.session_state:
     st.session_state.bono_reclamado = False
+
+if "mensaje_bono" not in st.session_state:
+    st.session_state.mensaje_bono = False
 
 if "campanas" not in st.session_state:
     st.session_state.campanas = [
@@ -41,26 +44,4 @@ if "campanas" not in st.session_state:
             "plataforma": "Historias / Shorts",
             "estado": "Pausado",
             "clics": "470 clics",
-            "presupuesto": 5.0,
-            "audiencia": "Intereses: Moda & Estilo"
-        },
-        {
-            "id": 4,
-            "nombre": "Branding Apertura de Semana",
-            "plataforma": "Display Red",
-            "estado": "Activo",
-            "clics": "890 clics",
-            "presupuesto": 8.0,
-            "audiencia": "Remarketing"
-        }
-    ]
-
-# ----------------- DETECCIÓN DE ENLACE DE REGISTRO CON BONO -----------------
-# Lee el parámetro de URL ?ref=... (ejemplo: https://tu-app.streamlit.app/?ref=FRAN10)
-query_params = st.query_params
-codigo_ref = query_params.get("ref", None)
-
-if codigo_ref and not st.session_state.bono_reclamado:
-    st.session_state.saldo += 10.00
-    st.session_state.bono_reclamado = True
-    st.toast
+            "presupuesto": 5.
