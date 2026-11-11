@@ -1,146 +1,189 @@
-import customtkinter as ctk
+import streamlit as st
 
-# Configuración visual global
-ctk.set_appearance_mode("Dark")
-ctk.set_default_color_theme("blue")
+# Configuración de página
+st.set_page_config(
+    page_title="AdSelect - Panel de Control",
+    page_icon="📊",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
+# Estilo personalizado para panel oscuro limpio
+st.markdown("""
+<style>
+    .metric-card {
+        background-color: #1c1c20;
+        border-radius: 8px;
+        padding: 15px;
+        border: 1px solid #2d2d35;
+    }
+    .ad-card {
+        background-color: #1e1e24;
+        border: 1px solid #2f2f38;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 10px;
+    }
+</style>
+""", unsafe_allow_html=True)
 
-class AdSelectApp(ctk.CTk):
-    def __init__(self):
-        super().__init__()
+# Inicializar estado de campañas en sesión
+if "campanas" not in st.session_state:
+    st.session_state.campanas = [
+        {
+            "id": 1,
+            "nombre": "Campaña Conversión Promo VIP",
+            "plataforma": "TikTok Reels",
+            "estado": "Activo",
+            "clics": "3,120 clics",
+            "presupuesto": 15.0,
+            "audiencia": "Radio Local (10 km)"
+        },
+        {
+            "id": 2,
+            "nombre": "Re-engagement Audiencia Local",
+            "plataforma": "Instagram Feed",
+            "estado": "Activo",
+            "clics": "1,240 clics",
+            "presupuesto": 10.0,
+            "audiencia": "Público General 18-35"
+        },
+        {
+            "id": 3,
+            "nombre": "Lanzamiento Edición Especial",
+            "plataforma": "Historias / Shorts",
+            "estado": "Pausado",
+            "clics": "470 clics",
+            "presupuesto": 5.0,
+            "audiencia": "Intereses: Moda & Estilo"
+        },
+        {
+            "id": 4,
+            "nombre": "Branding Apertura de Semana",
+            "plataforma": "Display Red",
+            "estado": "Activo",
+            "clics": "890 clics",
+            "presupuesto": 8.0,
+            "audiencia": "Remarketing"
+        }
+    ]
 
-        self.title("AdSelect - Gestor de Campañas & Creativos")
-        self.geometry("1100x700")
-        self.minsize(950, 600)
+# ----------------- SIDEBAR -----------------
+with st.sidebar:
+    st.title("AdSelect")
+    st.caption("Plataforma de Optimización Publicitaria")
+    st.markdown("---")
 
-        # Configuración de rejilla principal
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_rowconfigure(0, weight=1)
+    menu = st.radio(
+        "Navegación",
+        ["Panel General", "Mis Creativos", "Rendimiento / ROI", "Presupuesto & Facturación"],
+        index=0
+    )
 
-        self.crear_sidebar()
-        self.crear_panel_principal()
+    st.markdown("---")
+    with st.container():
+        st.caption("Saldo disponible en cuenta")
+        st.subheader("$350.00 USD")
+        st.caption("Método principal: Binance / Tarjeta")
 
-    def crear_sidebar(self):
-        # Barra lateral izquierda
-        self.sidebar_frame = ctk.CTkFrame(self, width=220, corner_radius=0)
-        self.sidebar_frame.grid(row=0, column=0, sticky="nsew")
-        self.sidebar_frame.grid_rowconfigure(6, weight=1)
+# ----------------- ENCABEZADO Y ACCIÓN RÁPIDA -----------------
+col_head, col_action = st.columns([3, 1])
 
-        # Logotipo / Título
-        self.logo_label = ctk.CTkLabel(
-            self.sidebar_frame,
-            text="AdSelect",
-            font=ctk.CTkFont(size=22, weight="bold")
+with col_head:
+    st.title("Gestor de Anuncios Activos")
+    st.caption("Supervisa impresiones, rendimiento y distribución presupuestaria en tiempo real.")
+
+with col_action:
+    st.write("")
+    modal_abrir = st.button("+ Nuevo Creativo", use_container_width=True, type="primary")
+
+if modal_abrir:
+    st.info("Formulario para subir material audiovisual (Reels, TikTok, Posts) habilitado abajo.")
+
+# ----------------- TARJETAS DE MÉTRICAS (KPIs) -----------------
+kpi1, kpi2, kpi3, kpi4 = st.columns(4)
+
+with kpi1:
+    st.metric(label="Impresiones", value="124,520", delta="+12.4%")
+with kpi2:
+    st.metric(label="Clics Totales", value="4,830", delta="+8.1%")
+with kpi3:
+    st.metric(label="CTR Medio", value="3.88%", delta="+0.45%")
+with kpi4:
+    st.metric(label="Gasto Diario", value="$38.00", delta="-$7.20")
+
+st.divider()
+
+# ----------------- CUERPO PRINCIPAL -----------------
+col_listado, col_control = st.columns([1.8, 1.2], gap="large")
+
+with col_listado:
+    st.subheader("Campañas & Creativos en Circulación")
+
+    for i, camp in enumerate(st.session_state.campanas):
+        with st.container():
+            c_info, c_badge, c_toggle = st.columns([3, 1, 1])
+
+            with c_info:
+                st.markdown(f"**{camp['nombre']}**")
+                st.caption(f"{camp['plataforma']}  •  {camp['clics']}  •  ${camp['presupuesto']:.2f}/día")
+
+            with c_badge:
+                if camp["estado"] == "Activo":
+                    st.success("Activo")
+                else:
+                    st.warning("Pausado")
+
+            with c_toggle:
+                boton_label = "Pausar" if camp["estado"] == "Activo" else "Activar"
+                if st.button(boton_label, key=f"btn_toggle_{camp['id']}", use_container_width=True):
+                    camp["estado"] = "Pausado" if camp["estado"] == "Activo" else "Activo"
+                    st.rerun()
+
+            st.markdown("<hr style='margin: 8px 0; border-color: #2b2b36;'>", unsafe_allow_html=True)
+
+with col_control:
+    st.subheader("Control del Anuncio")
+
+    with st.container(border=True):
+        st.markdown("**Vista Previa del Creativo**")
+        st.markdown(
+            """
+            <div style="background-color: #0e0e11; border: 2px dashed #3f3f4e; border-radius: 8px; height: 160px; display: flex; align-items: center; justify-content: center; color: #71717a;">
+                Formatos 9:16 / 1:1 Activo
+            </div>
+            """,
+            unsafe_allow_html=True
         )
-        self.logo_label.grid(row=0, column=0, padx=20, pady=(25, 20), sticky="w")
+        st.write("")
 
-        # Botones de navegación
-        self.btn_dashboard = ctk.CTkButton(
-            self.sidebar_frame,
-            text=" Panel General",
-            fg_color="#1f538d",
-            anchor="w",
-            font=ctk.CTkFont(size=14)
+        # Selección de campaña para editar
+        opciones_campanas = [c["nombre"] for c in st.session_state.campanas]
+        campana_sel_nombre = st.selectbox("Seleccionar Campaña", opciones_campanas)
+        campana_sel = next(c for c in st.session_state.campanas if c["nombre"] == campana_sel_nombre)
+
+        # Ajuste de presupuesto
+        nuevo_presupuesto = st.slider(
+            "Presupuesto Diario (USD)",
+            min_value=5.0,
+            max_value=150.0,
+            value=float(campana_sel["presupuesto"]),
+            step=1.0
         )
-        self.btn_dashboard.grid(row=1, column=0, padx=15, pady=8, sticky="ew")
 
-        self.btn_ads = ctk.CTkButton(
-            self.sidebar_frame,
-            text=" Mis Creativos",
-            fg_color="transparent",
-            text_color="#c0c0c0",
-            hover_color="#2b2b2b",
-            anchor="w",
-            font=ctk.CTkFont(size=14)
+        # Segmentación
+        nueva_audiencia = st.selectbox(
+            "Audiencia Objetivo",
+            ["Radio Local (10 km)", "Público General 18-35", "Intereses: Moda & Estilo", "Remarketing"],
+            index=["Radio Local (10 km)", "Público General 18-35", "Intereses: Moda & Estilo", "Remarketing"].index(campana_sel["audiencia"])
         )
-        self.btn_ads.grid(row=2, column=0, padx=15, pady=8, sticky="ew")
 
-        self.btn_metrics = ctk.CTkButton(
-            self.sidebar_frame,
-            text=" Rendimiento / ROI",
-            fg_color="transparent",
-            text_color="#c0c0c0",
-            hover_color="#2b2b2b",
-            anchor="w",
-            font=ctk.CTkFont(size=14)
-        )
-        self.btn_metrics.grid(row=3, column=0, padx=15, pady=8, sticky="ew")
+        # Switch de emisión
+        estado_switch = st.toggle("Campaña en Emisión", value=(campana_sel["estado"] == "Activo"))
 
-        self.btn_billing = ctk.CTkButton(
-            self.sidebar_frame,
-            text=" Presupuesto & Facturación",
-            fg_color="transparent",
-            text_color="#c0c0c0",
-            hover_color="#2b2b2b",
-            anchor="w",
-            font=ctk.CTkFont(size=14)
-        )
-        self.btn_billing.grid(row=4, column=0, padx=15, pady=8, sticky="ew")
-
-        # Estado del servicio / Saldo
-        self.balance_card = ctk.CTkFrame(self.sidebar_frame, fg_color="#18181b", corner_radius=10)
-        self.balance_card.grid(row=7, column=0, padx=15, pady=20, sticky="ew")
-
-        ctk.CTkLabel(
-            self.balance_card,
-            text="Saldo disponible:",
-            font=ctk.CTkFont(size=12),
-            text_color="#888888"
-        ).pack(anchor="w", padx=12, pady=(10, 2))
-
-        ctk.CTkLabel(
-            self.balance_card,
-            text="$350.00 USD",
-            font=ctk.CTkFont(size=16, weight="bold"),
-            text_color="#4ade80"
-        ).pack(anchor="w", padx=12, pady=(0, 10))
-
-    def crear_panel_principal(self):
-        # Contenedor principal derecho
-        self.main_frame = ctk.CTkFrame(self, fg_color="#121214", corner_radius=0)
-        self.main_frame.grid(row=0, column=1, sticky="nsew", padx=20, pady=20)
-        self.main_frame.grid_columnconfigure(0, weight=2)
-        self.main_frame.grid_columnconfigure(1, weight=1)
-        self.main_frame.grid_rowconfigure(2, weight=1)
-
-        # 1. Cabecera superior (Top Bar)
-        self.crear_topbar()
-
-        # 2. Métricas rápidas (KPI Cards)
-        self.crear_metricas()
-
-        # 3. Lista de Anuncios y Selector
-        self.crear_lista_anuncios()
-
-        # 4. Panel lateral de edición / previsualización
-        self.crear_panel_edicion()
-
-    def crear_topbar(self):
-        topbar = ctk.CTkFrame(self.main_frame, fg_color="transparent")
-        topbar.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 15))
-
-        title = ctk.CTkLabel(
-            topbar,
-            text="Gestor de Anuncios Activos",
-            font=ctk.CTkFont(size=20, weight="bold")
-        )
-        title.pack(side="left")
-
-        btn_new_ad = ctk.CTkButton(
-            topbar,
-            text="+ Nuevo Creativo",
-            fg_color="#2563eb",
-            hover_color="#1d4ed8",
-            font=ctk.CTkFont(size=13, weight="bold"),
-            width=140
-        )
-        btn_new_ad.pack(side="right")
-
-    def crear_metricas(self):
-        metrics_container = ctk.CTkFrame(self.main_frame, fg_color="transparent")
-        metrics_container.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(0, 15))
-        metrics_container.grid_columnconfigure((0, 1, 2, 3), weight=1)
-
-        datos = [
-            ("Impresiones", "124,520", "#38bdf8"),
-            ("Clics Totales", "4,830", "#a
+        if st.button("Guardar y Aplicar Cambios", type="primary", use_container_width=True):
+            campana_sel["presupuesto"] = nuevo_presupuesto
+            campana_sel["audiencia"] = nueva_audiencia
+            campana_sel["estado"] = "Activo" if estado_switch else "Pausado"
+            st.success(f"Cambios aplicados a '{campana_sel['nombre']}'")
+            st.rerun()
