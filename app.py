@@ -2,7 +2,6 @@ import streamlit as st
 
 st.set_page_config(
     page_title="Fran ADS - Gestor de Publicidad",
-    page_icon="🚀",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -18,7 +17,7 @@ if "campanas" not in st.session_state:
     st.session_state.campanas = [
         {
             "id": 1,
-            "nombre": "Campaña Conversión Promo VIP",
+            "nombre": "Campana Conversion Promo VIP",
             "plataforma": "TikTok Reels",
             "estado": "Activo",
             "clics": "3,120 clics",
@@ -32,41 +31,12 @@ if "campanas" not in st.session_state:
             "estado": "Activo",
             "clics": "1,240 clics",
             "presupuesto": 10.0,
-            "audiencia": "Público General 18-35"
+            "audiencia": "Publico General 18-35"
         },
         {
             "id": 3,
-            "nombre": "Lanzamiento Edición Especial",
+            "nombre": "Lanzamiento Edicion Especial",
             "plataforma": "Historias / Shorts",
             "estado": "Pausado",
             "clics": "470 clics",
-            "presupuesto": 5.0,
-            "audiencia": "Intereses: Moda & Estilo"
-        },
-        {
-            "id": 4,
-            "nombre": "Branding Apertura de Semana",
-            "plataforma": "Display Red",
-            "estado": "Activo",
-            "clics": "890 clics",
-            "presupuesto": 8.0,
-            "audiencia": "Remarketing"
-        }
-    ]
-
-# 2. Lectura segura del enlace de referido (?ref=...)
-codigo_ref = None
-try:
-    if hasattr(st, "query_params"):
-        codigo_ref = st.query_params.get("ref", None)
-    elif hasattr(st, "experimental_get_query_params"):
-        params = st.experimental_get_query_params()
-        if "ref" in params and len(params["ref"]) > 0:
-            codigo_ref = params["ref"][0]
-except Exception:
-    codigo_ref = None
-
-if codigo_ref and not st.session_state.bono_reclamado:
-    st.session_state.saldo += 10.00
-    st.session_state.bono_reclamado = True
-    st.toast("🎉 ¡B
+            "presupuesto
