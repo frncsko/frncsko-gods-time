@@ -1,10 +1,11 @@
 import streamlit as st
 
+# 1. Configuración con menú lateral desplegado por defecto
 st.set_page_config(
     page_title="Fran ADS",
     page_icon="💳",
-    layout="centered",
-    initial_sidebar_state="collapsed"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 # ----------------- CREDENCIALES ADMINISTRADOR -----------------
@@ -18,11 +19,11 @@ if "autenticado" not in st.session_state:
 if "mostrar_login" not in st.session_state:
     st.session_state.mostrar_login = False
 
-# Saldo del administrador configurado en $50,000.00 USD
+# Saldo del administrador: $50,000.00 USD
 if "saldo_admin" not in st.session_state:
     st.session_state.saldo_admin = 50000.00
 
-# Saldo para usuario nuevo (bono inicial)
+# Saldo para nuevo usuario (bono de $10 USD)
 if "saldo_nuevo_usuario" not in st.session_state:
     st.session_state.saldo_nuevo_usuario = 10.00
 
@@ -30,23 +31,21 @@ if "saldo_nuevo_usuario" not in st.session_state:
 if "historial_envios" not in st.session_state:
     st.session_state.historial_envios = []
 
-# ----------------- ESTILOS NEGRO CON AZUL -----------------
+# ----------------- ESTILOS (SIN BLOQUEAR LA BARRA LATERAL) -----------------
 st.markdown("""
 <style>
     .stApp {
         background-color: #030712;
         color: #f8fafc;
     }
-    header, footer {
-        visibility: hidden;
-    }
-    .block-container {
-        max-width: 440px !important;
-        padding-top: 1.5rem !important;
-        padding-bottom: 2rem !important;
+    
+    /* Permite que la flecha para abrir la barra lateral siempre sea visible */
+    [data-testid="stSidebarCollapseButton"] {
+        visibility: visible !important;
+        display: block !important;
     }
 
-    /* Tarjeta estilo crédito */
+    /* Tarjeta estilo crédito AdSelect */
     .credit-card {
         background: linear-gradient(135deg, #0b1528 0%, #030712 60%, #020c1e 100%);
         border: 1px solid #1e3a8a;
@@ -136,170 +135,180 @@ st.markdown("""
 
 
 # =========================================================
-# VISTA 1: USUARIO NUEVO (ESTILO ADSELECT NEGRO Y AZUL)
+# VISTA 1: USUARIO NUEVO (VISTA PÚBLICA)
 # =========================================================
 def vista_usuario_nuevo():
-    c_logo, c_admin = st.columns([3, 1])
-    with c_admin:
-        if st.button("Acceso Admin", use_container_width=True):
-            st.session_state.mostrar_login = not st.session_state.mostrar_login
-            st.rerun()
+    col_izq, col_centro, col_der = st.columns([1, 1.8, 1])
 
-    if st.session_state.mostrar_login:
-        with st.container(border=True):
-            st.caption("Panel Administrativo (fran / 1234)")
-            user = st.text_input("Usuario", key="login_u")
-            clave = st.text_input("Clave", type="password", key="login_p")
-            if st.button("Ingresar", type="primary", use_container_width=True):
-                if user == ADMIN_USER and clave == ADMIN_PASS:
-                    st.session_state.autenticado = True
-                    st.session_state.mostrar_login = False
-                    st.rerun()
-                else:
-                    st.error("Credenciales incorrectas")
+    with col_centro:
+        # Botón discreto para abrir formulario de acceso
+        c_espacio, c_admin = st.columns([2, 1])
+        with c_admin:
+            if st.button("Acceso Admin", use_container_width=True):
+                st.session_state.mostrar_login = not st.session_state.mostrar_login
+                st.rerun()
 
-    # 1. Tarjeta estilo crédito
-    st.markdown(f"""
-    <div class="credit-card">
-        <div class="card-brand">FRAN ADS</div>
-        <div class="card-chip"></div>
-        <div class="card-balance">${st.session_state.saldo_nuevo_usuario:.2f}</div>
-        <div class="card-user">NUEVO MIEMBRO</div>
-    </div>
-    """, unsafe_allow_html=True)
+        if st.session_state.mostrar_login:
+            with st.container(border=True):
+                st.caption("Panel Privado (fran / 1234)")
+                user = st.text_input("Usuario", key="login_u")
+                clave = st.text_input("Clave", type="password", key="login_p")
+                if st.button("Ingresar", type="primary", use_container_width=True):
+                    if user == ADMIN_USER and clave == ADMIN_PASS:
+                        st.session_state.autenticado = True
+                        st.session_state.mostrar_login = False
+                        st.rerun()
+                    else:
+                        st.error("Credenciales incorrectas")
 
-    # 2. Botón Cash Out
-    col_co1, col_co2, col_co3 = st.columns([1, 2, 1])
-    with col_co2:
-        if st.button("Cash Out", key="btn_cashout", use_container_width=True, type="primary"):
-            st.info("Mínimo de retiro: $50.00 USD. Completa las condiciones para retirar.")
+        # 1. Tarjeta estilo crédito AdSelect
+        st.markdown(f"""
+        <div class="credit-card">
+            <div class="card-brand">FRAN ADS</div>
+            <div class="card-chip"></div>
+            <div class="card-balance">${st.session_state.saldo_nuevo_usuario:.2f}</div>
+            <div class="card-user">NUEVO MIEMBRO</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    # 3. Bono por Referido
-    st.markdown("""
-    <div class="bonus-card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="background-color: #0f172a; border: 1px solid #1e3a8a; border-radius: 10px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
-                    🎁
+        # 2. Botón Cash Out
+        c1, c2, c3 = st.columns([1, 2, 1])
+        with c2:
+            if st.button("Cash Out", key="btn_cashout", use_container_width=True, type="primary"):
+                st.info("Mínimo de retiro: $50.00 USD. Completa las condiciones para retirar.")
+
+        # 3. Bono por Referido
+        st.markdown("""
+        <div class="bonus-card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="background-color: #0f172a; border: 1px solid #1e3a8a; border-radius: 10px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                        🎁
+                    </div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 14px; color: #f8fafc;">BONO POR REFERIDO</div>
+                        <div style="font-size: 11px; color: #38bdf8; letter-spacing: 1px;">ESTADO ACTIVO • REGISTRO</div>
+                    </div>
                 </div>
-                <div>
-                    <div style="font-weight: 700; font-size: 14px; color: #f8fafc;">BONO POR REFERIDO</div>
-                    <div style="font-size: 11px; color: #38bdf8; letter-spacing: 1px;">ESTADO ACTIVO • REGISTRO</div>
+                <div style="background-color: #1e3a8a; border: 1px solid #3b82f6; color: #ffffff; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;">
+                    Reclamado
                 </div>
             </div>
-            <div style="background-color: #1e3a8a; border: 1px solid #3b82f6; color: #ffffff; padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;">
-                Reclamado
+            <div class="streak-dots">
+                <div class="dot-active"></div>
+                <div class="dot-inactive"></div>
+                <div class="dot-inactive"></div>
+                <div class="dot-inactive"></div>
+                <div class="dot-inactive"></div>
+                <div class="dot-inactive"></div>
+                <div class="dot-inactive"></div>
+            </div>
+            <div style="font-size: 11px; color: #94a3b8; line-height: 1.4;">
+                Has recibido $10.00 USD por registrarte mediante enlace de invitación.
             </div>
         </div>
-        <div class="streak-dots">
-            <div class="dot-active"></div>
-            <div class="dot-inactive"></div>
-            <div class="dot-inactive"></div>
-            <div class="dot-inactive"></div>
-            <div class="dot-inactive"></div>
-            <div class="dot-inactive"></div>
-            <div class="dot-inactive"></div>
-        </div>
-        <div style="font-size: 11px; color: #94a3b8; line-height: 1.4;">
-            Has recibido $10.00 USD por registrarte mediante enlace de invitación.
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
-    # 4. Sección Earned Today
-    st.markdown("""
-    <div class="earned-card">
-        <div style="font-size: 11px; letter-spacing: 2px; color: #94a3b8; font-weight: 600; text-transform: uppercase;">
-            EARNED TODAY
+        # 4. Sección Earned Today
+        st.markdown("""
+        <div class="earned-card">
+            <div style="font-size: 11px; letter-spacing: 2px; color: #94a3b8; font-weight: 600; text-transform: uppercase;">
+                EARNED TODAY
+            </div>
+            <div style="font-family: 'Times New Roman', serif; font-size: 20px; color: #38bdf8; font-weight: 600;">
+                $10.00
+            </div>
         </div>
-        <div style="font-family: 'Times New Roman', serif; font-size: 20px; color: #38bdf8; font-weight: 600;">
-            $10.00
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
 
 # =========================================================
-# VISTA 2: PANEL DE ADMINISTRADOR CON OPCIÓN DE ENVIAR DINERO
+# VISTA 2: PANEL DE ADMINISTRADOR
 # =========================================================
 def vista_admin():
+    # Menú lateral
     with st.sidebar:
         st.title("Fran ADS")
         st.caption("Consola Administrativa")
         st.divider()
 
-        menu = st.radio(
-            "Menú",
-            ["Panel General", "Enviar Dinero", "Mis Creativos", "Programa de Referidos"],
-            index=0
-        )
-
-        st.divider()
-        # Muestra tu dinero disponible de 50.000$
         st.metric("Mi Dinero Disponible", f"${st.session_state.saldo_admin:,.2f} USD")
+        st.divider()
+
+        opcion_sidebar = st.radio(
+            "Navegación Rápida",
+            ["Panel Principal", "Enviar Dinero", "Programa de Referidos"]
+        )
 
         st.divider()
         if st.button("Cerrar Sesión", use_container_width=True):
             st.session_state.autenticado = False
             st.rerun()
 
-    # OPCIÓN: ENVIAR DINERO A USUARIOS NUEVOS
-    if menu == "Enviar Dinero":
-        st.title("Enviar Dinero a Usuarios")
-        st.caption("Transfiere saldo directamente a la tarjeta de un nuevo miembro.")
+    # Pestañas principales en pantalla (doble vía para navegar sin depender solo del sidebar)
+    tab_panel, tab_enviar, tab_referidos = st.tabs(["Panel General", "💸 Enviar Dinero", "🔗 Referidos"])
 
-        with st.container(border=True):
-            st.subheader(f"Fondos disponibles: ${st.session_state.saldo_admin:,.2f} USD")
-            st.write("")
-
-            with st.form("form_enviar_fondos", clear_on_submit=True):
-                nombre_dest = st.text_input("Nombre del usuario destinatario", placeholder="Ej. Carlos Mendoza")
-                monto_envio = st.number_input("Monto a enviar (USD)", min_value=1.0, max_value=float(st.session_state.saldo_admin), value=10.0, step=5.0)
-
-                btn_transferir = st.form_submit_button("Transferir Fondos", type="primary", use_container_width=True)
-
-                if btn_transferir:
-                    if not nombre_dest.strip():
-                        st.error("Por favor, ingresa el nombre del usuario.")
-                    elif monto_envio > st.session_state.saldo_admin:
-                        st.error("Saldo insuficiente para realizar el envío.")
-                    else:
-                        st.session_state.saldo_admin -= monto_envio
-                        st.session_state.saldo_nuevo_usuario += monto_envio
-                        st.session_state.historial_envios.insert(0, {
-                            "usuario": nombre_dest,
-                            "monto": monto_envio
-                        })
-                        st.success(f"¡Envío exitoso! Se transfirieron ${monto_envio:,.2f} USD a {nombre_dest}.")
-                        st.rerun()
-
-        # Historial de envíos recientes
-        if st.session_state.historial_envios:
-            st.divider()
-            st.subheader("Envíos Recientes")
-            for item in st.session_state.historial_envios:
-                with st.container(border=True):
-                    col_u, col_m = st.columns([3, 1])
-                    col_u.write(f"Destinatario: **{item['usuario']}**")
-                    col_m.write(f"**-${item['monto']:,.2f} USD**")
-
-    # OPCIÓN: PROGRAMA DE REFERIDOS
-    elif menu == "Programa de Referidos":
-        st.title("Programa de Referidos")
-        st.write("Comparte este enlace para nuevos usuarios con bono:")
-        st.code("https://frncsko-gods-time.streamlit.app/?ref=FRAN10", language="text")
-
-    # OPCIÓN: PANEL GENERAL
-    else:
+    # PESTAÑA: PANEL GENERAL
+    with tab_panel:
         st.title("Panel de Control - Fran ADS")
-        st.caption("Resumen general y métricas de la plataforma.")
+        st.caption("Gestión central de fondos y plataforma.")
 
-        k1, k2 = st.columns(2)
-        k1.metric("Mi Dinero Total", f"${st.session_state.saldo_admin:,.2f} USD")
-        k2.metric("Total Envíos Realizados", f"{len(st.session_state.historial_envios)}")
+        k1, k2, k3 = st.columns(3)
+        k1.metric("Mi Fondo Total", f"${st.session_state.saldo_admin:,.2f} USD")
+        k2.metric("Envíos Realizados", f"{len(st.session_state.historial_envios)}")
+        k3.metric("Saldo Tarjeta Usuario", f"${st.session_state.saldo_nuevo_usuario:,.2f} USD")
 
         st.divider()
-        st.info("Para asignar saldos a miembros específicos, ingresa a la opción 'Enviar Dinero' en el menú lateral.")
+        st.info("💡 Ve a la pestaña **'Enviar Dinero'** para transferir saldo de tus $50,000 USD a cualquier usuario.")
+
+    # PESTAÑA: ENVIAR DINERO
+    with tab_enviar:
+        st.title("Transferir Fondos a Usuarios")
+        st.caption("Envía saldo directamente a la tarjeta de un miembro.")
+
+        with st.container(border=True):
+            st.subheader(f"Fondos disponibles para transferir: ${st.session_state.saldo_admin:,.2f} USD")
+            st.write("")
+
+            with st.form("form_transferencia", clear_on_submit=True):
+                destinatario = st.text_input("Nombre del usuario", placeholder="Ej. Carlos Mendoza")
+                monto = st.number_input(
+                    "Monto a enviar (USD)",
+                    min_value=1.0,
+                    max_value=float(st.session_state.saldo_admin),
+                    value=10.0,
+                    step=5.0
+                )
+                enviar_btn = st.form_submit_button("Confirmar Envío", type="primary", use_container_width=True)
+
+                if enviar_btn:
+                    if not destinatario.strip():
+                        st.error("Debes ingresar el nombre del usuario.")
+                    elif monto > st.session_state.saldo_admin:
+                        st.error("No posees saldo suficiente.")
+                    else:
+                        st.session_state.saldo_admin -= monto
+                        st.session_state.saldo_nuevo_usuario += monto
+                        st.session_state.historial_envios.insert(0, {
+                            "usuario": destinatario,
+                            "monto": monto
+                        })
+                        st.success(f"Se enviaron ${monto:,.2f} USD a {destinatario} con éxito.")
+                        st.rerun()
+
+        if st.session_state.historial_envios:
+            st.subheader("Registro de Envíos")
+            for h in st.session_state.historial_envios:
+                with st.container(border=True):
+                    c_user, c_val = st.columns([3, 1])
+                    c_user.write(f"Destinatario: **{h['usuario']}**")
+                    c_val.write(f"**-${h['monto']:,.2f} USD**")
+
+    # PESTAÑA: REFERIDOS
+    with tab_referidos:
+        st.title("Programa de Invitación")
+        st.write("Enlace promocional configurado para asignar $10 USD automáticos:")
+        st.code("https://frncsko-gods-time.streamlit.app/?ref=FRAN10", language="text")
 
 
 # =========================================================
