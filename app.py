@@ -1,1165 +1,146 @@
-from datetime import date, datetime, time
-import json
-import os
-import urllib.parse
-import pandas as pd
-import plotly.express as px
-import streamlit as st
+import customtkinter as ctk
 
-# Configuración de la página
-st.set_page_config(
-    page_title="GOD'S TIME BARBERIA | 4K VIP Experience",
-    layout="wide",
-    initial_sidebar_state="expanded",
-)
-
-# --- CONFIGURACIÓN DE TUS REDES, WHATSAPP Y FONDO ---
-MI_NUMERO_WHATSAPP = "584125205165"
-INSTAGRAM_URL = (
-    "https://instagram.com/godstimebarberia?xtok=MWZxZTc0c2l0aTJ2bw%3D%3D"
-)
-TIKTOK_URL = (
-    "https://www.tiktok.com/@gods.time.barberia?_r=1&_t=ZS-9AVkad3X9S0"
-)
-TIKTOK_PERSONAL_URL = (
-    "https://www.tiktok.com/@franbarb3r?is_from_webapp=1&sender_device=pc"
-)
-
-# Imagen de fondo profesional (estilo oscuro 4K)
-URL_IMAGEN_FONDO = "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=1920&auto=format&fit=crop"
-
-# --- PERSISTENCIA LOCAL DE DATOS ---
-CORTES_FILE = "cortes_data.json"
-CITAS_FILE = "citas_data.json"
-VISITAS_FILE = "visitas_data.json"
-LIKES_FILE = "likes_data.json"
+# Configuración visual global
+ctk.set_appearance_mode("Dark")
+ctk.set_default_color_theme("blue")
 
 
-def cargar_datos(archivo, por_defecto):
-  if os.path.exists(archivo):
-    try:
-      with open(archivo, "r", encoding="utf-8") as f:
-        return json.load(f)
-    except Exception:
-      return por_defecto
-  return por_defecto
+class AdSelectApp(ctk.CTk):
+    def __init__(self):
+        super().__init__()
 
+        self.title("AdSelect - Gestor de Campañas & Creativos")
+        self.geometry("1100x700")
+        self.minsize(950, 600)
 
-def guardar_datos(archivo, datos):
-  with open(archivo, "w", encoding="utf-8") as f:
-    json.dump(datos, f, ensure_ascii=False, indent=4)
+        # Configuración de rejilla principal
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(0, weight=1)
 
+        self.crear_sidebar()
+        self.crear_panel_principal()
 
-def limpiar_telefono(telefono):
-  tel_limpio = telefono.strip().replace(" ", "").replace("-", "")
-  if not tel_limpio.startswith("+"):
-    if tel_limpio.startswith("58"):
-      tel_limpio = "+" + tel_limpio
-    else:
-      tel_limpio = "+58" + tel_limpio.lstrip("0")
-  return tel_limpio
+    def crear_sidebar(self):
+        # Barra lateral izquierda
+        self.sidebar_frame = ctk.CTkFrame(self, width=220, corner_radius=0)
+        self.sidebar_frame.grid(row=0, column=0, sticky="nsew")
+        self.sidebar_frame.grid_rowconfigure(6, weight=1)
 
-
-# Inicialización de Estados
-if "autenticado" not in st.session_state:
-  st.session_state.autenticado = False
-if "usuario_actual" not in st.session_state:
-  st.session_state.usuario_actual = ""
-if "cortes_db" not in st.session_state:
-  st.session_state.cortes_db = cargar_datos(CORTES_FILE, [])
-
-# Contador de visitas persistente desde 0
-if "visitado_session" not in st.session_state:
-  datos_visitas = cargar_datos(VISITAS_FILE, {"total": 0})
-  datos_visitas["total"] += 1
-  guardar_datos(VISITAS_FILE, datos_visitas)
-  st.session_state.visitado_session = True
-  st.session_state.visitas_total = datos_visitas["total"]
-else:
-  datos_visitas = cargar_datos(VISITAS_FILE, {"total": 0})
-  st.session_state.visitas_total = datos_visitas["total"]
-
-# Sistema de Likes persistente desde 0
-if "likes_total" not in st.session_state:
-  datos_likes = cargar_datos(LIKES_FILE, {"total": 0})
-  st.session_state.likes_total = datos_likes["total"]
-if "usuario_dio_like" not in st.session_state:
-  st.session_state.usuario_dio_like = False
-if "disparar_animacion_like" not in st.session_state:
-  st.session_state.disparar_animacion_like = False
-
-if "citas_db" not in st.session_state:
-  citas_cargadas = cargar_datos(CITAS_FILE, [])
-  for c in citas_cargadas:
-    if "estado" not in c:
-      c["estado"] = "Pendiente"
-    if "referencia" not in c:
-      c["referencia"] = "Por verificar"
-    if "metodo_pago" not in c:
-      c["metodo_pago"] = "PAGO MOVIL"
-    if "id" not in c:
-      c["id"] = abs(hash(c.get("Cliente", "") + str(c.get("Fecha", "")))) % 100000
-  st.session_state.citas_db = citas_cargadas
-
-# CREDENCIALES Y ROLES DE USUARIOS
-USUARIOS = {
-    "Admin": {"clave": "1234", "rol": "admin"},
-    "Jonder": {"clave": "barbero1", "rol": "barbero"},
-}
-
-PRECIOS_CORTES = {
-    "Corte Clásico": 8.0,
-    "Corte y Barba": 10.0,
-    "Barba Completa": 5.0,
-    "Combo (Corte + Barba+ Mascarilla)": 12.0,
-    "Diseño / Cejas": 2.0,
-}
-
-BARBEROS = ["Francisco", "Jonder", "Barbero 3"]
-METODOS_PAGO = ["EFECTIVO", "PAGO MOVIL", "BINANCE"]
-
-OPCIONES_HORAS = [
-    time(h, m).strftime("%I:%M %p") for h in range(8, 20) for m in (0, 30)
-]
-
-# --- ESTILOS 4K Y ANIMACIÓN DE CORAZONES FLOTANTES ---
-st.markdown(
-    f"""
-    <style>
-    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
-    :root {{
-        color-scheme: dark !important;
-    }}
-
-    html, body, [class*="css"] {{
-        font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
-        color: #f8fafc !important;
-        background-color: #030712 !important;
-    }}
-
-    #MainMenu, footer, header {{
-        visibility: hidden;
-    }}
-
-    .stApp {{
-        background: linear-gradient(rgba(3, 7, 18, 0.90), rgba(3, 7, 18, 0.95)), url("{URL_IMAGEN_FONDO}") !important;
-        background-size: cover !important;
-        background-position: center center !important;
-        background-attachment: fixed !important;
-        color: #f8fafc !important;
-    }}
-
-    input, select, textarea, div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {{
-        background-color: rgba(15, 23, 42, 0.95) !important;
-        color: #ffffff !important;
-        border: 1px solid rgba(0, 240, 255, 0.4) !important;
-        border-radius: 12px !important;
-    }}
-
-    .stTextInput label, .stSelectbox label, .stDateInput label {{
-        color: #cbd5e1 !important;
-        font-weight: 600 !important;
-    }}
-
-    .vip-badge {{
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: rgba(0, 240, 255, 0.08);
-        border: 1px solid rgba(0, 240, 255, 0.3);
-        padding: 6px 18px;
-        border-radius: 50px;
-        font-size: 13px;
-        font-weight: 700;
-        color: #00f0ff;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
-        margin-bottom: 8px;
-    }}
-
-    .vip-badge-dot {{
-        width: 8px;
-        height: 8px;
-        background-color: #00f0ff;
-        border-radius: 50%;
-        box-shadow: 0 0 10px #00f0ff;
-        animation: pulse 1.8s infinite ease-in-out;
-    }}
-
-    @keyframes pulse {{
-        0% {{ transform: scale(0.95); opacity: 0.7; }}
-        50% {{ transform: scale(1.3); opacity: 1; }}
-        100% {{ transform: scale(0.95); opacity: 0.7; }}
-    }}
-
-    .stats-container {{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 15px;
-        margin-bottom: 15px;
-        flex-wrap: wrap;
-    }}
-
-    .stat-pill {{
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: rgba(15, 23, 42, 0.85);
-        border: 1px solid rgba(0, 240, 255, 0.35);
-        padding: 8px 18px;
-        border-radius: 30px;
-        font-size: 14px;
-        font-weight: 700;
-        color: #f8fafc;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-    }}
-
-    .stat-pill i {{
-        color: #00f0ff;
-        font-size: 15px;
-    }}
-
-    .stat-number {{
-        color: #00f0ff;
-        font-weight: 900;
-        letter-spacing: 1px;
-    }}
-
-    .hero-title {{
-        font-family: 'Outfit', sans-serif;
-        font-size: 42px;
-        font-weight: 900;
-        background: linear-gradient(135deg, #ffffff 20%, #80f5ff 60%, #0072ff 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-align: center;
-        letter-spacing: 2px;
-        margin-bottom: 5px;
-        text-transform: uppercase;
-    }}
-
-    .hero-subtitle {{
-        text-align: center;
-        color: #94a3b8;
-        font-size: 15px;
-        font-weight: 500;
-        margin-bottom: 25px;
-    }}
-
-    /* Estilos para la animación de corazones flotantes */
-    .floating-hearts-container {{
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        pointer-events: none;
-        z-index: 9999;
-        display: flex;
-        gap: 15px;
-    }}
-
-    .floating-heart {{
-        font-size: 28px;
-        color: #ef4444;
-        animation: floatUp 2.5s ease-out forwards;
-        text-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
-    }}
-
-    @keyframes floatUp {{
-        0% {{
-            transform: translateY(0px) scale(0.5);
-            opacity: 1;
-        }}
-        50% {{
-            transform: translateY(-180px) scale(1.4) rotate(15deg);
-            opacity: 0.9;
-        }}
-        100% {{
-            transform: translateY(-350px) scale(1) rotate(-15deg);
-            opacity: 0;
-        }}
-    }}
-
-    /* Botón de Like pequeño y compacto */
-    div[data-testid="column"] button {{
-        padding: 6px 12px !important;
-        font-size: 13px !important;
-        min-height: 38px !important;
-        border-radius: 20px !important;
-        background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
-        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4) !important;
-    }}
-
-    .btn-ws-glow {{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-        color: white !important;
-        text-decoration: none;
-        border-radius: 16px !important;
-        padding: 16px 28px;
-        font-weight: 800;
-        font-size: 15px;
-        box-shadow: 0 12px 30px rgba(16, 185, 129, 0.4);
-    }}
-
-    .social-btn {{
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        padding: 10px 16px;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 14px;
-        text-decoration: none;
-        color: white !important;
-        width: 100%;
-        margin-bottom: 8px;
-        transition: opacity 0.2s;
-    }}
-    .social-btn:hover {{ opacity: 0.85; }}
-    .btn-ig {{ background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); }}
-    .btn-tk {{ background: #000000; border: 1px solid rgba(255,255,255,0.2); }}
-
-    [data-testid="stSidebar"] {{
-        background: rgba(4, 9, 20, 0.95) !important;
-        backdrop-filter: blur(20px);
-        border-right: 1px solid rgba(0, 240, 255, 0.15) !important;
-    }}
-
-    [data-testid="stSidebar"] .stRadio label {{
-        background: rgba(15, 23, 42, 0.7) !important;
-        border-radius: 14px !important;
-        padding: 14px 18px !important;
-        color: #cbd5e1 !important;
-        font-weight: 600 !important;
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
-    }}
-
-    [data-testid="stSidebar"] .stRadio div[aria-checked="true"] + label {{
-        background: linear-gradient(135deg, rgba(0, 240, 255, 0.2) 0%, rgba(0, 114, 255, 0.3) 100%) !important;
-        color: #00f0ff !important;
-        border: 1px solid rgba(0, 240, 255, 0.6) !important;
-    }}
-
-    .section-header {{
-        font-family: 'Outfit', sans-serif;
-        font-size: 22px;
-        font-weight: 700;
-        color: #f1f5f9;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        border-bottom: 2px solid rgba(0, 240, 255, 0.2);
-        padding-bottom: 12px;
-        margin-bottom: 24px;
-    }}
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-# ---------------------------------------------------------
-# VISTA 1: INICIO CLIENTES 4K VIP LANDING + ACCESO PERSONAL
-# ---------------------------------------------------------
-if not st.session_state.autenticado:
-  col_nav_left, col_nav_right = st.columns([4, 1.3])
-
-  with col_nav_right:
-    with st.popover("🔑 Acceso Personal / Barberos", use_container_width=True):
-      st.markdown(
-          "<h4 style='text-align: center; color: #ffffff; margin-bottom: 12px;"
-          " font-size: 18px;'>PORTAL ADMINISTRATIVO</h4>",
-          unsafe_allow_html=True,
-      )
-      with st.form("login_form_popover"):
-        usuario = st.text_input("Usuario", placeholder="Tu usuario asignado")
-        contrasena = st.text_input(
-            "Contraseña", type="password", placeholder="••••••••"
+        # Logotipo / Título
+        self.logo_label = ctk.CTkLabel(
+            self.sidebar_frame,
+            text="AdSelect",
+            font=ctk.CTkFont(size=22, weight="bold")
         )
-        submit = st.form_submit_button("INICIAR SESIÓN")
+        self.logo_label.grid(row=0, column=0, padx=20, pady=(25, 20), sticky="w")
 
-        if submit:
-          if usuario in USUARIOS and USUARIOS[usuario]["clave"] == contrasena:
-            st.session_state.autenticado = True
-            st.session_state.usuario_actual = usuario
-            st.rerun()
-          else:
-            st.error("Credenciales de acceso incorrectas")
-
-  # Encabezado con insignia y títulos
-  st.markdown(
-      """
-        <div style="text-align: center; padding: 10px 0 0 0;">
-            <div class="vip-badge">
-                <span class="vip-badge-dot"></span> EXPERIENCIA EXCLUSIVA 4K
-            </div>
-            <div class="hero-title">GOD'S TIME BARBERIA</div>
-            <div class="hero-subtitle">⚡ El corte perfecto en el momento exacto. Agenda tu turno sin esperas. ⚡</div>
-        </div>
-    """,
-      unsafe_allow_html=True,
-  )
-
-  # Barra superior compacta con Visitas, Likes y Botón de Like pequeño alineados
-  col_stats_1, col_stats_2, col_stats_3 = st.columns([1.1, 1.1, 1.1])
-
-  with col_stats_1:
-    st.markdown(
-        f"""
-        <div class="stat-pill" style="width: 100%; justify-content: center;">
-            <i class="fa-solid fa-users-viewfinder"></i> Visitas: <span class="stat-number">{st.session_state.visitas_total:,}</span>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-  with col_stats_2:
-    st.markdown(
-        f"""
-        <div class="stat-pill" style="width: 100%; justify-content: center;">
-            <i class="fa-solid fa-heart" style="color: #ef4444;"></i> Likes: <span class="stat-number" style="color: #ef4444;">{st.session_state.likes_total:,}</span>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-  with col_stats_3:
-    texto_btn_like = (
-        "❤️ ¡Gracias!"
-        if st.session_state.usuario_dio_like
-        else "❤️ Me Gusta"
-    )
-    if st.button(texto_btn_like, key="btn_like_principal"):
-      if not st.session_state.usuario_dio_like:
-        st.session_state.likes_total += 1
-        st.session_state.usuario_dio_like = True
-        st.session_state.disparar_animacion_like = True
-        guardar_datos(LIKES_FILE, {"total": st.session_state.likes_total})
-        st.rerun()
-
-  st.markdown("<br>", unsafe_allow_html=True)
-
-  # Mostrar animación flotante de corazones si se dio Like recientemente
-  if st.session_state.disparar_animacion_like:
-    st.markdown(
-        """
-        <div class="floating-hearts-container">
-            <div class="floating-heart" style="animation-delay: 0s;"><i class="fa-solid fa-heart"></i></div>
-            <div class="floating-heart" style="animation-delay: 0.3s;"><i class="fa-solid fa-heart" style="color:#ff758c;"></i></div>
-            <div class="floating-heart" style="animation-delay: 0.6s;"><i class="fa-solid fa-heart" style="color:#ffeb3b;"></i></div>
-            <div class="floating-heart" style="animation-delay: 0.2s;"><i class="fa-solid fa-heart"></i></div>
-            <div class="floating-heart" style="animation-delay: 0.5s;"><i class="fa-solid fa-heart" style="color:#00f0ff;"></i></div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.session_state.disparar_animacion_like = False
-
-  col_form, col_precios = st.columns([1.6, 1])
-
-  with col_precios:
-    st.markdown(
-        "<h3 style='color: #00f0ff; font-weight: 700; margin-bottom: 15px;'><i"
-        " class='fa-solid fa-tags'></i> Tarifa Oficial</h3>",
-        unsafe_allow_html=True,
-    )
-    precios_publicos = [
-        {"Servicio": k, "Precio": f"${v:.2f}"} for k, v in PRECIOS_CORTES.items()
-    ]
-    st.table(pd.DataFrame(precios_publicos))
-
-    # Botones de redes sociales con los enlaces oficiales
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown(
-        "<h4 style='color: #ffffff; font-size: 16px; margin-bottom: 10px;'>¡Síguenos en Redes!</h4>",
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        f"""
-        <a href="{INSTAGRAM_URL}" target="_blank" class="social-btn btn-ig">
-            <i class="fa-brands fa-instagram"></i> Instagram (@godstimebarberia)
-        </a>
-        <a href="{TIKTOK_URL}" target="_blank" class="social-btn btn-tk">
-            <i class="fa-brands fa-tiktok"></i> TikTok (@gods.time.barberia)
-        </a>
-    """,
-        unsafe_allow_html=True,
-    )
-
-  with col_form:
-    with st.form("form_cita_login"):
-      st.markdown(
-          "<h3 style='color: #ffffff; margin-bottom: 20px; font-weight:"
-          " 700;'><i class='fa-regular fa-calendar-check' style='color:#00f0ff;'>"
-          "</i> Reserva Tu Cita Online</h3>",
-          unsafe_allow_html=True,
-      )
-
-      nombre_c = st.text_input(
-          "Nombre Completo", placeholder="Ej: Francisco Hurtado"
-      )
-      telefono_c = st.text_input(
-          "Número de Teléfono WhatsApp", placeholder="Ej: 04121234567"
-      )
-      barbero_c = st.selectbox(
-          "Barbero de Preferencia", BARBEROS, key="barbero_cita_login"
-      )
-
-      col_f1, col_h1 = st.columns(2)
-      with col_f1:
-        fecha_c = st.date_input(
-            "Fecha de la Cita",
-            min_value=date.today(),
-            key="fecha_cita_login",
+        # Botones de navegación
+        self.btn_dashboard = ctk.CTkButton(
+            self.sidebar_frame,
+            text=" Panel General",
+            fg_color="#1f538d",
+            anchor="w",
+            font=ctk.CTkFont(size=14)
         )
-      with col_h1:
-        hora_c = st.selectbox("Hora Preferida", OPCIONES_HORAS, key="hora_cita_login")
+        self.btn_dashboard.grid(row=1, column=0, padx=15, pady=8, sticky="ew")
 
-      servicio_c = st.selectbox(
-          "Servicio Solicitado",
-          list(PRECIOS_CORTES.keys()),
-          key="servicio_cita_login",
-      )
-
-      metodo_pago_c = st.selectbox(
-          "Método de Pago", METODOS_PAGO, key="metodo_pago_login"
-      )
-      referencia_c = st.text_input(
-          "N° de Referencia Bancaria (o 'Efectivo')",
-          placeholder="Ej: 1234 o N/A",
-          key="ref_pago_login",
-      )
-
-      precio_est_usd = PRECIOS_CORTES[servicio_c]
-
-      btn_agendar_login = st.form_submit_button("CONFIRMAR Y AGENDAR CITA")
-
-    if btn_agendar_login:
-      if nombre_c and telefono_c:
-        tel_final = limpiar_telefono(telefono_c)
-        ref_final = (
-            referencia_c.strip() if referencia_c.strip() else "Por verificar"
+        self.btn_ads = ctk.CTkButton(
+            self.sidebar_frame,
+            text=" Mis Creativos",
+            fg_color="transparent",
+            text_color="#c0c0c0",
+            hover_color="#2b2b2b",
+            anchor="w",
+            font=ctk.CTkFont(size=14)
         )
-        nuevo_id = (
-            int(datetime.now().timestamp())
-            % 100000
-            + len(st.session_state.citas_db)
-            + 1
+        self.btn_ads.grid(row=2, column=0, padx=15, pady=8, sticky="ew")
+
+        self.btn_metrics = ctk.CTkButton(
+            self.sidebar_frame,
+            text=" Rendimiento / ROI",
+            fg_color="transparent",
+            text_color="#c0c0c0",
+            hover_color="#2b2b2b",
+            anchor="w",
+            font=ctk.CTkFont(size=14)
         )
-        cita = {
-            "id": nuevo_id,
-            "Cliente": nombre_c,
-            "Teléfono": tel_final,
-            "Barbero": barbero_c,
-            "Fecha": str(fecha_c),
-            "Hora": hora_c,
-            "Servicio": servicio_c,
-            "Precio": precio_est_usd,
-            "metodo_pago": metodo_pago_c,
-            "referencia": ref_final,
-            "estado": "Pendiente",
-        }
-        st.session_state.citas_db.append(cita)
-        guardar_datos(CITAS_FILE, st.session_state.citas_db)
+        self.btn_metrics.grid(row=3, column=0, padx=15, pady=8, sticky="ew")
 
-        # Mensaje detallado para tu WhatsApp personal incluyendo pago y referencia
-        mensaje = (
-            f"🔥 NUEVA CITA RESERVADA EN GOD'S TIME BARBERIA\n\n👤 Cliente:"
-            f" {nombre_c}\n📞 Teléfono: {tel_final}\n💈 Barbero:"
-            f" {barbero_c}\n📅 Fecha: {fecha_c}\n⏰ Hora: {hora_c}\n✂️ Servicio:"
-            f" {servicio_c} (${precio_est_usd:.2f})\n💳 Pago: {metodo_pago_c}"
-            f" (Ref: {ref_final})"
+        self.btn_billing = ctk.CTkButton(
+            self.sidebar_frame,
+            text=" Presupuesto & Facturación",
+            fg_color="transparent",
+            text_color="#c0c0c0",
+            hover_color="#2b2b2b",
+            anchor="w",
+            font=ctk.CTkFont(size=14)
         )
-        mensaje_encoded = urllib.parse.quote(mensaje)
+        self.btn_billing.grid(row=4, column=0, padx=15, pady=8, sticky="ew")
 
-        ws_url = f"https://wa.me/{MI_NUMERO_WHATSAPP}?text={mensaje_encoded}"
+        # Estado del servicio / Saldo
+        self.balance_card = ctk.CTkFrame(self.sidebar_frame, fg_color="#18181b", corner_radius=10)
+        self.balance_card.grid(row=7, column=0, padx=15, pady=20, sticky="ew")
 
-        st.success("¡Cita reservada con éxito!")
-        st.markdown(
-            f"""
-                <a href="{ws_url}" target="_blank" class="btn-ws-glow" style="margin-top: 15px;">
-                    <i class="fa-brands fa-whatsapp" style="font-size: 20px;"></i> Enviar Cita a mi WhatsApp
-                </a>
-            """,
-            unsafe_allow_html=True,
+        ctk.CTkLabel(
+            self.balance_card,
+            text="Saldo disponible:",
+            font=ctk.CTkFont(size=12),
+            text_color="#888888"
+        ).pack(anchor="w", padx=12, pady=(10, 2))
+
+        ctk.CTkLabel(
+            self.balance_card,
+            text="$350.00 USD",
+            font=ctk.CTkFont(size=16, weight="bold"),
+            text_color="#4ade80"
+        ).pack(anchor="w", padx=12, pady=(0, 10))
+
+    def crear_panel_principal(self):
+        # Contenedor principal derecho
+        self.main_frame = ctk.CTkFrame(self, fg_color="#121214", corner_radius=0)
+        self.main_frame.grid(row=0, column=1, sticky="nsew", padx=20, pady=20)
+        self.main_frame.grid_columnconfigure(0, weight=2)
+        self.main_frame.grid_columnconfigure(1, weight=1)
+        self.main_frame.grid_rowconfigure(2, weight=1)
+
+        # 1. Cabecera superior (Top Bar)
+        self.crear_topbar()
+
+        # 2. Métricas rápidas (KPI Cards)
+        self.crear_metricas()
+
+        # 3. Lista de Anuncios y Selector
+        self.crear_lista_anuncios()
+
+        # 4. Panel lateral de edición / previsualización
+        self.crear_panel_edicion()
+
+    def crear_topbar(self):
+        topbar = ctk.CTkFrame(self.main_frame, fg_color="transparent")
+        topbar.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 15))
+
+        title = ctk.CTkLabel(
+            topbar,
+            text="Gestor de Anuncios Activos",
+            font=ctk.CTkFont(size=20, weight="bold")
         )
-      else:
-        st.error("Por favor completa tu nombre y número de teléfono.")
+        title.pack(side="left")
 
-  # Créditos en la página principal con enlace a tu TikTok personal
-  st.markdown(
-      f"""
-        <div style="text-align: center; margin-top: 40px; padding: 20px; border-top: 1px solid rgba(0, 240, 255, 0.15);">
-            <p style="color: #94a3b8; font-size: 13px; letter-spacing: 1px; font-weight: 500; margin: 0;">
-                GOD'S TIME BARBERIA SYSTEM &bull; Developed with <span style="color: #00f0ff;">⚡</span> By: 
-                <a href="{TIKTOK_PERSONAL_URL}" target="_blank" style="color: #00f0ff; text-decoration: none; font-weight: 700;">
-                    <i class="fa-brands fa-tiktok" style="margin-right: 3px;"></i>Frncsko
-                </a>
-            </p>
-        </div>
-    """,
-      unsafe_allow_html=True,
-  )
-
-# ---------------------------------------------------------
-# VISTA 2: DASHBOARD PRINCIPAL 4K
-# ---------------------------------------------------------
-else:
-  user_info = USUARIOS.get(
-      st.session_state.usuario_actual, {"rol": "invitado"}
-  )
-  es_admin = user_info["rol"] == "admin"
-
-  with st.sidebar:
-    st.markdown(
-        """
-            <div style="text-align: center; padding: 15px 0;">
-                <div style="font-family: 'Outfit'; font-size: 22px; font-weight: 900; color: #00f0ff;">GOD'S TIME</div>
-                <p style='color: #94a3b8; font-size: 12px; margin-top: 4px;'>Panel de Control 4K</p>
-            </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        f"<div style='background: rgba(0,240,255,0.08); padding: 10px;"
-        " border-radius: 10px; text-align: center; border: 1px solid"
-        " rgba(0,240,255,0.2); margin-bottom: 15px;'><span style='font-size:"
-        " 13px; color: #cbd5e1;'>Barbero Activo:</span><br><b"
-        f" style='color:#00f0ff; font-size:"
-        f" 15px;'>{st.session_state.usuario_actual}</b></div>",
-        unsafe_allow_html=True,
-    )
-
-    st.markdown(
-        "<p style='font-size: 12px; color: #00f0ff; font-weight: 800;"
-        " letter-spacing: 1px; margin-bottom: 10px;'>MENÚ DE NAVEGACIÓN</p>",
-        unsafe_allow_html=True,
-    )
-
-    opciones_menu = {
-        "📊 Panel General": "Panel General",
-        "✂️ Registrar Corte": "Registrar Corte",
-        "💈 Historial Barberos": "Historial Barberos",
-        "📅 Citas y WhatsApp": "Citas y WhatsApp",
-        "⚙️ Administración": "Administración",
-    }
-
-    seleccion_label = st.radio(
-        label="", options=list(opciones_menu.keys()), label_visibility="collapsed"
-    )
-
-    opcion_menu = opciones_menu[seleccion_label]
-
-    st.markdown("---")
-
-    # Redes sociales en la barra lateral
-    st.markdown(
-        "<p style='font-size: 11px; color: #00f0ff; font-weight: 800;"
-        " letter-spacing: 1px; margin-bottom: 8px;'>REDES SOCIALES</p>",
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        f"""
-        <a href="{INSTAGRAM_URL}" target="_blank" class="social-btn btn-ig" style="padding: 8px 12px; font-size: 13px;">
-            <i class="fa-brands fa-instagram"></i> Instagram
-        </a>
-        <a href="{TIKTOK_URL}" target="_blank" class="social-btn btn-tk" style="padding: 8px 12px; font-size: 13px;">
-            <i class="fa-brands fa-tiktok"></i> TikTok
-        </a>
-    """,
-        unsafe_allow_html=True,
-    )
-
-    st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("🚪 Cerrar Sesión"):
-      st.session_state.autenticado = False
-      st.session_state.usuario_actual = ""
-      st.rerun()
-
-    # Créditos en la parte inferior de la barra lateral con tu enlace de TikTok personal
-    st.markdown(
-        f"""
-        <div style='text-align: center; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;'>
-            <p style='color: #64748b; font-size: 11px; margin: 0;'>
-                By: <a href="{TIKTOK_PERSONAL_URL}" target="_blank" style="color: #00f0ff; text-decoration: none; font-weight: 700;">
-                    <i class="fa-brands fa-tiktok" style="font-size: 10px;"></i> Frncsko
-                </a>
-            </p>
-        </div>
-    """,
-        unsafe_allow_html=True,
-    )
-
-  # 1. PANEL GENERAL
-  if opcion_menu == "Panel General":
-    st.markdown(
-        '<div class="section-header"><i class="fa-solid fa-chart-pie"'
-        ' style="color: #00f0ff;"></i> PANEL GENERAL - DASHBOARD 4K</div>',
-        unsafe_allow_html=True,
-    )
-    df_cortes = pd.DataFrame(st.session_state.cortes_db)
-
-    # Conteo diario de cortes
-    fecha_hoy = datetime.now().strftime("%Y-%m-%d")
-    cortes_hoy = 0
-    if not df_cortes.empty and "Fecha" in df_cortes.columns:
-      cortes_hoy = len(
-          df_cortes[df_cortes["Fecha"].str.startswith(fecha_hoy)]
-      )
-
-    c1, c2, c3, c4 = st.columns(4)
-    total_cortes = len(df_cortes) if not df_cortes.empty else 0
-    total_ingresos_usd = (
-        df_cortes["Precio ($)"].sum()
-        if (not df_cortes.empty and "Precio ($)" in df_cortes.columns)
-        else 0.0
-    )
-    citas_pendientes = len(
-        [
-            c
-            for c in st.session_state.citas_db
-            if c.get("estado", "Pendiente") == "Pendiente"
-        ]
-    )
-
-    with c1:
-      st.markdown(
-          f"""
-            <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(0,240,255,0.3); border-radius: 20px; text-align: center; padding: 20px;">
-                <div style="color: #00f0ff; font-size: 13px; font-weight: 700; text-transform: uppercase;">Cortes Hoy</div>
-                <div style="font-size: 36px; font-weight: 800; color: #00f0ff; margin-top: 8px;">{cortes_hoy}</div>
-            </div>
-        """,
-          unsafe_allow_html=True,
-      )
-    with c2:
-      st.markdown(
-          f"""
-            <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; text-align: center; padding: 20px;">
-                <div style="color: #94a3b8; font-size: 13px; font-weight: 600; text-transform: uppercase;">Total Cortes</div>
-                <div style="font-size: 36px; font-weight: 800; color: #3b82f6; margin-top: 8px;">{total_cortes}</div>
-            </div>
-        """,
-          unsafe_allow_html=True,
-      )
-    with c3:
-      st.markdown(
-          f"""
-            <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; text-align: center; padding: 20px;">
-                <div style="color: #94a3b8; font-size: 13px; font-weight: 600; text-transform: uppercase;">Ingresos Totales</div>
-                <div style="font-size: 32px; font-weight: 800; color: #10b981; margin-top: 8px;">${total_ingresos_usd:.2f}</div>
-            </div>
-        """,
-          unsafe_allow_html=True,
-      )
-    with c4:
-      st.markdown(
-          f"""
-            <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; text-align: center; padding: 20px;">
-                <div style="color: #94a3b8; font-size: 13px; font-weight: 600; text-transform: uppercase;">Citas Pendientes</div>
-                <div style="font-size: 36px; font-weight: 800; color: #f59e0b; margin-top: 8px;">{citas_pendientes}</div>
-            </div>
-        """,
-          unsafe_allow_html=True,
-      )
-
-    if not df_cortes.empty:
-      st.markdown(
-          '<div class="section-header" style="margin-top: 35px;"><i'
-          ' class="fa-solid fa-bolt" style="color: #00f0ff;"></i> ANALÍTICA DE'
-          " RENDIMIENTO EN TIEMPO REAL</div>",
-          unsafe_allow_html=True,
-      )
-      col_g1, col_g2 = st.columns(2)
-
-      with col_g1:
-        st.markdown("##### Ingresos por Barbero ($)")
-        df_barberos = (
-            df_cortes.groupby("Barbero")["Precio ($)"].sum().reset_index()
+        btn_new_ad = ctk.CTkButton(
+            topbar,
+            text="+ Nuevo Creativo",
+            fg_color="#2563eb",
+            hover_color="#1d4ed8",
+            font=ctk.CTkFont(size=13, weight="bold"),
+            width=140
         )
-        fig_barb = px.bar(
-            df_barberos,
-            x="Barbero",
-            y="Precio ($)",
-            text_auto=".2f",
-            color="Barbero",
-            color_discrete_sequence=["#00f0ff", "#3b82f6", "#8b5cf6", "#ec4899"],
-        )
-        fig_barb.update_layout(
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            font_color="#f8fafc",
-            margin=dict(t=20, b=20, l=20, r=20),
-            xaxis=dict(showgrid=False),
-            yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
-        )
-        st.plotly_chart(fig_barb, use_container_width=True)
+        btn_new_ad.pack(side="right")
 
-      with col_g2:
-        st.markdown("##### Distribución por Método de Pago")
-        df_pagos = (
-            df_cortes.groupby("Método Pago")["Precio ($)"].sum().reset_index()
-        )
-        fig_pagos = px.pie(
-            df_pagos,
-            names="Método Pago",
-            values="Precio ($)",
-            hole=0.45,
-            color_discrete_sequence=["#10b981", "#3b82f6", "#f59e0b", "#ec4899"],
-        )
-        fig_pagos.update_layout(
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            font_color="#f8fafc",
-            margin=dict(t=20, b=20, l=20, r=20),
-        )
-        st.plotly_chart(fig_pagos, use_container_width=True)
+    def crear_metricas(self):
+        metrics_container = ctk.CTkFrame(self.main_frame, fg_color="transparent")
+        metrics_container.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(0, 15))
+        metrics_container.grid_columnconfigure((0, 1, 2, 3), weight=1)
 
-      st.markdown("##### Ingresos por Tipo de Servicio ($)")
-      df_servicios = (
-          df_cortes.groupby("Servicio")["Precio ($)"].sum().reset_index()
-      )
-      fig_serv = px.bar(
-          df_servicios,
-          x="Servicio",
-          y="Precio ($)",
-          text_auto=".2f",
-          color="Servicio",
-          color_discrete_sequence=["#00f0ff", "#10b981", "#f59e0b", "#8b5cf6"],
-      )
-      fig_serv.update_layout(
-          paper_bgcolor="rgba(0,0,0,0)",
-          plot_bgcolor="rgba(0,0,0,0)",
-          font_color="#f8fafc",
-          showlegend=False,
-          margin=dict(t=20, b=20, l=20, r=20),
-          xaxis=dict(showgrid=False),
-          yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)"),
-      )
-      st.plotly_chart(fig_serv, use_container_width=True)
-
-    st.markdown(
-        '<div class="section-header" style="margin-top: 35px;"><i'
-        ' class="fa-solid fa-tags" style="color: #00f0ff;"></i> TARIFA OFICIAL'
-        " DE SERVICIOS</div>",
-        unsafe_allow_html=True,
-    )
-    precios_tabla = [
-        {"Servicio / Corte": k, "Precio ($)": f"${v:.2f}"}
-        for k, v in PRECIOS_CORTES.items()
-    ]
-    st.table(pd.DataFrame(precios_tabla))
-
-  # 2. REGISTRAR CORTE
-  elif opcion_menu == "Registrar Corte":
-    st.markdown(
-        '<div class="section-header"><i class="fa-solid fa-scissors"'
-        ' style="color: #00f0ff;"></i> REGISTRO DE NUEVO CORTE</div>',
-        unsafe_allow_html=True,
-    )
-    with st.form("form_corte"):
-      col1, col2 = st.columns(2)
-      with col1:
-        idx_barbero = (
-            BARBEROS.index(st.session_state.usuario_actual)
-            if st.session_state.usuario_actual in BARBEROS
-            else 0
-        )
-        barbero_sel = st.selectbox(
-            "Selecciona el Barbero", BARBEROS, index=idx_barbero
-        )
-        corte_sel = st.selectbox(
-            "Tipo de Corte / Servicio", list(PRECIOS_CORTES.keys())
-        )
-        precio_corte_usd = st.number_input(
-            "Precio ($)", value=float(PRECIOS_CORTES[corte_sel]), step=1.0
-        )
-        cliente_nombre = st.text_input("Nombre del Cliente (Opcional)")
-
-      with col2:
-        metodo_pago = st.selectbox("Método de Pago", METODOS_PAGO)
-        referencia_pago = st.text_input(
-            "N° de Referencia / Transacción", placeholder="N/A para Efectivo"
-        )
-
-      btn_guardar = st.form_submit_button(
-          "GUARDAR CORTE Y REGISTRAR EN SISTEMA"
-      )
-
-      if btn_guardar:
-        ref_final = (
-            referencia_pago.strip()
-            if referencia_pago.strip()
-            else ("N/A" if metodo_pago == "EFECTIVO" else "Sin ref.")
-        )
-
-        nuevo_registro = {
-            "Fecha": datetime.now().strftime("%Y-%m-%d %I:%M:%S %p"),
-            "Barbero": barbero_sel,
-            "Servicio": corte_sel,
-            "Precio ($)": precio_corte_usd,
-            "Método Pago": metodo_pago,
-            "Referencia": ref_final,
-            "Cliente": (
-                cliente_nombre.strip()
-                if cliente_nombre.strip()
-                else "Cliente Ocasional"
-            ),
-        }
-        st.session_state.cortes_db.append(nuevo_registro)
-        guardar_datos(CORTES_FILE, st.session_state.cortes_db)
-        st.success(
-            f"¡Corte registrado exitosamente a {barbero_sel}"
-            f" (${precio_corte_usd:.2f}) vía {metodo_pago}!"
-        )
-
-  # 3. HISTORIAL Y REGISTRO DE CLIENTES POR BARBERO
-  elif opcion_menu == "Historial Barberos":
-    st.markdown(
-        '<div class="section-header"><i class="fa-solid fa-users-viewfinder"'
-        ' style="color: #00f0ff;"></i> HISTORIAL Y GESTIÓN DE CLIENTES</div>',
-        unsafe_allow_html=True,
-    )
-    idx_filtro = (
-        BARBEROS.index(st.session_state.usuario_actual)
-        if st.session_state.usuario_actual in BARBEROS
-        else 0
-    )
-    barbero_filtro = st.selectbox(
-        "Selecciona un Barbero", BARBEROS, index=idx_filtro, key="filtro_barbero"
-    )
-
-    if st.session_state.cortes_db:
-      df_cortes = pd.DataFrame(st.session_state.cortes_db)
-      df_filtrado = df_cortes[df_cortes["Barbero"] == barbero_filtro]
-
-      if not df_filtrado.empty:
-        col_precio = (
-            "Precio ($)" if "Precio ($)" in df_filtrado.columns else "Precio"
-        )
-        total_usd = df_filtrado[col_precio].sum()
-        st.info(
-            f"Rendimiento de **{barbero_filtro}**: **${total_usd:.2f} USD**"
-            f" ({len(df_filtrado)} servicios prestados)"
-        )
-
-        tab_hist, tab_cli = st.tabs(
-            ["📋 HISTORIAL DE CORTES", "👥 CLIENTES ATENDIDOS"]
-        )
-
-        with tab_hist:
-          st.dataframe(df_filtrado, use_container_width=True)
-
-        with tab_cli:
-          st.markdown(f"### Base de Datos de Clientes - {barbero_filtro}")
-          df_clientes = (
-              df_filtrado.groupby("Cliente")
-              .agg(
-                  Visitas=("Servicio", "count"),
-                  Total_Gastado_USD=(col_precio, "sum"),
-                  Ultima_Visita=("Fecha", "max"),
-              )
-              .reset_index()
-          )
-          st.dataframe(df_clientes, use_container_width=True)
-      else:
-        st.warning(
-            f"No hay registros de cortes para {barbero_filtro} todavía."
-        )
-    else:
-      st.write("No hay datos de cortes registrados en la base de datos.")
-
-  # 4. CITAS Y WHATSAPP
-  elif opcion_menu == "Citas y WhatsApp":
-    st.markdown(
-        '<div class="section-header"><i class="fa-regular fa-calendar-days"'
-        ' style="color: #00f0ff;"></i> GESTIÓN DE CITAS Y WHATSAPP</div>',
-        unsafe_allow_html=True,
-    )
-
-    with st.expander("➕ Registrar Nueva Cita Manualmente"):
-      with st.form("form_cita_admin_panel"):
-        col_f1, col_f2 = st.columns(2)
-        with col_f1:
-          nombre_c = st.text_input("Nombre del Cliente")
-          telefono_c = st.text_input(
-              "Teléfono (Ej: 04121234567 o +584121234567)"
-          )
-          barbero_c = st.selectbox(
-              "Barbero de Preferencia", BARBEROS, key="barbero_cita_admin"
-          )
-        with col_f2:
-          fecha_c = st.date_input("Fecha de la Cita", min_value=date.today())
-          hora_c = st.selectbox(
-              "Hora de la Cita", OPCIONES_HORAS, key="hora_cita_admin_sel"
-          )
-          servicio_c = st.selectbox(
-              "Servicio Solicitado",
-              list(PRECIOS_CORTES.keys()),
-              key="servicio_cita_admin",
-          )
-
-        col_p1, col_p2 = st.columns(2)
-        with col_p1:
-          metodo_pago_admin = st.selectbox(
-              "Método de Pago", METODOS_PAGO, key="metodo_pago_admin_reg"
-          )
-        with col_p2:
-          ref_admin = st.text_input(
-              "N° Referencia Bancaria",
-              placeholder="Ej: 4589",
-              key="ref_admin_reg",
-          )
-
-        btn_registrar_cita = st.form_submit_button("AGENDAR CITA EN EL SISTEMA")
-
-        if btn_registrar_cita:
-          if nombre_c and telefono_c:
-            tel_final = limpiar_telefono(telefono_c)
-            precio_usd = PRECIOS_CORTES[servicio_c]
-            ref_final = ref_admin.strip() if ref_admin.strip() else "Por verificar"
-            nuevo_id = (
-                int(datetime.now().timestamp())
-                % 100000
-                + len(st.session_state.citas_db)
-                + 1
-            )
-            cita = {
-                "id": nuevo_id,
-                "Cliente": nombre_c,
-                "Teléfono": tel_final,
-                "Barbero": barbero_c,
-                "Fecha": str(fecha_c),
-                "Hora": hora_c,
-                "Servicio": servicio_c,
-                "Precio": precio_usd,
-                "metodo_pago": metodo_pago_admin,
-                "referencia": ref_final,
-                "estado": "Pendiente",
-            }
-            st.session_state.citas_db.append(cita)
-            guardar_datos(CITAS_FILE, st.session_state.citas_db)
-            st.success("¡Cita agendada correctamente!")
-            st.rerun()
-          else:
-            st.error("Por favor completa nombre y teléfono del cliente.")
-
-    st.markdown("---")
-    st.markdown(
-        "### 📅 Listado de Citas, Validación de Pagos y WhatsApp"
-    )
-
-    if not st.session_state.citas_db:
-      st.info("No hay citas registradas en este momento.")
-    else:
-      for idx, cita in enumerate(st.session_state.citas_db):
-        with st.container():
-          col1, col2, col3 = st.columns([3, 1.8, 2])
-
-          precio_cita = (
-              cita["Precio"]
-              if "Precio" in cita
-              else PRECIOS_CORTES.get(cita.get("Servicio"), 10.0)
-          )
-          estado_actual = cita.get("estado", "Pendiente")
-          metodo_pago_reg = cita.get("metodo_pago", "PAGO MOVIL")
-          ref_reg = cita.get("referencia", "Por verificar")
-
-          with col1:
-            st.markdown(f"**👤 Cliente:** {cita.get('Cliente')}")
-            st.markdown(
-                f"📱 Tel: `{cita.get('Teléfono')}` | 💈 Barbero:"
-                f" `{cita.get('Barbero')}`"
-            )
-            st.markdown(
-                f"✂️ Servicio: `{cita.get('Servicio')}` (${precio_cita:.2f}) |"
-                f" 🕒 **{cita.get('Fecha')} a las {cita.get('Hora')}**"
-            )
-            st.markdown(
-                f"💳 Pago: **{metodo_pago_reg}** | 🔢 Ref: `{ref_reg}`"
-            )
-
-          with col2:
-            if estado_actual == "Confirmada":
-              st.success("Estado: Confirmada ✅")
-            else:
-              st.warning("Estado: Pendiente ⏳")
-
-          with col3:
-            # Botón para confirmar cita y validar el pago
-            if estado_actual == "Pendiente":
-              if st.button("Validar y Confirmar", key=f"btn_conf_{idx}_{cita.get('id', idx)}"):
-                st.session_state.citas_db[idx]["estado"] = "Confirmada"
-                guardar_datos(CITAS_FILE, st.session_state.citas_db)
-                st.success("¡Pago validado y cita confirmada!")
-                st.rerun()
-
-            # Enlace de WhatsApp automático al número del cliente
-            mensaje_cliente = (
-                f"¡Hola {cita.get('Cliente')}! Te escribimos de *God's Time"
-                f" Barberia* para confirmarte que hemos recibido tu pago y tu"
-                f" cita de *{cita.get('Servicio')}* para el día"
-                f" *{cita.get('Fecha')}* a las *{cita.get('Hora')}* con el"
-                f" barbero *{cita.get('Barbero')}* está confirmada. ¡Te"
-                " esperamos!"
-            )
-            mensaje_codificado = urllib.parse.quote(mensaje_cliente)
-            link_ws_cliente = f"https://wa.me/{cita.get('Teléfono')}?text={mensaje_codificado}"
-
-            st.markdown(
-                f"""
-                    <a href="{link_ws_cliente}" target="_blank" style="
-                        display: inline-block;
-                        padding: 0.5rem 1rem;
-                        background-color: #25D366;
-                        color: white;
-                        text-align: center;
-                        text-decoration: none;
-                        font-weight: bold;
-                        border-radius: 12px;
-                        margin-top: 5px;
-                        width: 100%;
-                        font-size: 14px;
-                    ">
-                        💬 Enviar WhatsApp
-                    </a>
-                """,
-                unsafe_allow_html=True,
-            )
-
-          st.markdown("---")
-
-  # 5. ADMINISTRACIÓN
-  elif opcion_menu == "Administración":
-    st.markdown(
-        '<div class="section-header"><i class="fa-solid fa-shield-halved"'
-        ' style="color: #00f0ff;"></i> PANEL DE ADMINISTRACIÓN</div>',
-        unsafe_allow_html=True,
-    )
-
-    if es_admin:
-      st.warning(
-          "⚠️ **Zona de Peligro:** La siguiente acción eliminará"
-          " permanentemente todos los registros de cortes y citas guardadas en"
-          " el sistema."
-      )
-      if st.button("REINICIAR TODO EL HISTORIAL DE LA BARBERÍA"):
-        st.session_state.cortes_db = []
-        st.session_state.citas_db = []
-        guardar_datos(CORTES_FILE, [])
-        guardar_datos(CITAS_FILE, [])
-        st.success("El historial completo ha sido reiniciado con éxito.")
-        st.rerun()
-    else:
-      st.error(
-          "🔒 **Acceso Restringido:** Esta sección requiere permisos de"
-          " Administrador."
-      )
+        datos = [
+            ("Impresiones", "124,520", "#38bdf8"),
+            ("Clics Totales", "4,830", "#a
